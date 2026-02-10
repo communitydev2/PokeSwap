@@ -10,15 +10,15 @@ export const Route = createFileRoute('/Account')({
 
 
 export function Account({ session }) {
-  const [loading, setLoading] = useState(true)
-  const [username, setUsername] = useState(null)
+  const [loading, setLoading] = useState(true);
+  const [username, setUsername] = useState(null);
   const authStore = useAuthStore();
 
     useEffect(() => {
     async function getProfile() {
       setLoading(true)
       const { user } = session
-      console.log(session)
+      // console.log(session)
 
       const { data, error } = await supabase
         .from('user_account')
@@ -35,15 +35,16 @@ export function Account({ session }) {
       if (error) {
         console.warn(error)
       } else if (data) {
-        setUsername(data)
+        setUsername(data[0])
         authStore.setUser(data);
-        console.log(data)
       }
 
       setLoading(false)
     }
+    if(authStore.user == null){
+      getProfile()
 
-    getProfile()
+    }
   }, [session])
 
   return (

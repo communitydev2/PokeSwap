@@ -16,6 +16,8 @@ import { Route as HeaderRouteImport } from './routes/Header'
 import { Route as AuthRouteImport } from './routes/Auth'
 import { Route as AccountRouteImport } from './routes/Account'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PokeListPokeListRouteImport } from './routes/pokeList/PokeList'
+import { Route as PokeListPokeCardRouteImport } from './routes/pokeList/PokeCard'
 
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
@@ -52,6 +54,16 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PokeListPokeListRoute = PokeListPokeListRouteImport.update({
+  id: '/pokeList/PokeList',
+  path: '/pokeList/PokeList',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PokeListPokeCardRoute = PokeListPokeCardRouteImport.update({
+  id: '/pokeList/PokeCard',
+  path: '/pokeList/PokeCard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -61,6 +73,8 @@ export interface FileRoutesByFullPath {
   '/LandingPage': typeof LandingPageRoute
   '/UsernameDialog': typeof UsernameDialogRoute
   '/about': typeof AboutRoute
+  '/pokeList/PokeCard': typeof PokeListPokeCardRoute
+  '/pokeList/PokeList': typeof PokeListPokeListRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +84,8 @@ export interface FileRoutesByTo {
   '/LandingPage': typeof LandingPageRoute
   '/UsernameDialog': typeof UsernameDialogRoute
   '/about': typeof AboutRoute
+  '/pokeList/PokeCard': typeof PokeListPokeCardRoute
+  '/pokeList/PokeList': typeof PokeListPokeListRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +96,8 @@ export interface FileRoutesById {
   '/LandingPage': typeof LandingPageRoute
   '/UsernameDialog': typeof UsernameDialogRoute
   '/about': typeof AboutRoute
+  '/pokeList/PokeCard': typeof PokeListPokeCardRoute
+  '/pokeList/PokeList': typeof PokeListPokeListRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +109,8 @@ export interface FileRouteTypes {
     | '/LandingPage'
     | '/UsernameDialog'
     | '/about'
+    | '/pokeList/PokeCard'
+    | '/pokeList/PokeList'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +120,8 @@ export interface FileRouteTypes {
     | '/LandingPage'
     | '/UsernameDialog'
     | '/about'
+    | '/pokeList/PokeCard'
+    | '/pokeList/PokeList'
   id:
     | '__root__'
     | '/'
@@ -109,6 +131,8 @@ export interface FileRouteTypes {
     | '/LandingPage'
     | '/UsernameDialog'
     | '/about'
+    | '/pokeList/PokeCard'
+    | '/pokeList/PokeList'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,6 +143,8 @@ export interface RootRouteChildren {
   LandingPageRoute: typeof LandingPageRoute
   UsernameDialogRoute: typeof UsernameDialogRoute
   AboutRoute: typeof AboutRoute
+  PokeListPokeCardRoute: typeof PokeListPokeCardRoute
+  PokeListPokeListRoute: typeof PokeListPokeListRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -172,6 +198,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pokeList/PokeList': {
+      id: '/pokeList/PokeList'
+      path: '/pokeList/PokeList'
+      fullPath: '/pokeList/PokeList'
+      preLoaderRoute: typeof PokeListPokeListRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pokeList/PokeCard': {
+      id: '/pokeList/PokeCard'
+      path: '/pokeList/PokeCard'
+      fullPath: '/pokeList/PokeCard'
+      preLoaderRoute: typeof PokeListPokeCardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -183,6 +223,8 @@ const rootRouteChildren: RootRouteChildren = {
   LandingPageRoute: LandingPageRoute,
   UsernameDialogRoute: UsernameDialogRoute,
   AboutRoute: AboutRoute,
+  PokeListPokeCardRoute: PokeListPokeCardRoute,
+  PokeListPokeListRoute: PokeListPokeListRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

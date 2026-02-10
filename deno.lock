@@ -26,6 +26,7 @@
         "npm:@tanstack/react-router-devtools@^1.157.5",
         "npm:@tanstack/react-router@^1.157.5",
         "npm:@tanstack/router-cli@^1.157.15",
+        "npm:@tanstack/router-core@1.157.16",
         "npm:@tanstack/router-plugin@^1.157.5",
         "npm:@types/node@^25.0.10",
         "npm:@types/react-dom@^19.1.9",
@@ -43,7 +44,8 @@
         "npm:supabase@^2.72.8",
         "npm:typescript@^5.9.2",
         "npm:vite@^7.1.5",
-        "npm:vitest@^4.0.18"
+        "npm:vitest@^4.0.18",
+        "npm:zustand@^5.0.11"
       ]
     }
   }
