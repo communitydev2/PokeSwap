@@ -31,7 +31,8 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { MantineLogo } from '@mantinex/mantine-logo';
 import classes from '../assets/Header.module.css';
-
+import { useAuthStore } from '../store/userStore';
+import { useStateStore } from '../store/useStateStore';
 export const Route = createFileRoute('/Header')({
   component: Header,
 })
@@ -75,6 +76,17 @@ export function Header() {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
   const [linksOpened, { toggle: toggleLinks }] = useDisclosure(false);
   const theme = useMantineTheme();
+  const authStore =useAuthStore();
+  const useStateStoreHandle = useStateStore();
+
+
+  function handleManageCardsMenu() {
+    // 
+useStateStoreHandle.setShowManageCardsMainMenu(true);
+    
+  }
+
+
 
   const links = mockdata.map((item) => (
     <UnstyledButton className={classes.subLink} key={item.title}>
@@ -155,10 +167,22 @@ export function Header() {
           </Group>
 
             <ColorSchemeToggle />
-          <Group visibleFrom="sm">
-            <Button variant="default">Log in</Button>
-            <Button>Sign up</Button>
+
+            {authStore.session ? (
+                        <Group visibleFrom="sm">
+              <Text size="xl" c="dimmed">
+                        Hi {authStore.user?.username}
+                      <Button variant="default" onClick={handleManageCardsMenu}>Manage Cards</Button>
+                      </Text>
           </Group>
+              
+            ) : (
+              <Group visibleFrom="sm">
+              <Button variant="default">Log in</Button>
+              <Button>Sign up</Button>
+          </Group>
+
+            )}
 
           <Burger opened={drawerOpened} onClick={toggleDrawer} hiddenFrom="sm" />
         </Group>

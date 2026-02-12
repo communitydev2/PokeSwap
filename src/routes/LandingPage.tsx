@@ -38,7 +38,7 @@ export default function LandingPage() {
       {/* {<PokeList/>} */}
       {/* Come back this when you want to debug username */}
       {/* {!session ? <Auth /> :  <Username/> } */}
-      {!session ? <Auth /> : session && !authStore.user?.username ?  <Username/> : <Account key={session.user.id} session={session} />}
+      {!session ? <Auth /> : authStore.session && !authStore.user?.username ?  <Username/> : <Account key={session.user.id} session={session} />}
     </div>
   )
 }

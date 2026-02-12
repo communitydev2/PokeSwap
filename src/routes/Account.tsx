@@ -2,6 +2,8 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
 import { useAuthStore } from '../store/userStore';
+import { useStateStore } from '../store/useStateStore';
+import { ManageCardsMainMenu } from './managecards/ManageCardsMainMenu';
 export const Route = createFileRoute('/Account')({
   component: Account,
 })
@@ -13,6 +15,29 @@ export function Account({ session }) {
   const [loading, setLoading] = useState(true);
   const [username, setUsername] = useState(null);
   const authStore = useAuthStore();
+  const useStateStoreHandle = useStateStore();
+
+
+// set last logged in
+useEffect(()=>{
+
+
+  const date = new Date();
+
+  async function setLastLoggedIn(){
+    setLoading(true)
+    const response = await supabase
+            .from('user_account')
+            .update({ last_logged_in: date })
+            .eq('user_id', authStore.user?.user_id)
+            .select()
+    
+  }
+
+  setLastLoggedIn()
+})
+
+
 
     useEffect(() => {
     async function getProfile() {
@@ -51,6 +76,9 @@ export function Account({ session }) {
 
     <div>
 <h1>Signed In</h1>
+{useStateStoreHandle.showManageCardsMainMenu && (
+  <ManageCardsMainMenu/>
+)}
     </div>
 
   )

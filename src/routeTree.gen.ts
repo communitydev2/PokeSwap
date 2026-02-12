@@ -18,6 +18,8 @@ import { Route as AccountRouteImport } from './routes/Account'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PokeListPokeListRouteImport } from './routes/pokeList/PokeList'
 import { Route as PokeListPokeCardRouteImport } from './routes/pokeList/PokeCard'
+import { Route as ManagecardsManageTCGAccountsMenuRouteImport } from './routes/managecards/ManageTCGAccountsMenu'
+import { Route as ManagecardsManageCardsMainMenuRouteImport } from './routes/managecards/ManageCardsMainMenu'
 
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
@@ -64,6 +66,18 @@ const PokeListPokeCardRoute = PokeListPokeCardRouteImport.update({
   path: '/pokeList/PokeCard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ManagecardsManageTCGAccountsMenuRoute =
+  ManagecardsManageTCGAccountsMenuRouteImport.update({
+    id: '/managecards/ManageTCGAccountsMenu',
+    path: '/managecards/ManageTCGAccountsMenu',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ManagecardsManageCardsMainMenuRoute =
+  ManagecardsManageCardsMainMenuRouteImport.update({
+    id: '/managecards/ManageCardsMainMenu',
+    path: '/managecards/ManageCardsMainMenu',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -73,6 +87,8 @@ export interface FileRoutesByFullPath {
   '/LandingPage': typeof LandingPageRoute
   '/UsernameDialog': typeof UsernameDialogRoute
   '/about': typeof AboutRoute
+  '/managecards/ManageCardsMainMenu': typeof ManagecardsManageCardsMainMenuRoute
+  '/managecards/ManageTCGAccountsMenu': typeof ManagecardsManageTCGAccountsMenuRoute
   '/pokeList/PokeCard': typeof PokeListPokeCardRoute
   '/pokeList/PokeList': typeof PokeListPokeListRoute
 }
@@ -84,6 +100,8 @@ export interface FileRoutesByTo {
   '/LandingPage': typeof LandingPageRoute
   '/UsernameDialog': typeof UsernameDialogRoute
   '/about': typeof AboutRoute
+  '/managecards/ManageCardsMainMenu': typeof ManagecardsManageCardsMainMenuRoute
+  '/managecards/ManageTCGAccountsMenu': typeof ManagecardsManageTCGAccountsMenuRoute
   '/pokeList/PokeCard': typeof PokeListPokeCardRoute
   '/pokeList/PokeList': typeof PokeListPokeListRoute
 }
@@ -96,6 +114,8 @@ export interface FileRoutesById {
   '/LandingPage': typeof LandingPageRoute
   '/UsernameDialog': typeof UsernameDialogRoute
   '/about': typeof AboutRoute
+  '/managecards/ManageCardsMainMenu': typeof ManagecardsManageCardsMainMenuRoute
+  '/managecards/ManageTCGAccountsMenu': typeof ManagecardsManageTCGAccountsMenuRoute
   '/pokeList/PokeCard': typeof PokeListPokeCardRoute
   '/pokeList/PokeList': typeof PokeListPokeListRoute
 }
@@ -109,6 +129,8 @@ export interface FileRouteTypes {
     | '/LandingPage'
     | '/UsernameDialog'
     | '/about'
+    | '/managecards/ManageCardsMainMenu'
+    | '/managecards/ManageTCGAccountsMenu'
     | '/pokeList/PokeCard'
     | '/pokeList/PokeList'
   fileRoutesByTo: FileRoutesByTo
@@ -120,6 +142,8 @@ export interface FileRouteTypes {
     | '/LandingPage'
     | '/UsernameDialog'
     | '/about'
+    | '/managecards/ManageCardsMainMenu'
+    | '/managecards/ManageTCGAccountsMenu'
     | '/pokeList/PokeCard'
     | '/pokeList/PokeList'
   id:
@@ -131,6 +155,8 @@ export interface FileRouteTypes {
     | '/LandingPage'
     | '/UsernameDialog'
     | '/about'
+    | '/managecards/ManageCardsMainMenu'
+    | '/managecards/ManageTCGAccountsMenu'
     | '/pokeList/PokeCard'
     | '/pokeList/PokeList'
   fileRoutesById: FileRoutesById
@@ -143,6 +169,8 @@ export interface RootRouteChildren {
   LandingPageRoute: typeof LandingPageRoute
   UsernameDialogRoute: typeof UsernameDialogRoute
   AboutRoute: typeof AboutRoute
+  ManagecardsManageCardsMainMenuRoute: typeof ManagecardsManageCardsMainMenuRoute
+  ManagecardsManageTCGAccountsMenuRoute: typeof ManagecardsManageTCGAccountsMenuRoute
   PokeListPokeCardRoute: typeof PokeListPokeCardRoute
   PokeListPokeListRoute: typeof PokeListPokeListRoute
 }
@@ -212,6 +240,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PokeListPokeCardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/managecards/ManageTCGAccountsMenu': {
+      id: '/managecards/ManageTCGAccountsMenu'
+      path: '/managecards/ManageTCGAccountsMenu'
+      fullPath: '/managecards/ManageTCGAccountsMenu'
+      preLoaderRoute: typeof ManagecardsManageTCGAccountsMenuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/managecards/ManageCardsMainMenu': {
+      id: '/managecards/ManageCardsMainMenu'
+      path: '/managecards/ManageCardsMainMenu'
+      fullPath: '/managecards/ManageCardsMainMenu'
+      preLoaderRoute: typeof ManagecardsManageCardsMainMenuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -223,6 +265,8 @@ const rootRouteChildren: RootRouteChildren = {
   LandingPageRoute: LandingPageRoute,
   UsernameDialogRoute: UsernameDialogRoute,
   AboutRoute: AboutRoute,
+  ManagecardsManageCardsMainMenuRoute: ManagecardsManageCardsMainMenuRoute,
+  ManagecardsManageTCGAccountsMenuRoute: ManagecardsManageTCGAccountsMenuRoute,
   PokeListPokeCardRoute: PokeListPokeCardRoute,
   PokeListPokeListRoute: PokeListPokeListRoute,
 }
