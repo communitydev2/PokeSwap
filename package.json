@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@mantine/core": "8.3.13",
+    "@mantine/form": "^8.3.14",
     "@mantine/hooks": "8.3.13",
     "@mantinex/mantine-logo": "^2.0.0",
     "@snoconedev/mantine-ui": "^2.0.0",
@@ -29,6 +30,7 @@
     "@types/node": "^25.0.10",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-hook-form": "^7.71.1",
     "supabase": "^2.72.8",
     "zustand": "^5.0.11"
   },
