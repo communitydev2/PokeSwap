@@ -7,6 +7,7 @@ import { ManageTCGAccountsMenu } from './ManageTCGAccountsMenu';
 import { useStateStore } from '../../store/useStateStore';
 import { UseLocalizationStoreType } from '../../types/UseLocalizationStoreType';
 import { useLocalizationStore } from '../../store/uselocalizationStore';
+import { usePokemonCardStore } from '../../store/pokemonCardsStore';
 export const Route = createFileRoute('/managecards/ManageCardsMainMenu')({
   component: ManageCardsMainMenu,
 })
@@ -35,16 +36,26 @@ type genericDropdownType ={
 
 
 export function ManageCardsMainMenu() {
-  const [loading , setLoading] = useState(false)
-  const [hasTcgAccounts,setHasTcgAccounts] = useState(false)
-  const [tcgAccounts,setTcgAccounts ] = useState<tcgAccountType[]>()
-  const [selectedTcgAccount,setSelectedTcgAccount] = useState(0)
-  const stateStore = useStateStore();
-  // its true by default, and set to false when pressing anything inside the main menu
-  const [showManageCardsMainMenuOptions,setShowManageCardsMainMenuOptions] = useState(true);
   const authStore = useAuthStore();
   const useLocStore = useLocalizationStore();
-  // check if there are any tcg accounts
+  const usePokeCardStore = usePokemonCardStore();
+  const stateStore = useStateStore();
+  const [loading , setLoading] = useState(false)
+  const [hasTcgAccounts,setHasTcgAccounts] = useState(false)
+  // tcgAccounts Selection Dropdown
+  const [tcgAccounts,setTcgAccounts ] = useState<tcgAccountType[]>()
+  const [selectedTcgAccount,setSelectedTcgAccount] = useState(0)
+  // its true by default, and set to false when pressing anything inside the main menu
+  const [showManageCardsMainMenuOptions,setShowManageCardsMainMenuOptions] = useState(true);
+  // dropdown card card category
+  const [selectedCardCategory,setSelectedCardCategory] = useState(0);
+  const [cardCategoryOptions,setCardCategoryOptions] = useState(
+    [useLocStore.localizationArray[3],useLocStore.localizationArray[4]]
+    
+  )
+  //  dropdown language selection category
+  const [selectedLanguageDropdownChoice,setSelectedLanguageDropdownChoice] = useState(0);
+
   
 
   function handleMainMenuAddCardsButton(){
@@ -55,36 +66,52 @@ export function ManageCardsMainMenu() {
 
   
   function AddCardsMenu(){
-  
+  //  addCardsMenu
+
     return (
       <>
       <Title>{useLocStore.localizationArray[0]}</Title>
-      <CardCategoryDropdown/>
-
-
       <TcgAccountDropdown/>
+      <CardCategoryDropdown/>
+      <LanguageSelectionDropdown/>
+
+
       
       </>
     )
   }
+  function LanguageSelectionDropdown() {
+  
+    return (
+      <Select
+        label={useLocStore.localizationArray[6]}
+        placeholder={useLocStore.localizationArray[2]}
+        data={usePokeCardStore.languages}
+        value={usePokeCardStore.languages[selectedLanguageDropdownChoice]}
+        onChange={(e)=> usePokeCardStore.languages.indexOf(e) == -1 ? setSelectedLanguageDropdownChoice(0): setSelectedLanguageDropdownChoice(usePokeCardStore.languages.indexOf(e))}
+      />
+    );
+  }
+  function CardCategoryDropdown() {
+  
+    return (
+      <Select
+        label={useLocStore.localizationArray[5]}
+        placeholder={useLocStore.localizationArray[2]}
+        data={cardCategoryOptions}
+        value={cardCategoryOptions[selectedCardCategory]}
+        onChange={(e)=> cardCategoryOptions.indexOf(e) == -1 ? setSelectedCardCategory(0): setSelectedCardCategory(cardCategoryOptions.indexOf(e))}
+      />
+    );
+  }
 
-function CardCategoryDropdown() {
-
-  return (
-    <Select
-      label="test"
-      placeholder="Pick value"
-      data={["Add to Wishlist","Add to Cards Available For Trade"]}
-    />
-  );
-}
 function TcgAccountDropdown() {
 
   const filteredData = tcgAccounts.map((v,i,a)=> `${v.tcg_id_username} | ${v.tcg_id}`)
   return (
     <Select
-      label="Select your Pocket Account"
-      placeholder="Pick value"
+      label={useLocStore.localizationArray[1]}
+      placeholder={useLocStore.localizationArray[2]}
       data={filteredData}
       value={filteredData[selectedTcgAccount]}
       onChange={(e)=> filteredData.indexOf(e) == -1 ? setSelectedTcgAccount(0): setSelectedTcgAccount(filteredData.indexOf(e))}
