@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Popover, Text, Button,List,Select,Group, Space,Title } from '@mantine/core';
-import { useState,useEffect } from 'react';
+import { Popover, Text, Button,List,Select,Group, Space,Title, ComboboxItem } from '@mantine/core';
+import { useState,useEffect ,type ChangeEvent} from 'react';
 import { supabase } from '../../supabaseClient';
 import { useAuthStore } from '../../store/userStore';
 import { ManageTCGAccountsMenu } from './ManageTCGAccountsMenu';
@@ -36,44 +36,90 @@ type genericDropdownType ={
 
 
 export function ManageCardsMainMenu() {
-  const authStore = useAuthStore();
+  const useAuthStoreWrapper = useAuthStore();
   const useLocStore = useLocalizationStore();
   const usePokeCardStore = usePokemonCardStore();
-  const stateStore = useStateStore();
+  const useStateStoreWrapper = useStateStore();
   const [loading , setLoading] = useState(false)
   const [hasTcgAccounts,setHasTcgAccounts] = useState(false)
   // tcgAccounts Selection Dropdown
   const [tcgAccounts,setTcgAccounts ] = useState<tcgAccountType[]>()
-  const [selectedTcgAccount,setSelectedTcgAccount] = useState(0)
+  const [selectedTcgAccount,setSelectedTcgAccount] = useState()
   // its true by default, and set to false when pressing anything inside the main menu
   const [showManageCardsMainMenuOptions,setShowManageCardsMainMenuOptions] = useState(true);
   // dropdown card card category
-  const [selectedCardCategory,setSelectedCardCategory] = useState(0);
   const [cardCategoryOptions,setCardCategoryOptions] = useState(
-    [useLocStore.localizationArray[3],useLocStore.localizationArray[4]]
+    [
+      {value:useLocStore.localizationArray[3]},
+    {value:useLocStore.localizationArray[4]}
+  ]
     
   )
+  const [selectedCardCategory,setSelectedCardCategory] = useState<ComboboxItem | null>(cardCategoryOptions[0].value);
   //  dropdown language selection category
-  const [selectedLanguageDropdownChoice,setSelectedLanguageDropdownChoice] = useState(0);
+const [selectedLanguageDropdownChoice,setSelectedLanguageDropdownChoice] = useState(0);
 
+  /*
+function handleChangeSearchBar(event:ChangeEvent<HTMLInputElement>){
+
+
+ setSearchInputValue(event.target.value as string);
+
+ setOpenSearchQueryResultList(true);
+
+  setShowSearchQueryResultsTable(true);
+
+  pokeCardStore.setPokemonCardsSearchQuery(useSearchFunction(event.target.value,pokeCardStore,currentRarityDropdown,currentExpansionDropdown))
+
+  // console.log(searchQueryListRef)
+
+  // key={};
+
+  
+
+}
+*/
+
+
+
+
+
+
+function cardCategoryOnChange(e) {
   
+  // console.log(e.value)
+  // console.log(cardCategoryOptions.map(v => v.value).indexOf(e.value))
+  // setCardCategoryOptions(e.value)
+
+}
+
+
+
 
   function handleMainMenuAddCardsButton(){
     setShowManageCardsMainMenuOptions(false);
-    stateStore.setShowAddCardsMenu(true);
+    useStateStoreWrapper.setShowAddCardsMenu(true);
   }
 
+  
 
   
   function AddCardsMenu(){
   //  addCardsMenu
+
+
+
+
 
     return (
       <>
       <Title>{useLocStore.localizationArray[0]}</Title>
       <TcgAccountDropdown/>
       <CardCategoryDropdown/>
+      {useStateStoreWrapper.showLanguageDropdown && (
+
       <LanguageSelectionDropdown/>
+      )}
 
 
       
@@ -99,8 +145,22 @@ export function ManageCardsMainMenu() {
         label={useLocStore.localizationArray[5]}
         placeholder={useLocStore.localizationArray[2]}
         data={cardCategoryOptions}
-        value={cardCategoryOptions[selectedCardCategory]}
-        onChange={(e)=> cardCategoryOptions.indexOf(e) == -1 ? setSelectedCardCategory(0): setSelectedCardCategory(cardCategoryOptions.indexOf(e))}
+        defaultValue={cardCategoryOptions[0].value}
+        value={selectedCardCategory ? selectedCardCategory.value : null}
+        onChange={(_value,option)=> {
+          
+           setSelectedCardCategory(option)
+console.log(option)
+
+
+if(option.value == cardCategoryOptions[1].value){
+
+ useStateStoreWrapper.setShowLanguageDropdown(true);
+
+ }
+
+
+        }}
       />
     );
   }
@@ -124,7 +184,7 @@ function TcgAccountDropdown() {
       useEffect(() => {
       async function getTcgAccounts() {
         setLoading(true)
-        const user  = authStore.user?.user_id
+        const user  = useAuthStoreWrapper.user?.user_id
         // console.log(session)
   
         const { data, error } = await supabase
@@ -174,7 +234,7 @@ function TcgAccountDropdown() {
   <TcgAccountDropdown />
   </>
 )}
-{stateStore.showAddCardsMenu && (
+{useStateStoreWrapper.showAddCardsMenu && (
 <>
 <AddCardsMenu/>
 </>
