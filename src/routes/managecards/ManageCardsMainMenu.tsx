@@ -44,7 +44,10 @@ export function ManageCardsMainMenu() {
   const [hasTcgAccounts,setHasTcgAccounts] = useState(false)
   // tcgAccounts Selection Dropdown
   const [tcgAccounts,setTcgAccounts ] = useState<tcgAccountType[]>()
-  const [selectedTcgAccount,setSelectedTcgAccount] = useState()
+  const [selectedTcgAccount,setSelectedTcgAccount] = useState<string|null>()
+  const [comboData_accountUsernames,setComboData_accountUsernames] = useState<string[]|null>(null)
+
+
   // its true by default, and set to false when pressing anything inside the main menu
   const [showManageCardsMainMenuOptions,setShowManageCardsMainMenuOptions] = useState(true);
   // dropdown card card category
@@ -57,7 +60,7 @@ export function ManageCardsMainMenu() {
   )
   const [selectedCardCategory,setSelectedCardCategory] = useState<ComboboxItem | null>(cardCategoryOptions[0].value);
   //  dropdown language selection category
-const [selectedLanguageDropdownChoice,setSelectedLanguageDropdownChoice] = useState(0);
+const [selectedLanguageDropdownChoice,setSelectedLanguageDropdownChoice] = useState<string | null>(usePokeCardStore.languages[0]);
 
   /*
 function handleChangeSearchBar(event:ChangeEvent<HTMLInputElement>){
@@ -109,6 +112,10 @@ function cardCategoryOnChange(e) {
 
 
 
+    
+
+
+
 
 
     return (
@@ -133,8 +140,8 @@ function cardCategoryOnChange(e) {
         label={useLocStore.localizationArray[6]}
         placeholder={useLocStore.localizationArray[2]}
         data={usePokeCardStore.languages}
-        value={usePokeCardStore.languages[selectedLanguageDropdownChoice]}
-        onChange={(e)=> usePokeCardStore.languages.indexOf(e) == -1 ? setSelectedLanguageDropdownChoice(0): setSelectedLanguageDropdownChoice(usePokeCardStore.languages.indexOf(e))}
+        value={selectedLanguageDropdownChoice}
+        onChange={setSelectedLanguageDropdownChoice}
       />
     );
   }
@@ -167,14 +174,14 @@ if(option.value == cardCategoryOptions[1].value){
 
 function TcgAccountDropdown() {
 
-  const filteredData = tcgAccounts.map((v,i,a)=> `${v.tcg_id_username} | ${v.tcg_id}`)
+  
   return (
     <Select
       label={useLocStore.localizationArray[1]}
       placeholder={useLocStore.localizationArray[2]}
-      data={filteredData}
-      value={filteredData[selectedTcgAccount]}
-      onChange={(e)=> filteredData.indexOf(e) == -1 ? setSelectedTcgAccount(0): setSelectedTcgAccount(filteredData.indexOf(e))}
+      data={comboData_accountUsernames}
+      value={selectedTcgAccount}
+      onChange={setSelectedTcgAccount}
     />
   );
 }
@@ -205,6 +212,10 @@ function TcgAccountDropdown() {
           // console.log(data.map((v,i,a)=> `${v.tcg_id_username} | ${v.tcg_id}`))
           setHasTcgAccounts(data.length>0);
           setTcgAccounts(data);
+          setComboData_accountUsernames(data.map((v,i,a)=> `${v.tcg_id_username} | ${v.tcg_id}`))
+          setSelectedTcgAccount(data.map((v,i,a)=> `${v.tcg_id_username} | ${v.tcg_id}`)[0])
+
+
           // setUsername(data[0])
         }
   

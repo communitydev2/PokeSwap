@@ -16,6 +16,7 @@ import { Route as HeaderRouteImport } from './routes/Header'
 import { Route as AuthRouteImport } from './routes/Auth'
 import { Route as AccountRouteImport } from './routes/Account'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ReusableComponentsSearchBarRouteImport } from './routes/reusableComponents/SearchBar'
 import { Route as PokeListPokeListRouteImport } from './routes/pokeList/PokeList'
 import { Route as PokeListPokeCardRouteImport } from './routes/pokeList/PokeCard'
 import { Route as ManagecardsManageTCGAccountsMenuRouteImport } from './routes/managecards/ManageTCGAccountsMenu'
@@ -56,6 +57,12 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReusableComponentsSearchBarRoute =
+  ReusableComponentsSearchBarRouteImport.update({
+    id: '/reusableComponents/SearchBar',
+    path: '/reusableComponents/SearchBar',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const PokeListPokeListRoute = PokeListPokeListRouteImport.update({
   id: '/pokeList/PokeList',
   path: '/pokeList/PokeList',
@@ -91,6 +98,7 @@ export interface FileRoutesByFullPath {
   '/managecards/ManageTCGAccountsMenu': typeof ManagecardsManageTCGAccountsMenuRoute
   '/pokeList/PokeCard': typeof PokeListPokeCardRoute
   '/pokeList/PokeList': typeof PokeListPokeListRoute
+  '/reusableComponents/SearchBar': typeof ReusableComponentsSearchBarRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -104,6 +112,7 @@ export interface FileRoutesByTo {
   '/managecards/ManageTCGAccountsMenu': typeof ManagecardsManageTCGAccountsMenuRoute
   '/pokeList/PokeCard': typeof PokeListPokeCardRoute
   '/pokeList/PokeList': typeof PokeListPokeListRoute
+  '/reusableComponents/SearchBar': typeof ReusableComponentsSearchBarRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -118,6 +127,7 @@ export interface FileRoutesById {
   '/managecards/ManageTCGAccountsMenu': typeof ManagecardsManageTCGAccountsMenuRoute
   '/pokeList/PokeCard': typeof PokeListPokeCardRoute
   '/pokeList/PokeList': typeof PokeListPokeListRoute
+  '/reusableComponents/SearchBar': typeof ReusableComponentsSearchBarRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -133,6 +143,7 @@ export interface FileRouteTypes {
     | '/managecards/ManageTCGAccountsMenu'
     | '/pokeList/PokeCard'
     | '/pokeList/PokeList'
+    | '/reusableComponents/SearchBar'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -146,6 +157,7 @@ export interface FileRouteTypes {
     | '/managecards/ManageTCGAccountsMenu'
     | '/pokeList/PokeCard'
     | '/pokeList/PokeList'
+    | '/reusableComponents/SearchBar'
   id:
     | '__root__'
     | '/'
@@ -159,6 +171,7 @@ export interface FileRouteTypes {
     | '/managecards/ManageTCGAccountsMenu'
     | '/pokeList/PokeCard'
     | '/pokeList/PokeList'
+    | '/reusableComponents/SearchBar'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -173,6 +186,7 @@ export interface RootRouteChildren {
   ManagecardsManageTCGAccountsMenuRoute: typeof ManagecardsManageTCGAccountsMenuRoute
   PokeListPokeCardRoute: typeof PokeListPokeCardRoute
   PokeListPokeListRoute: typeof PokeListPokeListRoute
+  ReusableComponentsSearchBarRoute: typeof ReusableComponentsSearchBarRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -226,6 +240,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reusableComponents/SearchBar': {
+      id: '/reusableComponents/SearchBar'
+      path: '/reusableComponents/SearchBar'
+      fullPath: '/reusableComponents/SearchBar'
+      preLoaderRoute: typeof ReusableComponentsSearchBarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pokeList/PokeList': {
       id: '/pokeList/PokeList'
       path: '/pokeList/PokeList'
@@ -269,6 +290,7 @@ const rootRouteChildren: RootRouteChildren = {
   ManagecardsManageTCGAccountsMenuRoute: ManagecardsManageTCGAccountsMenuRoute,
   PokeListPokeCardRoute: PokeListPokeCardRoute,
   PokeListPokeListRoute: PokeListPokeListRoute,
+  ReusableComponentsSearchBarRoute: ReusableComponentsSearchBarRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
