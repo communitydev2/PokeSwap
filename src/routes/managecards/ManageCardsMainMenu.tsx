@@ -8,6 +8,7 @@ import { useStateStore } from '../../store/useStateStore';
 import { UseLocalizationStoreType } from '../../types/UseLocalizationStoreType';
 import { useLocalizationStore } from '../../store/uselocalizationStore';
 import { usePokemonCardStore } from '../../store/pokemonCardsStore';
+import SearchBar from '../reusableComponents/SearchBar';
 export const Route = createFileRoute('/managecards/ManageCardsMainMenu')({
   component: ManageCardsMainMenu,
 })
@@ -126,8 +127,9 @@ function cardCategoryOnChange(e) {
       {useStateStoreWrapper.showLanguageDropdown && (
 
       <LanguageSelectionDropdown/>
-      )}
 
+      )}
+    <SearchBar/>
 
       
       </>

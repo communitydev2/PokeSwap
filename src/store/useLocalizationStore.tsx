@@ -14,9 +14,9 @@ export const useLocalizationStore =create<UseLocalizationStoreType>((set) => ({
     "Add to Cards Available For Trade", // 4 -  cardCategoryDropdown option 2
     "Where are you adding these cards to", // 5 - cardCategoryDropdown Label
     "Pick the language you're looking for" , //   6 - language Dropdown Label
-    "" , //   7 -
-    "" , //   8 -
-    "" , //   9 -
+    "Select Pokemon Card's Rarity" , //   7 - Rarity Dropdown label
+    "Search Pokemon Card By Name" , //   8 - Search Bar on Pokemon card input
+    "Select Pokemon Card's Set" , //   9 -Set Dropdown label
     "" , //   10 -
     "" , //   11 -
     "" , //   12 -
