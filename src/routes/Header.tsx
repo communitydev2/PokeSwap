@@ -110,6 +110,7 @@ useStateStoreHandle.setShowManageCardsMainMenu(true);
     <Box pb={120}>
       <header className={classes.header}>
         <Group justify="space-between" h="100%">
+          
           <MantineLogo size={30} />
 
           <Group h="100%" gap={0} visibleFrom="sm">
@@ -169,7 +170,8 @@ useStateStoreHandle.setShowManageCardsMainMenu(true);
             <ColorSchemeToggle />
 
             {authStore.session ? (
-                        <Group visibleFrom="sm">
+                        // <Group visibleFrom="sm"> // This is in case you want it hidden on mobile
+                        <Group >
               <Text size="xl" c="dimmed">
                         Hi {authStore.user?.username}
                       <Button variant="default" onClick={handleManageCardsMenu}>Manage Cards</Button>
@@ -177,7 +179,7 @@ useStateStoreHandle.setShowManageCardsMainMenu(true);
           </Group>
               
             ) : (
-              <Group visibleFrom="sm">
+              <Group >
               <Button variant="default">Log in</Button>
               <Button>Sign up</Button>
           </Group>

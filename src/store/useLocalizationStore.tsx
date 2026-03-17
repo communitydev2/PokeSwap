@@ -17,7 +17,7 @@ export const useLocalizationStore =create<UseLocalizationStoreType>((set) => ({
     "Select Pokemon Card's Rarity" , //   7 - Rarity Dropdown label
     "Search Pokemon Card By Name" , //   8 - Search Bar on Pokemon card input
     "Select Pokemon Card's Set" , //   9 -Set Dropdown label
-    "" , //   10 -
+    "Any" , //   10 - option condition for useSearchFunction in utils.tsx
     "" , //   11 -
     "" , //   12 -
     "" , //   13 -

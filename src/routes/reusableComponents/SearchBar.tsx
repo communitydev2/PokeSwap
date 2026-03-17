@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react';
 import { useLocalizationStore } from '../../store/uselocalizationStore';
 import { usePokemonCardStore } from '../../store/pokemonCardsStore';
+import { useSearchFunction } from '../../utils/Utilfunctions';
 export const Route = createFileRoute('/reusableComponents/SearchBar')({
   component: SearchBar,
 })
@@ -27,9 +28,17 @@ const [combo_setChoiceValue,setCombo_setChoiceValue] = useState<string | null>(u
     return (
       <TextInput
         label={useLocStore.localizationArray[8]}
-        placeholder={useLocStore.localizationArray[8]}
+        // placeholder={useLocStore.localizationArray[8]}
         value={input_searchValue}
-        onChange={(e)=> setInput_searchValue(event?.currentTarget.value)}
+        autoFocus
+        onChange={(e)=> {
+          setInput_searchValue(e?.currentTarget.value)
+          // console.log(e.target.value)
+          usePokeCardStore.setPokemonCardsSearchQuery(useSearchFunction(e.currentTarget.value,usePokeCardStore,useLocStore,combo_rarityValue,combo_setChoiceValue))
+
+        }
+        
+        }
       />
     );
   }
