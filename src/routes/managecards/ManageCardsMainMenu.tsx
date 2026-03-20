@@ -107,34 +107,6 @@ function cardCategoryOnChange(e) {
 
   
 
-  
-  function AddCardsMenu(){
-  //  addCardsMenu
-
-
-
-    
-
-
-
-
-
-    return (
-      <>
-      <Title>{useLocStore.localizationArray[0]}</Title>
-      <TcgAccountDropdown/>
-      <CardCategoryDropdown/>
-      {useStateStoreWrapper.showLanguageDropdown && (
-
-      <LanguageSelectionDropdown/>
-
-      )}
-    <SearchBar/>
-
-      
-      </>
-    )
-  }
   function LanguageSelectionDropdown() {
   
     return (
@@ -249,7 +221,11 @@ function TcgAccountDropdown() {
 )}
 {useStateStoreWrapper.showAddCardsMenu && (
 <>
-<AddCardsMenu/>
+  <Title>{useLocStore.localizationArray[0]}</Title>
+  <TcgAccountDropdown />
+  <CardCategoryDropdown />
+  {useStateStoreWrapper.showLanguageDropdown && <LanguageSelectionDropdown />}
+  <SearchBar />
 </>
 
 )}

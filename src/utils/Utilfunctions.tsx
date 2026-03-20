@@ -40,7 +40,7 @@ export function useSearchFunction(
     // console.log(`split ${pokeCardStore.splitSearchPokemonNameCharacters}`)
     try{
       let separateWordsSearchString = searchString.split(" ");
-      console.log(separateWordsSearchString)
+      // console.log(separateWordsSearchString)
 
       // CONDITION - if search quety has more than 1 word
       
@@ -112,8 +112,8 @@ export function useSearchFunction(
       }catch(err){
         // Does bulbasaur name have 1 word?
         // It compares searchString to Bulbasaur name
-        console.log(`test ${currentPokemonCard}`)
-        console.log(`test2 ${currentPokemonCard.card_name}`)
+        // console.log(`test ${currentPokemonCard}`)
+        // console.log(`test2 ${currentPokemonCard.card_name}`)
         return searchString.toLowerCase() ==
             currentPokemonCard.card_name
             .substring(0, searchString.length)
@@ -167,7 +167,7 @@ function returnMatchingRarityAndExpansion(currentPokemonCard,type){
       currentRaritySelected;
       // console.log(textValueRarity)
     let textValueSet = currentSetSelected
-    console.log(currentPokemonCard)
+    // console.log(currentPokemonCard)
     const supabaseRarityTable = returnMatchingRarityAndExpansion(currentPokemonCard,"rarity");
     // 
     const supabaseExpansionTable = returnMatchingRarityAndExpansion(currentPokemonCard,"expansion");
@@ -218,7 +218,7 @@ function returnMatchingRarityAndExpansion(currentPokemonCard,type){
     ) {
 
       return (
-        console.log("triggering"),
+        // console.log("triggering"),
         checkWordMatch(searchString, currentPokemonCard)
       );
     }else if(
@@ -253,6 +253,6 @@ function returnMatchingRarityAndExpansion(currentPokemonCard,type){
 
   }
   const query1 = pokeCardStore.pokemonCards.filter(filterSearchQuery);
-  console.log(query1)
+  // console.log(query1)
     return query1;
 }
