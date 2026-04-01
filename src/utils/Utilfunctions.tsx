@@ -1,6 +1,79 @@
+import { useEffect } from "react";
+import { supabase } from "../supabaseClient";
+
 export function wait(duration: number) {
   return new Promise((resolve) => setTimeout(resolve, duration));
 }
+
+
+
+
+
+
+
+
+
+
+   //  function for finding the matching string value that is the original rarity and expansion table
+
+    //  type will return the weather if it's Rarity or Expansion and basically return the ones I need
+
+export function returnMatchingRarityAndExpansion(pokeCardStore,currentPokemonCard,type){
+
+  // type condition
+
+  if(type=="rarity"){
+
+    // Compare Pokémon card to the rarity ID to the table rarityid in zustand
+
+    for(let i=0;i<pokeCardStore.supabase_rarity.length-1;i++){
+
+      if(currentPokemonCard.rarity_id == pokeCardStore.supabase_rarity[i]['rarity_id']){
+
+        // return the name
+
+        // console.log(pokeCardStore.supabase_rarity[i]['name'])
+
+          return pokeCardStore.supabase_rarity[i]['name']
+
+
+
+
+      }
+
+    }
+
+  }else if(type=="expansion"){
+
+    for(let i=0;i<pokeCardStore.supabase_expansion.length-1;i++){
+
+
+      if(currentPokemonCard.set_id == pokeCardStore.supabase_expansion[i]['set_id']){
+
+
+        // return the name
+
+
+//         console.log(pokeCardStore.supabase_expansion[i]['set_name'])
+
+        return pokeCardStore.supabase_expansion[i]['set_name']
+
+
+
+
+      }
+
+
+    }
+
+
+
+  }
+
+}
+
+
+
 
 export function useSearchFunction(
   searchString: string,
@@ -10,7 +83,6 @@ export function useSearchFunction(
   currentSetSelected
 ) {
   
-  // console.log(`${typeof searchString} ${pokeCardStore.rarities[currentRaritySelected]} ${currentSetSelected.toString()}`)
   // ? search function
   // when one letter is written, you search for a word in the pokemon card
   // search function will search by words.
@@ -36,8 +108,7 @@ export function useSearchFunction(
     // if you've put spaces in your search
 
     // loop through differnt split characters to find growth in quick-growth extract for example by using pokeCardStore.splitSearchPokemonNameCharacters
-
-    // console.log(`split ${pokeCardStore.splitSearchPokemonNameCharacters}`)
+// ^ Does bulbasaur have more than 1 word
     try{
       let separateWordsSearchString = searchString.split(" ");
       // console.log(separateWordsSearchString)
@@ -84,8 +155,10 @@ export function useSearchFunction(
        //  for(let w=0; w<=pokeCardStore.splitSearchPokemonNameCharacters.length; w++){
         //    let currentSplitSearchPokemonNameCharacters = pokeCardStore.splitSearchPokemonNameCharacters[w];
         
-        return currentPokemonCard.name.split(" ").some((currentPokemonCardWord,idx,arr) => {
-          // console.log(`${typeof currentSearchQueryWord} ${arr}`)
+        // console.log(`${currentSearchQueryWord}`)
+        return currentPokemonCard.card_name.split(" ").some((currentPokemonCardWord,idx,arr) => {
+          // console.log(`${currentPokemonCardWord}`)
+          // console.log(currentSearchQueryWord.toLowerCase() ==currentPokemonCardWord           .substring(0, currentSearchQueryWord.length)           .toLowerCase());
           return currentSearchQueryWord.toLowerCase() ==
           currentPokemonCardWord
           .substring(0, currentSearchQueryWord.length)
@@ -102,7 +175,8 @@ export function useSearchFunction(
       // try splitting poke card name, and return true if it matches first letter
       try{
         // Does bulbasaur name have more than 1 word?
-        return currentPokemonCard.name.split(" ").some((currentPokemonCardWord,idx,arr) => {
+        console.log("Does current Pokemon card name name have more than 1 word?")
+        return currentPokemonCard.card_name.split(" ").some((currentPokemonCardWord,idx,arr) => {
             // console.log(`${typeof currentSearchQueryWord} ${arr}`)
             return searchString.toLowerCase() ==
             currentPokemonCardWord
@@ -124,41 +198,7 @@ export function useSearchFunction(
     
     // if you're typing just one word "a ". the more characters you write it will keep looking until your word is different from the original word (alk in search term altaria will no longer return it)
     
-    //  function for finding the matching string value that is the original rarity and expansion table
-    //  type will return the weather if it's Rarity or Expansion and basically return the ones I need
-function returnMatchingRarityAndExpansion(currentPokemonCard,type){
-  // type condition
-  if(type=="rarity"){
-    // Compare Pokémon card to the rarity ID to the table rarityid in zustand
-    for(let i=0;i<pokeCardStore.supabase_rarity.length-1;i++){
-      if(currentPokemonCard.rarity_id == pokeCardStore.supabase_rarity[i]['rarity_id']){
-        // return the name
-        // console.log(pokeCardStore.supabase_rarity[i]['name'])
-          return pokeCardStore.supabase_rarity[i]['name']
-
-
-
-      }
-    }
-  }else if(type=="expansion"){
-    for(let i=0;i<pokeCardStore.supabase_expansion.length-1;i++){
-
-      if(currentPokemonCard.set_id == pokeCardStore.supabase_expansion[i]['set_id']){
-
-        // return the name
-
-//         console.log(pokeCardStore.supabase_expansion[i]['set_name'])
-        return pokeCardStore.supabase_expansion[i]['set_name']
-
-
-
-      }
-
-    }
-
-
-  }
-}
+ 
 
 
 
@@ -168,9 +208,9 @@ function returnMatchingRarityAndExpansion(currentPokemonCard,type){
       // console.log(textValueRarity)
     let textValueSet = currentSetSelected
     // console.log(currentPokemonCard)
-    const supabaseRarityTable = returnMatchingRarityAndExpansion(currentPokemonCard,"rarity");
+    const currentPokeCardRarity = returnMatchingRarityAndExpansion(pokeCardStore,currentPokemonCard,"rarity");
     // 
-    const supabaseExpansionTable = returnMatchingRarityAndExpansion(currentPokemonCard,"expansion");
+    const currentPokeCardExpansion = returnMatchingRarityAndExpansion(pokeCardStore,currentPokemonCard,"expansion");
 
 
 
@@ -184,8 +224,8 @@ function returnMatchingRarityAndExpansion(currentPokemonCard,type){
       searchString.length >0
     ) {
       return (
-        currentPokemonCard.rarity_id === textValueRarity &&
-        currentPokemonCard.set_id === textValueSet &&
+        currentPokeCardRarity === textValueRarity &&
+        currentPokeCardExpansion === textValueSet &&
         checkWordMatch(searchString, currentPokemonCard)
       );
 
@@ -196,7 +236,7 @@ function returnMatchingRarityAndExpansion(currentPokemonCard,type){
       searchString.length >0
     ) {
       return (
-        currentPokemonCard.rarity === textValueRarity &&
+        currentPokeCardRarity === textValueRarity &&
         checkWordMatch(searchString, currentPokemonCard)
       );
 
@@ -207,10 +247,10 @@ function returnMatchingRarityAndExpansion(currentPokemonCard,type){
       searchString.length >0
     ) {
       return (
-        currentPokemonCard.set.name === textValueSet &&
+        currentPokeCardExpansion === textValueSet &&
         checkWordMatch(searchString, currentPokemonCard)
       );
-      // rarity and set are any and SEARCH STRING ISN@T empty
+      // rarity and set are any and SEARCH STRING ISN'T empty
     } else if (
       currentRaritySelected.toString() == useLocStore.localizationArray[10] &&
       currentSetSelected.toString() == useLocStore.localizationArray[10] &&
@@ -229,7 +269,7 @@ function returnMatchingRarityAndExpansion(currentPokemonCard,type){
     ){
       // console.log(`${currentPokemonCard.rarity.toLowerCase()} ${textValueRarity.toLowerCase()}`)
       
-      return currentPokemonCard.rarity.toLowerCase() == textValueRarity.toLowerCase();
+      return currentPokeCardRarity.toLowerCase() == textValueRarity.toLowerCase();
     }else if(
       // rarity is any , set is selected and SEARCH STRING is empty
       currentRaritySelected.toString() ==useLocStore.localizationArray[10] &&
@@ -238,7 +278,7 @@ function returnMatchingRarityAndExpansion(currentPokemonCard,type){
       
     ){
       
-      return currentPokemonCard.set.name.toLowerCase() == textValueSet.toLowerCase();
+      return currentPokeCardExpansion.toLowerCase() == textValueSet.toLowerCase();
     }else if(
       // rarity is set , expansion is set and SEARCH STRING is empty
       currentRaritySelected.toString() !=useLocStore.localizationArray[10] &&
@@ -246,13 +286,13 @@ function returnMatchingRarityAndExpansion(currentPokemonCard,type){
       searchString.length==0
       
     ){
-      return currentPokemonCard.set.name.toLowerCase() == textValueSet.toLowerCase() &&
-      currentPokemonCard.rarity.toLowerCase() == textValueRarity.toLowerCase();
+      return currentPokeCardExpansion.toLowerCase() == textValueSet.toLowerCase() &&
+      currentPokeCardRarity.toLowerCase() == textValueRarity.toLowerCase();
 
     }
 
   }
   const query1 = pokeCardStore.pokemonCards.filter(filterSearchQuery);
-  // console.log(query1)
+  console.log(query1)
     return query1;
 }

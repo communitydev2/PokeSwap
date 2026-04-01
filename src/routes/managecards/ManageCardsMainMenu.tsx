@@ -9,6 +9,7 @@ import { UseLocalizationStoreType } from '../../types/UseLocalizationStoreType';
 import { useLocalizationStore } from '../../store/uselocalizationStore';
 import { usePokemonCardStore } from '../../store/pokemonCardsStore';
 import SearchBar from '../reusableComponents/SearchBar';
+import { PokeList } from '../pokeList/PokeList';
 export const Route = createFileRoute('/managecards/ManageCardsMainMenu')({
   component: ManageCardsMainMenu,
 })
@@ -115,7 +116,11 @@ function cardCategoryOnChange(e) {
         placeholder={useLocStore.localizationArray[2]}
         data={usePokeCardStore.languages}
         value={selectedLanguageDropdownChoice}
-        onChange={setSelectedLanguageDropdownChoice}
+        onChange={(e)=> {
+          setSelectedLanguageDropdownChoice(e.value)
+          useStateStore.setManageCardsSelectedLanguage(e.value)
+        }
+        }
       />
     );
   }
@@ -226,6 +231,10 @@ function TcgAccountDropdown() {
   <CardCategoryDropdown />
   {useStateStoreWrapper.showLanguageDropdown && <LanguageSelectionDropdown />}
   <SearchBar />
+  <p> Cards Selected</p>
+  <PokeList listType={'listSelectedSection'}/>
+  <p> Select Cards To add</p>
+  <PokeList listType={'listAddCards'}/>
 </>
 
 )}

@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useEffect,useState } from 'react'
+import { useEffect,useEffectEvent,useState } from 'react'
 import { supabase } from '../supabaseClient'
 import { Auth } from './Auth'
 import {Account} from './Account'
@@ -39,6 +39,8 @@ export default function LandingPage() {
     fetchRarityExpansionValues()
   },[])
     
+
+
     
     
   useEffect(() => {
@@ -57,7 +59,6 @@ export default function LandingPage() {
     return () => data.subscription.unsubscribe();
   }, [])
 
-
 // setting PokemonCards at launch
     useEffect(()=>{
 async function getCards(){
@@ -65,11 +66,12 @@ async function getCards(){
   let { data: card, error } = await supabase
   .from('card')
   .select('*')
-
-  usePokeCardStore.setPokemonCards(card);
+  usePokeCardStore.setPokemonCards(card)
+  // console.log(card)
 }
 getCards()
   },[])
+
 
   return (
     <div className="container" style={{ padding: '50px 0 100px 0' }}>

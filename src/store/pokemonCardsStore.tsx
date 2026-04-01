@@ -41,6 +41,7 @@ export const usePokemonCardStore = create<PokemonDBStoreType>((set) => ({
   ],
   supabase_rarity: [],
   supabase_expansion: [],
+  listCardsSelected : [],
 
   setPokemonCards: (pokemonCards: PokemonCard[]) =>
     set(() => ({ pokemonCards })),
@@ -50,5 +51,7 @@ export const usePokemonCardStore = create<PokemonDBStoreType>((set) => ({
     set(() => ({ supabase_rarity })),
   setSupabase_expansion: (supabase_expansion: SupabaseExpansionType[]) =>
     set(() => ({ supabase_expansion })),
+  setListCardsSelected: (listCardsSelected: PokemonCard[]) =>
+    set(() => ({ listCardsSelected })),
 
 }));

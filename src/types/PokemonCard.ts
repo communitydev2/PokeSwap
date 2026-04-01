@@ -2,9 +2,11 @@ export interface PokemonCard {
   _id: string;
   localId: string;
   newDisplayName: string;
-  image: string;
+  card_image: string;
   id: string;
-  name: string;
+  card_name: string;
+  languageWanted : string;
+  
 
   tradeUsers: {
     [userId: string]: {

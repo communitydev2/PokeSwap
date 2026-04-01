@@ -7,10 +7,15 @@ export const useStateStore =create<UseStateStoreType>((set) => ({
     showManageTCGAccountsMenu :null,
     showAddCardsMenu: null,
     showLanguageDropdown :null,
+    manageCardsSelectedLanguage: "en",
+
+
+    
     setShowManageCardsMainMenu: (showManageCardsMainMenu:boolean) => set(()=> ({showManageCardsMainMenu}) ),
     setShowManageTCGAccountsMenu: (showManageTCGAccountsMenu:boolean) => set(()=> ({showManageTCGAccountsMenu}) ),
     setShowAddCardsMenu: (showAddCardsMenu:boolean) => set(()=> ({showAddCardsMenu}) ),
     setShowLanguageDropdown: (showLanguageDropdown:boolean) => set(()=> ({showLanguageDropdown}) ),
+    setManageCardsSelectedLanguage: (manageCardsSelectedLanguage:string) => set(()=> ({manageCardsSelectedLanguage}) ),
 
 
 

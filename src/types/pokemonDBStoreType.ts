@@ -33,9 +33,11 @@ export type PokemonDBStoreType ={
     languages : string[];
     supabase_rarity: SupabaseRarityType[];
     supabase_expansion: SupabaseExpansionType[];
+    listCardsSelected : PokemonCard[];
     
     setPokemonCards: (pokemonCards:PokemonCard[]) => void;
     setPokemonCardsSearchQuery : (searchQuery:PokemonCard[]) => void;
     setSupabase_rarity: (supabase_rarity: SupabaseRarityType[])=> void;
     setSupabase_expansion: (supbase_expansion: SupabaseExpansionType[])=> void;
+    setListCardsSelected: (listCardsSelected: PokemonCard[])=> void;
 }

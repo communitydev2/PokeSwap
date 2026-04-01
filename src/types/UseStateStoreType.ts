@@ -5,6 +5,8 @@ export interface UseStateStoreType {
     showManageTCGAccountsMenu : boolean | null,
     showAddCardsMenu : boolean| null,
     showLanguageDropdown : boolean | null,
+    manageCardsSelectedLanguage : string | null,
+    
 
 
 
@@ -13,6 +15,7 @@ export interface UseStateStoreType {
      setShowManageTCGAccountsMenu : (showManageTCGAccountsMenu : boolean) => void;
      setShowAddCardsMenu : (showAddCardsMenu : boolean) => void;
      setShowLanguageDropdown: (showLanguageDropdown : boolean) => void;
+     setManageCardsSelectedLanguage: (manageCardsSelectedLanguage : string) => void;
 
 }
 

@@ -18,10 +18,10 @@ export const useLocalizationStore =create<UseLocalizationStoreType>((set) => ({
     "Search Pokemon Card By Name" , //   8 - Search Bar on Pokemon card input
     "Select Pokemon Card's Set" , //   9 -Set Dropdown label
     "Any" , //   10 - option condition for useSearchFunction in utils.tsx
-    "" , //   11 -
-    "" , //   12 -
-    "" , //   13 -
-    "" , //   14 -
+    "Add to Selected" , //   11 - poke card add to selected
+    "Remove from selected" , //   12 - poke card button
+    "listAddCards" , //   13 - pokelist check
+    "listSelectedSection" , //   14 - pokelist list type
     "" , //   15 -
     "" , //   16 -
     "" , //   17 -
