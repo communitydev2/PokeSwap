@@ -6,7 +6,7 @@ export const useStateStore =create<UseStateStoreType>((set) => ({
     showManageCardsMainMenu : null,
     showManageTCGAccountsMenu :null,
     showAddCardsMenu: null,
-    showLanguageDropdown :null,
+    showLanguageDropdown :true,
     manageCardsSelectedLanguage: "en",
 
 

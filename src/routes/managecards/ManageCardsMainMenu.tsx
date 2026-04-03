@@ -138,12 +138,15 @@ function cardCategoryOnChange(e) {
            setSelectedCardCategory(option)
 console.log(option)
 
-
-if(option.value == cardCategoryOptions[1].value){
+// if wishlist selected, then choose language wanted
+if(option.value == cardCategoryOptions[0].value){
 
  useStateStoreWrapper.setShowLanguageDropdown(true);
 
+ }else{
+  useStateStoreWrapper.setShowLanguageDropdown(false);
  }
+
 
 
         }}

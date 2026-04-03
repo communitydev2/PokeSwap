@@ -10,7 +10,17 @@ export const Route = createFileRoute('/pokeList/PokeCard')({
   component: PokeCard,
 })
 
+/*
 
+
+
+the quantity is updated the reset to 0 on different conditions:
+- when you press add to select the quantity becomes 0 
+- when you make a new search query you will reset the quantity of cards in the add list section
+- when you change pagination page
+
+
+*/
 
 
 export function PokeCard(
@@ -22,13 +32,13 @@ export function PokeCard(
   isCardSelected:boolean, 
   pokeListType:string}
 ) {
-  const [quantity, setQuantity] = useState(0)
+  const usePokeCard = usePokemonCardStore();
   const useLocStore = useLocalizationStore();
   const useStateHandler = useStateStore();
-  const usePokeCard = usePokemonCardStore();
+  const thisCardInSelectedCardsList = pokeListType == "listAddCards" ? "nothing" : usePokeCard.listCardsSelected.find(card => currentCard.card_id == card.card_id)
+  const [quantity, setQuantity] = useState(pokeListType == "listAddCards" ? 0 : 0+ thisCardInSelectedCardsList.quantity)
   const activeButtonText = pokeListType == "listAddCards" ? "Add to Selected" : "Remove from selected";
   const activeButtonColor =  pokeListType == "listAddCards" ? '#089bdf' : '#df0808'
-  const thisCardInSelectedCardsList = pokeListType == "listAddCards" ? "nothing" : usePokeCard.listCardsSelected.find(card => currentCard.card_id == card.card_id)
   const activeCardQuantity =  pokeListType == "listAddCards" ? quantity : thisCardInSelectedCardsList.quantity;
 
 
@@ -58,11 +68,15 @@ export function PokeCard(
 
   <p>{currentCard.card_name}</p>
   <p>
-    Quantity {activeCardQuantity}{' '}
+    Quantity : {quantity}{' '}
     <br></br>
     <button type="button" style={{background: '#df0808' ,width:'50px'}} onClick={decrementQuantity}>-</button>{' '}
     <button type="button" style={{background: '#3adf08' ,width:'50px'}}  onClick={incrementQuantity}>+</button>
   </p>
+    {pokeListType == "listSelectedSection" && usePokeCard.listCardsSelected.length >0 &&(
+      
+      <p> Language : {usePokeCard.listCardsSelected.find(card => currentCard.card_id == card.card_id)?.language} </p>
+    )}
 
   {isCardSelected && (
     <>
@@ -70,9 +84,12 @@ export function PokeCard(
     <button type="button" style={{background: `${activeButtonColor}` ,width:'200px'}} 
     onClick={()=>{
 
+
+
+
+
       // does card added already exist in list cards selected
       const isCardAlreadyAdded = usePokeCard.listCardsSelected.find(card => currentCard.card_id == card.card_id)
-      console.log(isCardAlreadyAdded)
       const cardToBeAdded = {
             ...currentCard,
             language: useStateHandler.manageCardsSelectedLanguage,
@@ -104,6 +121,11 @@ export function PokeCard(
 
           
         }
+
+        // reset Quantity to zero
+        setQuantity(0);
+
+
     }
     }
     >{activeButtonText}</button>

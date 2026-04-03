@@ -5,7 +5,7 @@ export interface PokemonCard {
   card_image: string;
   id: string;
   card_name: string;
-  languageWanted : string;
+  language : string;
   
 
   tradeUsers: {
