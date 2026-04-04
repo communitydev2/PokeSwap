@@ -14,61 +14,61 @@ export function wait(duration: number) {
 
 
 
-   //  function for finding the matching string value that is the original rarity and expansion table
+   //  function for finding the matching string value that is the original rarity and expansion table
 
-    //  type will return the weather if it's Rarity or Expansion and basically return the ones I need
+    //  type will return the weather if it's Rarity or Expansion and basically return the ones I need
 
 export function returnMatchingRarityAndExpansion(pokeCardStore,currentPokemonCard,type){
 
-  // type condition
+  // type condition
 
-  if(type=="rarity"){
+  if(type=="rarity"){
 
-    // Compare Pokémon card to the rarity ID to the table rarityid in zustand
+    // Compare Pokémon card to the rarity ID to the table rarityid in zustand
 
-    for(let i=0;i<pokeCardStore.supabase_rarity.length-1;i++){
+    for(let i=0;i<pokeCardStore.supabase_rarity.length-1;i++){
 
-      if(currentPokemonCard.rarity_id == pokeCardStore.supabase_rarity[i]['rarity_id']){
+      if(currentPokemonCard.rarity_id == pokeCardStore.supabase_rarity[i]['rarity_id']){
 
-        // return the name
+        // return the name
 
-        // console.log(pokeCardStore.supabase_rarity[i]['name'])
+        // console.log(pokeCardStore.supabase_rarity[i]['name'])
 
-          return pokeCardStore.supabase_rarity[i]['name']
-
-
-
-
-      }
-
-    }
-
-  }else if(type=="expansion"){
-
-    for(let i=0;i<pokeCardStore.supabase_expansion.length-1;i++){
-
-
-      if(currentPokemonCard.set_id == pokeCardStore.supabase_expansion[i]['set_id']){
-
-
-        // return the name
-
-
-//         console.log(pokeCardStore.supabase_expansion[i]['set_name'])
-
-        return pokeCardStore.supabase_expansion[i]['set_name']
+          return pokeCardStore.supabase_rarity[i]['name']
 
 
 
 
-      }
+      }
+
+    }
+
+  }else if(type=="expansion"){
+
+    for(let i=0;i<pokeCardStore.supabase_expansion.length-1;i++){
 
 
-    }
+      if(currentPokemonCard.set_id == pokeCardStore.supabase_expansion[i]['set_id']){
+
+
+        // return the name
+
+
+//         console.log(pokeCardStore.supabase_expansion[i]['set_name'])
+
+        return pokeCardStore.supabase_expansion[i]['set_name']
 
 
 
-  }
+
+      }
+
+
+    }
+
+
+
+  }
 
 }
 
@@ -158,7 +158,7 @@ export function useSearchFunction(
         // console.log(`${currentSearchQueryWord}`)
         return currentPokemonCard.card_name.split(" ").some((currentPokemonCardWord,idx,arr) => {
           // console.log(`${currentPokemonCardWord}`)
-          // console.log(currentSearchQueryWord.toLowerCase() ==currentPokemonCardWord           .substring(0, currentSearchQueryWord.length)           .toLowerCase());
+          // console.log(currentSearchQueryWord.toLowerCase() ==currentPokemonCardWord           .substring(0, currentSearchQueryWord.length)           .toLowerCase());
           return currentSearchQueryWord.toLowerCase() ==
           currentPokemonCardWord
           .substring(0, currentSearchQueryWord.length)

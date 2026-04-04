@@ -1,5 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Popover, Text, Button,List,Select,Group, Space,Title, ComboboxItem } from '@mantine/core';
+import { Popover, Text, Button,List,Select,Group, Space,Title, ComboboxItem,UnstyledButton
+
+ } from '@mantine/core';
+import {  Avatar,  Anchor, Stack, Modal } from '@mantine/core';
 import { useState,useEffect ,type ChangeEvent} from 'react';
 import { supabase } from '../../supabaseClient';
 import { useAuthStore } from '../../store/userStore';
@@ -8,6 +11,7 @@ import { useStateStore } from '../../store/useStateStore';
 import { UseLocalizationStoreType } from '../../types/UseLocalizationStoreType';
 import { useLocalizationStore } from '../../store/uselocalizationStore';
 import { usePokemonCardStore } from '../../store/pokemonCardsStore';
+import { useDisclosure } from '@mantine/hooks';
 import SearchBar from '../reusableComponents/SearchBar';
 import { PokeList } from '../pokeList/PokeList';
 export const Route = createFileRoute('/managecards/ManageCardsMainMenu')({
@@ -35,6 +39,26 @@ type genericDropdownType ={
   value:number,
   onChange: any,
 }
+
+
+
+function Menu_ConfirmCards() {
+const [opened, { open, close }] = useDisclosure(false);
+
+  return (
+    <>
+      <Modal opened={opened} onClose={close} title="Confirm Cards" centered>
+        {/* Modal content */}
+        <PokeList listType={'listSelectedSection'}/>
+      </Modal>
+
+      <Button variant="default" onClick={open}>
+        Open centered Modal
+      </Button>
+    </>
+  );
+}
+
 
 
 export function ManageCardsMainMenu() {
@@ -68,19 +92,19 @@ const [selectedLanguageDropdownChoice,setSelectedLanguageDropdownChoice] = useSt
 function handleChangeSearchBar(event:ChangeEvent<HTMLInputElement>){
 
 
- setSearchInputValue(event.target.value as string);
+ setSearchInputValue(event.target.value as string);
 
- setOpenSearchQueryResultList(true);
+ setOpenSearchQueryResultList(true);
 
-  setShowSearchQueryResultsTable(true);
+  setShowSearchQueryResultsTable(true);
 
-  pokeCardStore.setPokemonCardsSearchQuery(useSearchFunction(event.target.value,pokeCardStore,currentRarityDropdown,currentExpansionDropdown))
+  pokeCardStore.setPokemonCardsSearchQuery(useSearchFunction(event.target.value,pokeCardStore,currentRarityDropdown,currentExpansionDropdown))
 
-  // console.log(searchQueryListRef)
+  // console.log(searchQueryListRef)
 
-  // key={};
+  // key={};
 
-  
+  
 
 }
 */
@@ -236,6 +260,15 @@ function TcgAccountDropdown() {
   <SearchBar />
   <p> Cards Selected</p>
   <PokeList listType={'listSelectedSection'}/>
+
+  <Space h="lg" />
+  <Space h="lg" />
+  <Menu_ConfirmCards/>
+  <Space h="lg" />
+  <Space h="lg" />
+  <Space h="lg" />
+
+
   <p> Select Cards To add</p>
   <PokeList listType={'listAddCards'}/>
 </>

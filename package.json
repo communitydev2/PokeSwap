@@ -9,6 +9,8 @@
     "build:check": "tsc && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "generate:routes": "tsr generate",
     "prettier": "prettier --check \"**/*.{ts,tsx}\"",
     "prettier:write": "prettier --write \"**/*.{ts,tsx}\"",
@@ -35,6 +37,7 @@
     "zustand": "^5.0.11"
   },
   "devDependencies": {
+    "@eslint/js": "^9.38.0",
     "@chromatic-com/storybook": "^5.0.0",
     "@storybook/addon-a11y": "^10.2.0",
     "@storybook/addon-docs": "^10.2.0",
@@ -47,11 +50,14 @@
     "@vitejs/plugin-react": "^5.0.2",
     "@vitest/browser-playwright": "^4.0.18",
     "@vitest/coverage-v8": "^4.0.18",
+    "eslint": "^9.38.0",
+    "eslint-config-prettier": "^10.1.8",
     "playwright": "^1.58.0",
     "postcss": "^8.5.6",
     "postcss-preset-mantine": "1.18.0",
     "postcss-simple-vars": "^7.0.1",
     "storybook": "^10.2.0",
+    "typescript-eslint": "^8.46.0",
     "typescript": "^5.9.2",
     "vite": "^7.1.5",
     "vitest": "^4.0.18"

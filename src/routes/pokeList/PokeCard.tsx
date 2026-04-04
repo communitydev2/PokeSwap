@@ -36,10 +36,10 @@ export function PokeCard(
   const useLocStore = useLocalizationStore();
   const useStateHandler = useStateStore();
   const thisCardInSelectedCardsList = pokeListType == "listAddCards" ? "nothing" : usePokeCard.listCardsSelected.find(card => currentCard.card_id == card.card_id)
-  const [quantity, setQuantity] = useState(pokeListType == "listAddCards" ? 0 : 0+ thisCardInSelectedCardsList.quantity)
-  const activeButtonText = pokeListType == "listAddCards" ? "Add to Selected" : "Remove from selected";
-  const activeButtonColor =  pokeListType == "listAddCards" ? '#089bdf' : '#df0808'
-  const activeCardQuantity =  pokeListType == "listAddCards" ? quantity : thisCardInSelectedCardsList.quantity;
+
+    const [quantity, setQuantity] = useState(pokeListType == "listAddCards" ? 0 : thisCardInSelectedCardsList != null ? 0+ thisCardInSelectedCardsList.quantity : 0)
+    const activeButtonText = pokeListType == "listAddCards" ? "Add to Selected" : "Remove from selected";
+    const activeButtonColor =  pokeListType == "listAddCards" ? '#089bdf' : '#df0808'
 
 
   
@@ -55,15 +55,15 @@ export function PokeCard(
 
   return (
   <div style={{width:'1000px',height:'150px'}}>
-    <img
+    <img
 
-    src={`${currentCard.card_image}/low.png`}
+    src={`${currentCard.card_image}/low.png`}
 
-    alt={currentCard.card_name}
+    alt={currentCard.card_name}
 
-    width={150}
+    width={150}
 
-    style={{ display: "block", marginTop: "8px",float:"left" }} />
+    style={{ display: "block", marginTop: "8px",float:"left" }} />
 
 
   <p>{currentCard.card_name}</p>
@@ -85,7 +85,7 @@ export function PokeCard(
     onClick={()=>{
 
 
-
+      if (pokeListType =="listAddCards" ){
 
 
       // does card added already exist in list cards selected
@@ -102,7 +102,7 @@ export function PokeCard(
           //   language: useStateHandler.manageCardsSelectedLanguage
           // })
         if (typeof isCardAlreadyAdded === "undefined"){
-          console.log("adding card")
+          // ads card if doesn't exist
           usePokeCard.setListCardsSelected(
             [
               ...usePokeCard.listCardsSelected,
@@ -111,8 +111,10 @@ export function PokeCard(
           )
           
         }else{
+          // adds quantity to existing card
           usePokeCard.setListCardsSelected(
-            usePokeCard.listCardsSelected.map((card) =>
+            usePokeCard.listCardsSelected.map((card) => 
+            
               card.card_id === currentCard.card_id
                 ? { ...card, quantity: card.quantity + quantity }
                 : card
@@ -126,9 +128,34 @@ export function PokeCard(
         setQuantity(0);
 
 
-    }
-    }
-    >{activeButtonText}</button>
+    
+    
+  }else if(pokeListType =="listSelectedSection"){
+    // by not selecting the current card it will remove this card from the list of current cards selected
+
+      usePokeCard.setListCardsSelected(
+        usePokeCard.listCardsSelected.filter((card)=> {
+          return !(isCardSelected && card.card_id === currentCard.card_id)        
+        }
+        
+      
+    )
+  )
+  }
+
+    
+    
+}
+}
+    
+    >
+    
+    
+    
+    
+      
+      
+      {activeButtonText}</button>
     </>
   )}
   
