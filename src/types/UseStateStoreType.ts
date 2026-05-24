@@ -6,7 +6,9 @@ export interface UseStateStoreType {
     showAddCardsMenu : boolean| null,
     showLanguageDropdown : boolean | null,
     manageCardsSelectedLanguage : string | null,
-    
+    addingCardsSector : string | null, // this variable is receiving and storing the switch umm option in the managed cards main menu Between adding to Wish List and adding to cards for Trade
+    colorpalette : string[] | null,
+    stateBooleanArray : boolean[] | null,
 
 
 
@@ -16,6 +18,10 @@ export interface UseStateStoreType {
      setShowAddCardsMenu : (showAddCardsMenu : boolean) => void;
      setShowLanguageDropdown: (showLanguageDropdown : boolean) => void;
      setManageCardsSelectedLanguage: (manageCardsSelectedLanguage : string) => void;
+     setAddingCardsSector: (addingCardsSector : string) => void;
+     setColorPalette: (colorpalette : string[]) => void;
+     setStateBooleanArray: (stateBooleanArray : boolean[]) => void;
+
 
 }
 

@@ -114,7 +114,8 @@ if (activeList.length > 10){
         )
     }
       </ul>
-      {currentPageNumber >1 &&  (
+      
+      {currentPageNumber >1 && activeList.length >9 &&  (
 <button onClick={()=> {
 
         setCurrentPageNumber(currentPageNumber>1 ?currentPageNumber-1 : currentPageNumber)
@@ -123,7 +124,7 @@ if (activeList.length > 10){
 
 
       )}
-      
+      {activeList.length >9 && (
       <button onClick={()=> {
 
  setCurrentPageNumber(currentPageNumber+1)
@@ -135,7 +136,7 @@ if (activeList.length > 10){
     
     
     
-    <p>Test</p>
+    )}
     </>
   ) 
 }

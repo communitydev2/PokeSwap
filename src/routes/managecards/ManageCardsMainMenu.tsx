@@ -14,6 +14,8 @@ import { usePokemonCardStore } from '../../store/pokemonCardsStore';
 import { useDisclosure } from '@mantine/hooks';
 import SearchBar from '../reusableComponents/SearchBar';
 import { PokeList } from '../pokeList/PokeList';
+import { PokeCard } from '../pokeList/PokeCard';
+import { PokemonCard } from '../../types/PokemonCard';
 export const Route = createFileRoute('/managecards/ManageCardsMainMenu')({
   component: ManageCardsMainMenu,
 })
@@ -41,19 +43,60 @@ type genericDropdownType ={
 }
 
 
+function ComponentTitle({props}){
 
-function Menu_ConfirmCards() {
-const [opened, { open, close }] = useDisclosure(false);
-
+  /*
+0 - callcomponent
+1 - useLocStore
+  */
+  // console.log(props)
   return (
     <>
-      <Modal opened={opened} onClose={close} title="Confirm Cards" centered>
+      {/* Main Menu? show Main Menu text or Exclusive trade */}
+  {props[0]==props[1].localizationArray[19]? (
+    <>
+    <Text size="sm">{props[1].localizationArray[16]}</Text>
+    </>
+  ):(
+    <>
+    <Text size="sm">{props[1].localizationArray[17]}</Text>
+    </>
+  )
+}
+    </>
+  )
+
+}
+
+// 0 - "Confirm Cards"
+// 'listSelectedSection' - 1
+//  2 - open modal button text
+
+
+function Menu_ConfirmCards({props}) {
+const [opened, { open, close }] = useDisclosure(false);
+// console.log(props)
+  return (
+    <>
+      <Modal opened={opened} onClose={close} title={props[0]} centered>
         {/* Modal content */}
-        <PokeList listType={'listSelectedSection'}/>
+        {props[1]=="listSelectedSection" && (
+          <PokeList listType={props[1]}/>
+        )}
+        {props[1]=="listExclusiveTrade" && (
+          
+          // add something here
+          <PokeList listType={props[1]}/>
+          
+          
+        )}
+
       </Modal>
 
       <Button variant="default" onClick={open}>
-        Open centered Modal
+        {/* 20 for listSelectedSection*/}
+        
+        {props[2]}
       </Button>
     </>
   );
@@ -61,7 +104,7 @@ const [opened, { open, close }] = useDisclosure(false);
 
 
 
-export function ManageCardsMainMenu() {
+export function ManageCardsMainMenu({callComponent,exclusiveCardSelected}:{callComponent:string,exclusiveCardSelected:PokemonCard}) {
   const useAuthStoreWrapper = useAuthStore();
   const useLocStore = useLocalizationStore();
   const usePokeCardStore = usePokemonCardStore();
@@ -72,7 +115,7 @@ export function ManageCardsMainMenu() {
   const [tcgAccounts,setTcgAccounts ] = useState<tcgAccountType[]>()
   const [selectedTcgAccount,setSelectedTcgAccount] = useState<string|null>()
   const [comboData_accountUsernames,setComboData_accountUsernames] = useState<string[]|null>(null)
-
+  const [activeVarables,setActiveVariables] = useState()
 
   // its true by default, and set to false when pressing anything inside the main menu
   const [showManageCardsMainMenuOptions,setShowManageCardsMainMenuOptions] = useState(true);
@@ -107,10 +150,21 @@ function handleChangeSearchBar(event:ChangeEvent<HTMLInputElement>){
   
 
 }
+
+
+
+
+
+
+
+
 */
 
 
+// this year's effect will decide the logic for the exclusive trade and basically changed his menu depending on what state is supposed to be generated in
+useEffect(()=>{
 
+})
 
 
 
@@ -160,8 +214,8 @@ function cardCategoryOnChange(e) {
         onChange={(_value,option)=> {
           
            setSelectedCardCategory(option)
-console.log(option)
-
+          // update the adding cards sector on Georgetown so that I will be able to pass that value onto the PokeCard
+          useStateStoreWrapper.setAddingCardsSector(option.value)
 // if wishlist selected, then choose language wanted
 if(option.value == cardCategoryOptions[0].value){
 
@@ -236,12 +290,17 @@ function TcgAccountDropdown() {
   
   return (
   <>
- <Text size="sm">Manage Cards Main Menu</Text>
-{!hasTcgAccounts && (
+<ComponentTitle props={[callComponent,useLocStore]}/>
+  
+  
+  
+  {/* only this place if it's called from accounts .tsx */}
+{!hasTcgAccounts && callComponent==useLocStore.localizationArray[19] &&(
   <ManageTCGAccountsMenu/>
 )}
 {/* display list of accounts */}
-{hasTcgAccounts && showManageCardsMainMenuOptions &&(
+{/* this is if the  call component type is not the exclusive trade so this is not going to show up */}
+{hasTcgAccounts && showManageCardsMainMenuOptions && callComponent==useLocStore.localizationArray[19] &&(
   <>
   <Group justify="center">
 
@@ -251,19 +310,23 @@ function TcgAccountDropdown() {
   <TcgAccountDropdown />
   </>
 )}
-{useStateStoreWrapper.showAddCardsMenu && (
+
+{/* Following from Manage Cards in Figma,   */}
+{/* I am not adding cards AND this is the Main Menu */}
+{useStateStoreWrapper.showAddCardsMenu  != true && callComponent!=useLocStore.localizationArray[18]  && (
 <>
   <Title>{useLocStore.localizationArray[0]}</Title>
   <TcgAccountDropdown />
   <CardCategoryDropdown />
   {useStateStoreWrapper.showLanguageDropdown && <LanguageSelectionDropdown />}
   <SearchBar />
-  <p> Cards Selected</p>
+  <p> {useLocStore.localizationArray[21]}</p>
   <PokeList listType={'listSelectedSection'}/>
 
   <Space h="lg" />
   <Space h="lg" />
-  <Menu_ConfirmCards/>
+  <Menu_ConfirmCards props={[useLocStore.localizationArray[20],useLocStore.localizationArray[14],useLocStore.localizationArray[20]]}/>
+  {/* <Menu_ConfirmCards props={["Confirm Cards","listSelectedSection","Confirm Cards"]}/> */}
   <Space h="lg" />
   <Space h="lg" />
   <Space h="lg" />
@@ -272,9 +335,64 @@ function TcgAccountDropdown() {
   <p> Select Cards To add</p>
   <PokeList listType={'listAddCards'}/>
 </>
+// When pressing the add cards button
+) 
+
+}
+{/* I am adding cards AND this is the exclusive trade */}
+{useStateStoreWrapper.showAddCardsMenu  == true && callComponent==useLocStore.localizationArray[18] && (
+  
+  <>
+  <Title>{useLocStore.localizationArray[17]}</Title>
+<TcgAccountDropdown />
+{/* {exclusiveCardSelected!=null ? (<PokeCard />):()} */}
+  {/* <SearchBar /> */}
+  <p> Card Selected</p>
+<PokeCard currentCard={exclusiveCardSelected} pokeListType='listExclusiveTrade' isCardSelected={false} />
+
+  <Space h="lg" />
+  <Space h="lg" />
+  <Menu_ConfirmCards props={[useLocStore]}/>
+  <Space h="lg" />
+  <Space h="lg" />
+  <Space h="lg" />
+
+
+  <p> Select Cards To add</p>
+  {/* <PokeList listType={'listAddCards'}/> */}
+</>
+
 
 )}
 
+{/* Following from Manage Cards in Figma,   */}
+{/* I am  adding cards AND this is the Main Menu */}
+{/* ManageCards Main Menu Inside Add Cards Button) */}
+{useStateStoreWrapper.showAddCardsMenu  == true && callComponent!=useLocStore.localizationArray[18]  && (
+<>
+  <Title>{useLocStore.localizationArray[0]}</Title>
+  <TcgAccountDropdown />
+  <CardCategoryDropdown />
+  {useStateStoreWrapper.showLanguageDropdown && <LanguageSelectionDropdown />}
+  <SearchBar />
+  <p> {useLocStore.localizationArray[21]}</p>
+  <PokeList listType={'listSelectedSection'}/>
+
+  <Space h="lg" />
+  <Space h="lg" />
+  <Menu_ConfirmCards props={[useLocStore.localizationArray[20],useLocStore.localizationArray[14],useLocStore.localizationArray[20]]}/>
+  <Space h="lg" />
+  <Space h="lg" />
+  <Space h="lg" />
+
+
+  <p> Select Cards To add</p>
+  <PokeList listType={'listAddCards'}/>
+</>
+// When pressing the add cards button
+) 
+
+}
 
 
 

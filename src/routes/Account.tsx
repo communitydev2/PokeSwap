@@ -4,6 +4,7 @@ import { supabase } from '../supabaseClient'
 import { useAuthStore } from '../store/userStore';
 import { useStateStore } from '../store/useStateStore';
 import { ManageCardsMainMenu } from './managecards/ManageCardsMainMenu';
+import { useLocalizationStore } from '../store/uselocalizationStore';
 export const Route = createFileRoute('/Account')({
   component: Account,
 })
@@ -16,6 +17,7 @@ export function Account({ session }) {
   const [username, setUsername] = useState(null);
   const authStore = useAuthStore();
   const useStateStoreHandle = useStateStore();
+  const useLocStoreWrapper = useLocalizationStore();
 
 
 // set last logged in
@@ -77,7 +79,7 @@ useEffect(()=>{
     <div>
 <h1>Signed In</h1>
 {useStateStoreHandle.showManageCardsMainMenu && (
-  <ManageCardsMainMenu/>
+  <ManageCardsMainMenu callComponent={useLocStoreWrapper.localizationArray[19]}/>
 )}
     </div>
 

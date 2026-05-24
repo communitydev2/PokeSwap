@@ -11,7 +11,7 @@ export const useLocalizationStore =create<UseLocalizationStoreType>((set) => ({
     "Select your Pocket Account", // 1 -  tcgAccountDropdown Title
     "Pick Value", // 2 -  tcgAccountDropdown placeholder
     "Add to Wishlist", // 3 - cardCategoryDropdown option
-    "Add to Cards Available For Trade", // 4 -  cardCategoryDropdown option 2
+    "Add to Cards You Have For Trade", // 4 -  cardCategoryDropdown option 2
     "Where are you adding these cards to", // 5 - cardCategoryDropdown Label
     "Pick the language you're looking for" , //   6 - language Dropdown Label
     "Select Pokemon Card's Rarity" , //   7 - Rarity Dropdown label
@@ -22,14 +22,14 @@ export const useLocalizationStore =create<UseLocalizationStoreType>((set) => ({
     "Remove from selected" , //   12 - poke card button
     "listAddCards" , //   13 - pokelist check
     "listSelectedSection" , //   14 - pokelist list type
-    "" , //   15 -
-    "" , //   16 -
-    "" , //   17 -
-    "" , //   18 -
-    "" , //   19 -
-    "" , //   20 -
-    "" , //   21 -
-    "" , //   22 -
+    "Set up Exclusive Trade" , //   15 - button text
+    "Manage Cards Main Menu" , //   16 - Manage Cards Main Menu Title 1
+    "Add Cards Menu Exclusive Trade Version" , //   17 -
+    "ExclusiveTrade" , //   18 - componentType variable called from PokeCard for to display ManageCardsMainMenu Component in Exclusive Trade mode
+    "MainMenuDisplay" , //   19 -  componentType variable called from Account.tsx to display ManageCardsMainMenu Component in Default mode
+    "Confirm Cards" , //   20 -Modal Button
+    "Cards Selected" , //   21 - text
+    "Quantity" , //   22 - PokeCard
     "" , //   23 -
     "" , //   24 -
     "" , //   25 -
