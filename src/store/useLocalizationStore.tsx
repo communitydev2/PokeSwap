@@ -30,8 +30,8 @@ export const useLocalizationStore =create<UseLocalizationStoreType>((set) => ({
     "Confirm Cards" , //   20 -Modal Button
     "Cards Selected" , //   21 - text
     "Quantity" , //   22 - PokeCard
-    "" , //   23 -
-    "" , //   24 -
+    "Change Card" , //   23 - Confirm Cards Exclusive Trade
+    "listExclusiveTrade" , //   24 - used for menu_confirm cards
     "" , //   25 -
     "" , //   26 -
     "" , //   27 -

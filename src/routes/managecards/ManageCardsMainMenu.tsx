@@ -325,7 +325,7 @@ function TcgAccountDropdown() {
 
   <Space h="lg" />
   <Space h="lg" />
-  <Menu_ConfirmCards props={[useLocStore.localizationArray[20],useLocStore.localizationArray[14],useLocStore.localizationArray[20]]}/>
+  <Menu_ConfirmCards props={[useLocStore.localizationArray[20],useLocStore.localizationArray[34],useLocStore.localizationArray[20]]}/>
   {/* <Menu_ConfirmCards props={["Confirm Cards","listSelectedSection","Confirm Cards"]}/> */}
   <Space h="lg" />
   <Space h="lg" />
@@ -352,7 +352,7 @@ function TcgAccountDropdown() {
 
   <Space h="lg" />
   <Space h="lg" />
-  <Menu_ConfirmCards props={[useLocStore]}/>
+  <Menu_ConfirmCards props={[useLocStore.localizationArray[23],useLocStore.localizationArray[14],useLocStore.localizationArray[23]]}/>
   <Space h="lg" />
   <Space h="lg" />
   <Space h="lg" />
