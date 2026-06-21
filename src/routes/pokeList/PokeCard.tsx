@@ -181,7 +181,7 @@ export function PokeCard(
 
       
       {/* button for setting up exclusive trade */}
-      <Menu_ExclusiveTrade/>
+      {/* <Menu_ExclusiveTrade/> */}
       </>
     )}
 

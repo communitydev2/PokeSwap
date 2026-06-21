@@ -27,13 +27,13 @@ export const useLocalizationStore =create<UseLocalizationStoreType>((set) => ({
     "Add Cards Menu Exclusive Trade Version" , //   17 -
     "ExclusiveTrade" , //   18 - componentType variable called from PokeCard for to display ManageCardsMainMenu Component in Exclusive Trade mode
     "MainMenuDisplay" , //   19 -  componentType variable called from Account.tsx to display ManageCardsMainMenu Component in Default mode
-    "Confirm Cards" , //   20 -Modal Button
+    "Add Cards to My Library" , //   20 -Modal Button
     "Cards Selected" , //   21 - text
     "Quantity" , //   22 - PokeCard
     "Change Card" , //   23 - Confirm Cards Exclusive Trade
     "listExclusiveTrade" , //   24 - used for menu_confirm cards
-    "" , //   25 -
-    "" , //   26 -
+    "Your Cards Have been added" , //   25 - confirmation modal
+    "listConfirmAddCards" , //   26 - other type of list to confirm cards in cards add menu
     "" , //   27 -
     "" , //   28 -
     "" , //   29 -

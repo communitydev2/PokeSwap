@@ -81,13 +81,23 @@ const [opened, { open, close }] = useDisclosure(false);
       <Modal opened={opened} onClose={close} title={props[0]} centered>
         {/* Modal content */}
         {props[1]=="listSelectedSection" && (
+          <>
+          <title>retsdf</title>
           <PokeList listType={props[1]}/>
+          </>
         )}
         {props[1]=="listExclusiveTrade" && (
           
           // add something here
           <PokeList listType={props[1]}/>
           
+          
+        )}
+        {props[1]=="listConfirmAddCards" && (
+          
+          // add something here
+          <PokeList listType={props[1]}/>
+          // add button to close here
           
         )}
 
@@ -325,7 +335,7 @@ function TcgAccountDropdown() {
 
   <Space h="lg" />
   <Space h="lg" />
-  <Menu_ConfirmCards props={[useLocStore.localizationArray[20],useLocStore.localizationArray[34],useLocStore.localizationArray[20]]}/>
+  <Menu_ConfirmCards props={[useLocStore.localizationArray[20],useLocStore.localizationArray[26],useLocStore.localizationArray[20]]}/>
   {/* <Menu_ConfirmCards props={["Confirm Cards","listSelectedSection","Confirm Cards"]}/> */}
   <Space h="lg" />
   <Space h="lg" />
@@ -347,18 +357,28 @@ function TcgAccountDropdown() {
 <TcgAccountDropdown />
 {/* {exclusiveCardSelected!=null ? (<PokeCard />):()} */}
   {/* <SearchBar /> */}
-  <p> Card Selected</p>
+  <p> Card Selected For Exclusive Trade</p>
 <PokeCard currentCard={exclusiveCardSelected} pokeListType='listExclusiveTrade' isCardSelected={false} />
 
   <Space h="lg" />
   <Space h="lg" />
-  <Menu_ConfirmCards props={[useLocStore.localizationArray[23],useLocStore.localizationArray[14],useLocStore.localizationArray[23]]}/>
+  {/* <Menu_ConfirmCards props={[useLocStore.localizationArray[23],useLocStore.localizationArray[14],useLocStore.localizationArray[23]]}/> */}
   <Space h="lg" />
   <Space h="lg" />
   <Space h="lg" />
+
+
+  <Title> Select Cards You'll accept for the trade</Title>
+
+
+
+  <p> Selected Cards You consider for trade</p>
 
 
   <p> Select Cards To add</p>
+
+
+
   {/* <PokeList listType={'listAddCards'}/> */}
 </>
 
@@ -366,9 +386,9 @@ function TcgAccountDropdown() {
 )}
 
 {/* Following from Manage Cards in Figma,   */}
-{/* I am  adding cards AND this is the Main Menu */}
+{/* I am  adding cards AND this is the Main Menu AND listCardSelects is EMPTY */}
 {/* ManageCards Main Menu Inside Add Cards Button) */}
-{useStateStoreWrapper.showAddCardsMenu  == true && callComponent!=useLocStore.localizationArray[18]  && (
+{useStateStoreWrapper.showAddCardsMenu  == true && callComponent!=useLocStore.localizationArray[18] && usePokemonCardStore.listCardsSelected.length <1  && (
 <>
   <Title>{useLocStore.localizationArray[0]}</Title>
   <TcgAccountDropdown />
@@ -380,7 +400,9 @@ function TcgAccountDropdown() {
 
   <Space h="lg" />
   <Space h="lg" />
-  <Menu_ConfirmCards props={[useLocStore.localizationArray[20],useLocStore.localizationArray[14],useLocStore.localizationArray[20]]}/>
+  {/* add cards to my library model */}
+  {/* only display this button if there's any cards on the list */}
+  <Menu_ConfirmCards props={[useLocStore.localizationArray[25],useLocStore.localizationArray[14],useLocStore.localizationArray[20]]}/>
   <Space h="lg" />
   <Space h="lg" />
   <Space h="lg" />
