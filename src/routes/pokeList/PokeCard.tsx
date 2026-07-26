@@ -126,9 +126,9 @@ export function PokeCard(
 
   <p>{currentCard.card_name}</p>
 
-  {/* This is NOT an exclusive trade and I will show things for other listTypes */}
+  {/* This is NOT an exclusive trade AND NOT the confirmation of cards I'm adding AND I will show things for other listTypes */}
   {/* Quantity is hidden in ExclusiveTrade PokeCard Selected on Top */}
-  {pokeListType!=listTypeExclusiveTrade && (
+  {pokeListType!=listTypeExclusiveTrade && pokeListType != useLocStore.localizationArray[26] &&(
 
 <>
 
@@ -143,8 +143,49 @@ export function PokeCard(
     
     {useLocStore.localizationArray[22]} : {quantity}{' '}
     <br></br>
+
     <button type="button" style={{background: '#df0808' ,width:'50px'}} onClick={decrementQuantity}>-</button>{' '}
     <button type="button" style={{background: '#3adf08' ,width:'50px'}}  onClick={incrementQuantity}>+</button>
+
+  </>
+          )
+          }
+
+    
+      {/* only display if add Cards menu is shown  */}
+    {useStateWrapper.showManageCardsMainMenu && (
+
+      <>
+      {/* if it's in the adding selection AND youre adding to the cards you have for trade You are going display language dropdown choice */}
+      {pokeListType==listTypeAdd&& useStateWrapper.addingCardsSector ==useLocStore.localizationArray[4] && (
+        
+        <>
+      <LanguageSelectionDropdown/>
+        
+        
+        </>
+
+      )}
+      
+      </>
+
+
+    )}
+    {/* this is when I am confirming the cards I'm adding to my library and displayed in the modal */}
+  {pokeListType == useLocStore.localizationArray[26] && (
+
+<>
+
+
+
+
+    {useLocStore.localizationArray[22]} : {quantity}{' '}
+
+
+  
+
+
+    
 
   </>
           )

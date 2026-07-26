@@ -33,7 +33,7 @@ export const useLocalizationStore =create<UseLocalizationStoreType>((set) => ({
     "Change Card" , //   23 - Confirm Cards Exclusive Trade
     "listExclusiveTrade" , //   24 - used for menu_confirm cards
     "Your Cards Have been added" , //   25 - confirmation modal
-    "listConfirmAddCards" , //   26 - other type of list to confirm cards in cards add menu
+    "listConfirmAddCards" , //   26 - other type of pokelist to confirm cards in cards add menu
     "" , //   27 -
     "" , //   28 -
     "" , //   29 -

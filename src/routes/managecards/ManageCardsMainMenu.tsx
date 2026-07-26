@@ -76,6 +76,13 @@ function ComponentTitle({props}){
 function Menu_ConfirmCards({props}) {
 const [opened, { open, close }] = useDisclosure(false);
 // console.log(props)
+
+function submitCardsToSupabase(){
+  close();
+}
+
+
+
   return (
     <>
       <Modal opened={opened} onClose={close} title={props[0]} centered>
@@ -94,11 +101,16 @@ const [opened, { open, close }] = useDisclosure(false);
           
         )}
         {props[1]=="listConfirmAddCards" && (
-          
-          // add something here
+          <>
           <PokeList listType={props[1]}/>
-          // add button to close here
-          
+
+              <Button variant="default" onClick={close}>
+        I want to change.
+      </Button>
+              <Button variant="default" onClick={submitCardsToSupabase}>
+        Confirm
+      </Button>
+          </>
         )}
 
       </Modal>
@@ -388,7 +400,7 @@ function TcgAccountDropdown() {
 {/* Following from Manage Cards in Figma,   */}
 {/* I am  adding cards AND this is the Main Menu AND listCardSelects is EMPTY */}
 {/* ManageCards Main Menu Inside Add Cards Button) */}
-{useStateStoreWrapper.showAddCardsMenu  == true && callComponent!=useLocStore.localizationArray[18] && usePokemonCardStore.listCardsSelected.length <1  && (
+{useStateStoreWrapper.showAddCardsMenu  == true && callComponent!=useLocStore.localizationArray[18] && usePokeCardStore.listCardsSelected.length <1  && (
 <>
   <Title>{useLocStore.localizationArray[0]}</Title>
   <TcgAccountDropdown />
@@ -402,7 +414,6 @@ function TcgAccountDropdown() {
   <Space h="lg" />
   {/* add cards to my library model */}
   {/* only display this button if there's any cards on the list */}
-  <Menu_ConfirmCards props={[useLocStore.localizationArray[25],useLocStore.localizationArray[14],useLocStore.localizationArray[20]]}/>
   <Space h="lg" />
   <Space h="lg" />
   <Space h="lg" />
@@ -417,6 +428,36 @@ function TcgAccountDropdown() {
 }
 
 
+{/* Following from Manage Cards in Figma,   */}
+{/* I am  adding cards AND this is the Main Menu AND listCardSelects is NOT EMPTY */}
+{/* ManageCards Main Menu Inside Add Cards Button) */}
+{useStateStoreWrapper.showAddCardsMenu  == true && callComponent!=useLocStore.localizationArray[18] && usePokeCardStore.listCardsSelected.length >0  && (
+<>
+  <Title>{useLocStore.localizationArray[0]}</Title>
+  <TcgAccountDropdown />
+  <CardCategoryDropdown />
+  {useStateStoreWrapper.showLanguageDropdown && <LanguageSelectionDropdown />}
+  <SearchBar />
+  <p> {useLocStore.localizationArray[21]}</p>
+  <PokeList listType={'listSelectedSection'}/>
+
+  <Space h="lg" />
+  <Space h="lg" />
+  {/* add cards to my library model */}
+  {/* only display this button if there's any cards on the list */}
+  <Menu_ConfirmCards props={[useLocStore.localizationArray[25],useLocStore.localizationArray[26],useLocStore.localizationArray[20]]}/>
+  <Space h="lg" />
+  <Space h="lg" />
+  <Space h="lg" />
+
+
+  <p> Select Cards To add</p>
+  <PokeList listType={'listAddCards'}/>
+</>
+// When pressing the add cards button
+) 
+
+}
 
    
   

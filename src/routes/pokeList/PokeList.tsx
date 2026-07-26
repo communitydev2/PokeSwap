@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { supabase } from '../../supabaseClient'
 import { useEffect,useState } from 'react'
+import { useLocalizationStore } from '../../store/uselocalizationStore'
 import { usePokemonCardStore } from '../../store/pokemonCardsStore'
 import { PokemonCard } from '../../types/PokemonCard'
 import { PokeCard } from './PokeCard'
@@ -16,6 +17,7 @@ export function PokeList({listType}:{listType:string}) {
   const pagesize = 10;
   const [currentPageNumber,setCurrentPageNumber] = useState<number>(1);
   const [currentPageItems,setCurrentPageItems] = useState<PokemonCard[]>([]);
+  const useLocalizationStoreWrapper = useLocalizationStore();
  
   // Logic to add card to database
     const [selectedCard,setSelectedCard] = useState<PokemonCard>();
@@ -85,7 +87,10 @@ if (activeList.length > 10){
         
         
         return (
-          <li key={i} style={{ listStyleType: 'none' }}>
+          // {listType != useLocalizationStoreWrapper.localizationArray[26] && ()
+         
+          
+         <li key={i} style={{ listStyleType: 'none' }}>
             <div
               
               onClick={() => setSelectedCard(card)}
