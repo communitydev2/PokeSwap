@@ -70,6 +70,7 @@ if (activeList.length > 10){
 },[currentPageNumber,activeList,usePokeCard.listCardsSelected])
 
   return (
+    // {listType != useLocalizationStoreWrapper.localizationArray[26] && (
     <>
     
    
@@ -81,13 +82,14 @@ if (activeList.length > 10){
         currentPageItems.length > 0 && (
       
       
+
+          
       (currentPageItems).map((card,i) => {
 
         if(card == null)return
         
         
         return (
-          // {listType != useLocalizationStoreWrapper.localizationArray[26] && ()
          
           
          <li key={i} style={{ listStyleType: 'none' }}>
@@ -143,5 +145,6 @@ if (activeList.length > 10){
     
     )}
     </>
+  // )} -- This is where I have to end the condition for the different list type
   ) 
 }
