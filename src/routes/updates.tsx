@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Badge, Card, Container, Group, Image, Stack, Text, Title } from '@mantine/core'
-import { updates } from '../updates/updates'
+import { visibleUpdates } from '../updates/updates'
 
 export const Route = createFileRoute('/updates')({
   component: Updates,
@@ -25,7 +25,7 @@ function Updates() {
       </Text>
 
       <Stack gap="xl">
-        {updates.map((update) => (
+        {visibleUpdates.map((update) => (
           <Card key={update.id} id={update.id} withBorder radius="md" padding="lg" component="article">
             {update.screenshot && (
               <Card.Section mb="md">
@@ -40,9 +40,14 @@ function Updates() {
               </Text>
             </Group>
 
-            {update.tags && (
+            {(update.tags || update.audience === 'dev') && (
               <Group gap="xs" mb="sm">
-                {update.tags.map((tag) => (
+                {update.audience === 'dev' && (
+                  <Badge variant="filled" color="gray" size="sm">
+                    dev
+                  </Badge>
+                )}
+                {update.tags?.map((tag) => (
                   <Badge key={tag} variant="light" size="sm">
                     {tag}
                   </Badge>

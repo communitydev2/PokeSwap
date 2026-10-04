@@ -1,10 +1,13 @@
-// Every user-facing change gets an entry here (newest first).
+// Every change gets an entry here (newest first).
+// audience 'user': shown to everyone - write it for people using the site, no code or tooling talk.
+// audience 'dev':  developer tooling/internal changes - only shown while running the dev server.
 // Screenshots live in public/updates/ - capture them with:
 //   node scripts/screenshot.mjs <route> public/updates/<id>.png [css-selector]
 
 export type Update = {
   id: string;
   date: string; // YYYY-MM-DD
+  audience: 'user' | 'dev';
   title: string;
   summary: string;
   body: string[];
@@ -14,19 +17,56 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'rls-draft-and-dev-branch',
+    date: '2026-10-04',
+    audience: 'dev',
+    title: 'RLS policy draft and dev branch',
+    summary: 'Draft Row Level Security policies for every table the app uses, and day-to-day work moves to the dev branch.',
+    body: [
+      'supabase/rls-policies.sql has draft policies (not applied): the card catalogue is public read-only, and user_account / player_tcg_account rows are only visible and editable by their owner.',
+      'Commits now go to the dev branch; master is the release branch and is only updated when a release is made.',
+    ],
+    tags: ['security', 'tooling'],
+  },
+  {
+    id: 'updates-audience',
+    date: '2026-10-04',
+    audience: 'dev',
+    title: 'Dev-only articles on the Updates page',
+    summary: 'Updates are now marked for users or developers; developer articles only show in dev.',
+    body: [
+      'Each entry in src/updates/updates.ts has an audience. "user" articles are public; "dev" articles (tooling, internal changes) are hidden in the production build and shown with a "dev" badge while developing.',
+    ],
+    tags: ['tooling'],
+  },
+  {
     id: 'persistent-login',
     date: '2026-10-04',
-    title: 'Stay signed in on every page',
+    audience: 'user',
+    title: 'Stay signed in',
     summary: 'Once you sign in on a device, you stay signed in, whichever page you open.',
     body: [
-      'Your sign-in used to be picked up only on the home page, so opening another page or reloading could make it look like you were signed out. It is now restored on every page and kept fresh automatically.',
-      'Magic links now bring you back to the same address you requested them from, so signing in from your phone over Tailscale keeps you on the phone address.',
+      'Before, opening some pages or reloading could make it look like you had been signed out. Your sign-in is now remembered on every page of the site.',
+      'The sign-in link we email you now brings you back to the same place you asked for it from.',
     ],
-    tags: ['feature', 'fix'],
+    tags: ['improvement'],
+  },
+  {
+    id: 'persistent-login-dev',
+    date: '2026-10-04',
+    audience: 'dev',
+    title: 'Session restored in the root layout',
+    summary: 'The Supabase session is restored in __root.tsx instead of LandingPage, and magic links use emailRedirectTo.',
+    body: [
+      'useSupabaseSession() in src/routes/__root.tsx calls getSession() and subscribes to onAuthStateChange, so authStore.session is set on every route. LandingPage now reads the session from the store.',
+      'signInWithOtp passes emailRedirectTo: window.location.origin. Each origin must be listed under Authentication → URL Configuration → Redirect URLs in Supabase, otherwise the link falls back to the Site URL.',
+    ],
+    tags: ['auth'],
   },
   {
     id: 'click-ids',
     date: '2026-10-04',
+    audience: 'dev',
     title: 'Every button now has a click ID',
     summary: 'Each clickable element has a unique ID, so a logged click journey points straight at the code.',
     body: [
@@ -38,6 +78,7 @@ export const updates: Update[] = [
   {
     id: 'click-recorder',
     date: '2026-10-04',
+    audience: 'dev',
     title: 'Record a click path in development',
     summary: 'While running the dev server, every click is logged so a navigation path can be copied and shared.',
     body: [
@@ -49,6 +90,7 @@ export const updates: Update[] = [
   {
     id: 'dev-tailscale-startup',
     date: '2026-10-04',
+    audience: 'dev',
     title: 'dev-tailscale.bat works from anywhere, including Startup',
     summary: 'The dev launcher now finds the project even when the .bat is copied to another folder.',
     body: [
@@ -60,18 +102,20 @@ export const updates: Update[] = [
   {
     id: 'updates-page',
     date: '2026-10-04',
-    title: 'New Updates page',
-    summary: 'A changelog that shows every update to the site as a short article.',
+    audience: 'user',
+    title: 'See what is new',
+    summary: 'A new Updates page shows every improvement to the site.',
     body: [
-      'There is now an Updates section, linked from the header, where each change to the site is written up as a small article.',
-      'Each article includes a screenshot of the part of the site that changed, so you can see what is new at a glance.',
+      'Click Updates in the menu at the top to see what has changed recently, newest first.',
+      'Each update comes with a picture of the part of the site that changed, so you can find it straight away.',
     ],
     screenshot: '/updates/updates-page.png',
-    tags: ['feature'],
+    tags: ['new'],
   },
   {
     id: 'dev-tailscale',
     date: '2026-10-04',
+    audience: 'dev',
     title: 'Open the dev server from your phone over Tailscale',
     summary: 'dev-tailscale.bat starts the dev server and gives you a fixed private URL for your phone.',
     body: [
@@ -81,3 +125,6 @@ export const updates: Update[] = [
     tags: ['tooling'],
   },
 ];
+
+// What this build shows: everything while developing, only user articles in production.
+export const visibleUpdates = updates.filter((u) => import.meta.env.DEV || u.audience === 'user');
