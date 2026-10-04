@@ -93,7 +93,7 @@ if (activeList.length > 10){
          
           
          <li key={i} style={{ listStyleType: 'none' }}>
-            <div
+            <div data-click-id="PokeList/card"
               
               onClick={() => setSelectedCard(card)}
               onMouseEnter={(e) => {
@@ -123,7 +123,7 @@ if (activeList.length > 10){
       </ul>
       
       {currentPageNumber >1 && activeList.length >9 &&  (
-<button onClick={()=> {
+<button data-click-id="PokeList/previous-page" onClick={()=> {
 
         setCurrentPageNumber(currentPageNumber>1 ?currentPageNumber-1 : currentPageNumber)
 
@@ -132,7 +132,7 @@ if (activeList.length > 10){
 
       )}
       {activeList.length >9 && (
-      <button onClick={()=> {
+      <button data-click-id="PokeList/next-page" onClick={()=> {
 
  setCurrentPageNumber(currentPageNumber+1)
 

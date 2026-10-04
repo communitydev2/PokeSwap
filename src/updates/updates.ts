@@ -14,6 +14,17 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'click-ids',
+    date: '2026-10-04',
+    title: 'Every button now has a click ID',
+    summary: 'Each clickable element has a unique ID, so a logged click journey points straight at the code.',
+    body: [
+      'All buttons, links, inputs and dropdowns now carry an ID like ManageCardsMainMenu/add-cards. The dev click log uses these IDs, and dropdown choices show which dropdown they belong to.',
+      'Click logging can be switched on or off in one place: src/dev/clickLogConfig.ts. Clicks on elements without an ID are marked "(untagged)".',
+    ],
+    tags: ['tooling'],
+  },
+  {
     id: 'click-recorder',
     date: '2026-10-04',
     title: 'Record a click path in development',

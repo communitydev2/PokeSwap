@@ -50,12 +50,12 @@ export function Auth() {
       </Title>
 
       {/* <Text className={classes.subtitle}>
-        Do not have an account yet? <Anchor>Create account</Anchor>
+        Do not have an account yet? <Anchor data-click-id="Auth/create-account">Create account</Anchor>
       </Text> */}
 
       <Paper withBorder shadow="sm" p={22} mt={30} radius="md">
-        <TextInput label="Email" placeholder="ash@pallettown.pika" required radius="md" onChange={(e)=>setEmail(e.target.value)}/>
-        <Button fullWidth mt="xl" radius="md" onClick={handleLogin}>
+        <TextInput data-click-id="Auth/email-input" label="Email" placeholder="ash@pallettown.pika" required radius="md" onChange={(e)=>setEmail(e.target.value)}/>
+        <Button data-click-id="Auth/login-button" fullWidth mt="xl" radius="md" onClick={handleLogin}>
             {loading ? <span>Loading</span> : <span>Sign up with email</span>}
         </Button>
       </Paper>

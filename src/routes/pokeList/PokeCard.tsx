@@ -65,7 +65,7 @@ export function PokeCard(
             <ManageCardsMainMenu callComponent={useLocStore.localizationArray[18]} exclusiveCardSelected={currentCard}/>
           </Modal>
         {useStateWrapper.addingCardsSector == useLocStore.localizationArray[4] && (
-          <Button variant="default" onClick={
+          <Button data-click-id="PokeCard/open-exclusive-trade" variant="default" onClick={
             ()=> {
             //   useStateWrapper.setStateBooleanArray(useStateWrapper.stateBooleanArray.map((v,i)=>{
             //     return  i == 0 ? true : v
@@ -88,7 +88,7 @@ export function PokeCard(
     function LanguageSelectionDropdown() {
     
       return (
-        <Select
+        <Select data-click-id="PokeCard/language-select"
           label={useLocStore.localizationArray[6]}
           placeholder={useLocStore.localizationArray[2]}
           data={usePokeCard.languages}
@@ -112,7 +112,7 @@ export function PokeCard(
   }
 
   return (
-  <div style={{width:'1000px',height:'150px'}}>
+  <div data-click-context={`card: ${currentCard.card_name}`} style={{width:'1000px',height:'150px'}}>
     <img
 
     src={`${currentCard.card_image}/low.png`}
@@ -144,8 +144,8 @@ export function PokeCard(
     {useLocStore.localizationArray[22]} : {quantity}{' '}
     <br></br>
 
-    <button type="button" style={{background: '#df0808' ,width:'50px'}} onClick={decrementQuantity}>-</button>{' '}
-    <button type="button" style={{background: '#3adf08' ,width:'50px'}}  onClick={incrementQuantity}>+</button>
+    <button data-click-id="PokeCard/quantity-minus" type="button" style={{background: '#df0808' ,width:'50px'}} onClick={decrementQuantity}>-</button>{' '}
+    <button data-click-id="PokeCard/quantity-plus" type="button" style={{background: '#3adf08' ,width:'50px'}}  onClick={incrementQuantity}>+</button>
 
   </>
           )
@@ -233,7 +233,7 @@ export function PokeCard(
   {isCardSelected && (
     <>
     
-    <button type="button" style={{background: `${activeButtonColor}` ,width:'200px'}} 
+    <button data-click-id="PokeCard/add-or-remove-card" type="button" style={{background: `${activeButtonColor}` ,width:'200px'}} 
     onClick={()=>{
 
 

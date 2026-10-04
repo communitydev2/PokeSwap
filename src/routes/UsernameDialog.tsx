@@ -206,16 +206,16 @@ setErrorMessage(errorMessages[2])
       </Title>
 
       {/* <Text className={classes.subtitle}>
-        Do not have an account yet? <Anchor>Create account</Anchor>
+        Do not have an account yet? <Anchor data-click-id="UsernameDialog/create-account">Create account</Anchor>
       </Text> */}
 
       <Paper withBorder shadow="sm" p={22} mt={30} radius="md">
-        <TextInput label="Username" placeholder="Enter your username" required radius="md" onChange={(e)=>setUsername(e.target.value)}/>
+        <TextInput data-click-id="UsernameDialog/username-input" label="Username" placeholder="Enter your username" required radius="md" onChange={(e)=>setUsername(e.target.value)}/>
           {showErrorMessage && (
 
             <Text color='red'>{errorMessage}   </Text>
           )}
-        <Button fullWidth mt="xl" radius="md" onClick={
+        <Button data-click-id="UsernameDialog/submit-username" fullWidth mt="xl" radius="md" onClick={
           handleLogin}>
             {loading ? <span>Loading</span> : <span>Sign up with username</span>}
         </Button>

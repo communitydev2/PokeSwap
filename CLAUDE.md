@@ -11,5 +11,9 @@ Every change that affects the site or how it is run gets an article on the `/upd
    - Stop the dev server afterwards.
 3. Changes with nothing to show (tooling, scripts, config) still get an article, just without a screenshot.
 
-## Reaching screens behind clicks
-Most menus are opened through Zustand store flags (e.g. `setShowManageCardsMainMenu`), not URLs, so they can't be linked to directly. In dev, `src/dev/clickRecorder.ts` logs every click; the user can click through the app and paste the output of `copy(clickPath())` from the browser console. Each step names the element, the app components it is inside and the current path; use that to find the buttons and state flags involved.
+## Click IDs and the click log
+Most menus are opened through Zustand store flags (e.g. `setShowManageCardsMainMenu`), not URLs, so they can't be linked to directly. Instead, every clickable element has a unique `data-click-id="Component/what-it-is"` (e.g. `ManageCardsMainMenu/add-cards`), and in dev `src/dev/clickRecorder.ts` logs each click by that id (toggle in `src/dev/clickLogConfig.ts`).
+
+- When the user pastes a click journey (from `copy(clickPath())`), grep `src/` for each id to find the exact element and handler.
+- Steps marked `(untagged)` are clicks on elements without an id; give them one if they are interactive.
+- **Every new clickable element (button, link, input, select, clickable div...) must get a unique `data-click-id`.** Use a template string for repeated items, e.g. ``data-click-id={`Comp/item:${id}`}``. Add `data-click-context` on a container to label clicks inside it (e.g. which card).

@@ -86,24 +86,24 @@ export default function SearchBar() {
   return (
     <Group>
       <form onSubmit={form.onSubmit(handleFormSubmit)}>
-        <TextInput
+        <TextInput data-click-id="SearchBar/search-input"
           label={useLocStore.localizationArray[8]}
           {...form.getInputProps('searchInput')}
         />
 
-        <Select
+        <Select data-click-id="SearchBar/rarity-select"
           label={useLocStore.localizationArray[7]}
           data={usePokeCardStore.rarities}
           {...form.getInputProps('rarity')}
         />
 
-        <Select
+        <Select data-click-id="SearchBar/expansion-select"
           label={useLocStore.localizationArray[9]}
           data={usePokeCardStore.expansions}
           {...form.getInputProps('expansion')}
         />
 
-        <Button type="submit">Submit</Button>
+        <Button data-click-id="SearchBar/submit" type="submit">Submit</Button>
       </form>
     </Group>
   );

@@ -89,7 +89,7 @@ useStateStoreHandle.setShowManageCardsMainMenu(true);
 
 
   const links = mockdata.map((item) => (
-    <UnstyledButton className={classes.subLink} key={item.title}>
+    <UnstyledButton data-click-id={`Header/features-item:${item.title}`} className={classes.subLink} key={item.title}>
       <Group wrap="nowrap" align="flex-start">
         <ThemeIcon size={34} variant="default" radius="md">
           <item.icon size={22} color={theme.colors.blue[6]} />
@@ -114,13 +114,13 @@ useStateStoreHandle.setShowManageCardsMainMenu(true);
           <MantineLogo size={30} />
 
           <Group h="100%" gap={0} visibleFrom="sm">
-            <a href="#" className={classes.link}>
+            <a data-click-id="Header/home" href="#" className={classes.link}>
               Home
             </a>
 
             <HoverCard width={600} position="bottom" radius="md" shadow="md" withinPortal>
               <HoverCard.Target>
-                <a href="#" className={classes.link}>
+                <a data-click-id="Header/features" href="#" className={classes.link}>
                   <Center inline>
                     <Box component="span" mr={5}>
                       Features
@@ -133,7 +133,7 @@ useStateStoreHandle.setShowManageCardsMainMenu(true);
               <HoverCard.Dropdown style={{ overflow: 'hidden' }}>
                 <Group justify="space-between" px="md">
                   <Text fw={500}>Features</Text>
-                  <Anchor href="#" fz="xs">
+                  <Anchor data-click-id="Header/features-view-all" href="#" fz="xs">
                     View all
                   </Anchor>
                 </Group>
@@ -154,18 +154,18 @@ useStateStoreHandle.setShowManageCardsMainMenu(true);
                         Their food sources have decreased, and their numbers
                       </Text>
                     </div>
-                    <Button variant="default">Get started</Button>
+                    <Button data-click-id="Header/features-get-started" variant="default">Get started</Button>
                   </Group>
                 </div>
               </HoverCard.Dropdown>
             </HoverCard>
-            <a href="#" className={classes.link}>
+            <a data-click-id="Header/learn" href="#" className={classes.link}>
               Learn
             </a>
-            <a href="#" className={classes.link}>
+            <a data-click-id="Header/academy" href="#" className={classes.link}>
               Academy
             </a>
-            <Link to="/updates" className={classes.link}>
+            <Link data-click-id="Header/updates" to="/updates" className={classes.link}>
               Updates
             </Link>
           </Group>
@@ -177,19 +177,19 @@ useStateStoreHandle.setShowManageCardsMainMenu(true);
                         <Group >
               <Text size="xl" c="dimmed">
                         Hi {authStore.user?.username}
-                      <Button variant="default" onClick={handleManageCardsMenu}>Manage Cards</Button>
+                      <Button data-click-id="Header/manage-cards" variant="default" onClick={handleManageCardsMenu}>Manage Cards</Button>
                       </Text>
           </Group>
               
             ) : (
               <Group >
-              <Button variant="default">Log in</Button>
-              <Button>Sign up</Button>
+              <Button data-click-id="Header/log-in" variant="default">Log in</Button>
+              <Button data-click-id="Header/sign-up">Sign up</Button>
           </Group>
 
             )}
 
-          <Burger opened={drawerOpened} onClick={toggleDrawer} hiddenFrom="sm" />
+          <Burger data-click-id="Header/burger" opened={drawerOpened} onClick={toggleDrawer} hiddenFrom="sm" />
         </Group>
       </header>
 
@@ -205,10 +205,10 @@ useStateStoreHandle.setShowManageCardsMainMenu(true);
         <ScrollArea h="calc(100vh - 80px" mx="-md">
           <Divider my="sm" />
 
-          <a href="#" className={classes.link}>
+          <a data-click-id="Header/drawer-home" href="#" className={classes.link}>
             Home
           </a>
-          <UnstyledButton className={classes.link} onClick={toggleLinks}>
+          <UnstyledButton data-click-id="Header/drawer-features" className={classes.link} onClick={toggleLinks}>
             <Center inline>
               <Box component="span" mr={5}>
                 Features
@@ -217,21 +217,21 @@ useStateStoreHandle.setShowManageCardsMainMenu(true);
             </Center>
           </UnstyledButton>
           <Collapse in={linksOpened}>{links}</Collapse>
-          <a href="#" className={classes.link}>
+          <a data-click-id="Header/drawer-learn" href="#" className={classes.link}>
             Learn
           </a>
-          <a href="#" className={classes.link}>
+          <a data-click-id="Header/drawer-academy" href="#" className={classes.link}>
             Academy
           </a>
-          <Link to="/updates" className={classes.link} onClick={closeDrawer}>
+          <Link data-click-id="Header/drawer-updates" to="/updates" className={classes.link} onClick={closeDrawer}>
             Updates
           </Link>
 
           <Divider my="sm" />
 
           <Group justify="center" grow pb="xl" px="md">
-            <Button variant="default">Log in</Button>
-            <Button>Sign up</Button>
+            <Button data-click-id="Header/drawer-log-in" variant="default">Log in</Button>
+            <Button data-click-id="Header/drawer-sign-up">Sign up</Button>
           </Group>
         </ScrollArea>
       </Drawer>

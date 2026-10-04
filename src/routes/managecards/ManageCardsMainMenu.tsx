@@ -104,10 +104,10 @@ function submitCardsToSupabase(){
           <>
           <PokeList listType={props[1]}/>
 
-              <Button variant="default" onClick={close}>
+              <Button data-click-id="ManageCardsMainMenu/confirm-modal-change" variant="default" onClick={close}>
         I want to change.
       </Button>
-              <Button variant="default" onClick={submitCardsToSupabase}>
+              <Button data-click-id="ManageCardsMainMenu/confirm-modal-confirm" variant="default" onClick={submitCardsToSupabase}>
         Confirm
       </Button>
           </>
@@ -115,7 +115,7 @@ function submitCardsToSupabase(){
 
       </Modal>
 
-      <Button variant="default" onClick={open}>
+      <Button data-click-id={`ManageCardsMainMenu/modal-button:${props[1]}`} variant="default" onClick={open}>
         {/* 20 for listSelectedSection*/}
         
         {props[2]}
@@ -211,7 +211,7 @@ function cardCategoryOnChange(e) {
   function LanguageSelectionDropdown() {
   
     return (
-      <Select
+      <Select data-click-id="ManageCardsMainMenu/language-select"
         label={useLocStore.localizationArray[6]}
         placeholder={useLocStore.localizationArray[2]}
         data={usePokeCardStore.languages}
@@ -227,7 +227,7 @@ function cardCategoryOnChange(e) {
   function CardCategoryDropdown() {
   
     return (
-      <Select
+      <Select data-click-id="ManageCardsMainMenu/card-category-select"
         label={useLocStore.localizationArray[5]}
         placeholder={useLocStore.localizationArray[2]}
         data={cardCategoryOptions}
@@ -258,7 +258,7 @@ function TcgAccountDropdown() {
 
   
   return (
-    <Select
+    <Select data-click-id="ManageCardsMainMenu/tcg-account-select"
       label={useLocStore.localizationArray[1]}
       placeholder={useLocStore.localizationArray[2]}
       data={comboData_accountUsernames}
@@ -326,7 +326,7 @@ function TcgAccountDropdown() {
   <>
   <Group justify="center">
 
-  <Button onClick={handleMainMenuAddCardsButton}>Add Cards</Button>
+  <Button data-click-id="ManageCardsMainMenu/add-cards" onClick={handleMainMenuAddCardsButton}>Add Cards</Button>
   </Group>
   <Space h="xl" />
   <TcgAccountDropdown />

@@ -90,7 +90,7 @@ useEffect(()=>{
 
   function AccountNumberDropdown() {
     return (
-      <Select
+      <Select data-click-id="ManageTCGAccountsMenu/account-number-select"
         label="Select Account Number"
         placeholder="Pick value"
         data={[
@@ -154,14 +154,14 @@ settcgIdNumbers(Array.from({length: accountNumber}, (v, i) => i))
         <Space h="lg" />
 
 
-        <TextInput
+        <TextInput data-click-id={`ManageTCGAccountsMenu/account-name:${index}`}
          withAsterisk
          label="TCG Account Name"
          placeholder="pokePlayer555"
          value={tcgIdNames[index]}
          onChange={(event)=> setTcgIdNames(tcgIdNames[index])}
          />
-       <TextInput
+       <TextInput data-click-id={`ManageTCGAccountsMenu/account-id-number:${index}`}
          withAsterisk
          label="TCG ID Number"
          placeholder="54636463475"
@@ -205,7 +205,7 @@ settcgIdNumbers(Array.from({length: accountNumber}, (v, i) => i))
 <AccountInsertion index={index} key={index} />
  ))}
  
-<Button variant="filled" onClick={submitData}>Submit Accounts</Button>
+<Button data-click-id="ManageTCGAccountsMenu/submit-accounts" variant="filled" onClick={submitData}>Submit Accounts</Button>
   
   
   

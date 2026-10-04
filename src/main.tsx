@@ -5,7 +5,9 @@ import "@mantine/core/styles.css";
 // Import the generated route tree
 import { routeTree } from './routeTree.gen'
 import type { Router } from '@tanstack/react-router';
-if (import.meta.env.DEV) {
+import { CLICK_LOG_ENABLED } from './dev/clickLogConfig'
+
+if (import.meta.env.DEV && CLICK_LOG_ENABLED) {
   import('./dev/clickRecorder').then((m) => m.startClickRecorder())
 }
 
