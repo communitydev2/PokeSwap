@@ -1,11 +1,5 @@
 # Project rules
 
-## Commit after every request
-- When you finish a request that changed files, commit those changes before replying.
-- Stage only the files you changed for that request (`git add <paths>`), never `git add -A` / `git add .`. Leave the user's own uncommitted work alone.
-- One commit per request, with a short message describing what changed. Do not push unless asked.
-- If nothing changed (questions, investigation), there is nothing to commit.
-
 ## Log every update on the Updates page
 Every change that affects the site or how it is run gets an article on the `/updates` page, in the same commit.
 
