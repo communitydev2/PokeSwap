@@ -17,6 +17,31 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'sign-in-code',
+    date: '2026-10-04',
+    audience: 'user',
+    title: 'Sign in with a code',
+    summary: 'You can now sign in by typing the code from the email, which works on any device.',
+    body: [
+      'After you enter your email, the sign-in email contains both a link and a code. Tap the link on the same device, or type the code on the sign-in screen. The code is handy when you read your email on a different device, or when the link opens in your mail app instead of your browser.',
+      'If a sign-in link has expired or was already used, the site now tells you, so you can send a new one.',
+    ],
+    screenshot: '/updates/sign-in-code.png',
+    tags: ['new'],
+  },
+  {
+    id: 'sign-in-code-dev',
+    date: '2026-10-04',
+    audience: 'dev',
+    title: 'Email OTP code sign-in and magic-link error notice',
+    summary: 'Auth.tsx verifies the emailed OTP with supabase.auth.verifyOtp; __root.tsx turns #error=... redirects into a notice.',
+    body: [
+      'Magic links redirect to the origin they were requested from, so a link requested on the PC (localhost) fails on a phone. The code path avoids redirects entirely. The Magic Link email template must include {{ .Token }} for the code to appear in the email.',
+      'Failed links (e.g. error_code=otp_expired) are read from the URL hash before Supabase processes it, shown via the saved-accounts notice, and removed from the address bar. Send errors with status 429 show Supabase\'s rate-limit message. New text lives in src/i18n/en.ts.',
+    ],
+    tags: ['auth'],
+  },
+  {
     id: 'named-text-keys',
     date: '2026-10-04',
     audience: 'dev',

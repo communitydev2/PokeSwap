@@ -26,6 +26,19 @@ export const en = {
   removeFromSelected: 'Remove from selected',
   setUpExclusiveTrade: 'Set up Exclusive Trade',
   quantity: 'Quantity',
+
+  // Sign in (email link or 6-digit code)
+  signInEmailSent: (email: string) =>
+    `We emailed a sign-in link and a code to ${email}. Open the link on this device, or type the code here.`,
+  signInCodeLabel: 'Code from the email',
+  signInCodePlaceholder: '123456',
+  signInWithCode: 'Sign in with code',
+  signInCodeInvalid: 'That code is wrong or has expired. Use the code from the newest email, or send a new one.',
+  signInSendFailed: "Couldn't send the email. Please check the address and try again.",
+  signInResend: 'Send a new email',
+  signInUseDifferentEmail: 'Use a different email',
+  linkExpired: 'That sign-in link has expired or was already used. Send a new one below, or use the code from the email.',
+  linkFailed: "Signing in with that link didn't work. Please try again.",
 };
 
 export type Translations = typeof en;

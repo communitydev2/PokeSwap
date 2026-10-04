@@ -3,6 +3,7 @@ import { supabase } from '../supabaseClient';
 import classes from '../assets/Auth.module.css';
 import { useSavedAccountsStore } from '../store/savedAccountsStore';
 import { useAuthStore } from '../store/userStore';
+import { useLocalizationStore } from '../store/useLocalizationStore';
 
 
 
@@ -29,6 +30,12 @@ import {
 export function Auth() {
    const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState('')
+  // Set once the email is sent: shows the code box for that address
+  const [codeSentTo, setCodeSentTo] = useState<string | null>(null)
+  const [code, setCode] = useState('')
+  const [verifying, setVerifying] = useState(false)
+  const [loginMessage, setLoginMessage] = useState<{ ok: boolean; text: string } | null>(null)
+  const t = useLocalizationStore((state) => state.t)
   const [showRecovery, setShowRecovery] = useState(false)
   const [recoveryEmail, setRecoveryEmail] = useState('')
   const [recoveryLoading, setRecoveryLoading] = useState(false)
@@ -64,18 +71,36 @@ export function Auth() {
     event.preventDefault()
 
     setLoading(true)
-    // Send the magic link back to the address the user is on (localhost, Tailscale, live site)
+    setLoginMessage(null)
+    // Send the magic link back to the address the user is on (localhost, Tailscale, live site).
+    // The same email also contains a code, for signing in on a different device or browser.
     const { error } = await supabase.auth.signInWithOtp({
-      email,
+      email: email.trim(),
       options: { emailRedirectTo: window.location.origin },
     })
+    setLoading(false)
 
     if (error) {
-      alert(error.error_description || error.message)
-    } else {
-      alert('Check your email for the login link!')
+      console.warn(error)
+      // Rate-limit messages ("you can only request this after N seconds") are worth showing as-is
+      setLoginMessage({ ok: false, text: error.status === 429 ? error.message : t.signInSendFailed })
+      return
     }
-    setLoading(false)
+    setCodeSentTo(email.trim())
+    setCode('')
+  }
+
+  const handleVerifyCode = async () => {
+    if (!codeSentTo) return
+    setVerifying(true)
+    setLoginMessage(null)
+    const { error } = await supabase.auth.verifyOtp({ email: codeSentTo, token: code.trim(), type: 'email' })
+    setVerifying(false)
+    if (error) {
+      console.warn(error)
+      setLoginMessage({ ok: false, text: t.signInCodeInvalid })
+    }
+    // On success the session is picked up in __root.tsx and the page moves on
   }
   return (
     <Container size={420} my={40}>
@@ -131,10 +156,59 @@ export function Auth() {
       )}
 
       <Paper withBorder shadow="sm" p={22} mt={30} radius="md">
-        <TextInput data-click-id="Auth/email-input" label="Email" placeholder="ash@pallettown.pika" required radius="md" onChange={(e)=>setEmail(e.target.value)}/>
-        <Button data-click-id="Auth/login-button" fullWidth mt="xl" radius="md" onClick={handleLogin}>
-            {loading ? <span>Loading</span> : <span>Sign up with email</span>}
-        </Button>
+        {!codeSentTo ? (
+          <>
+            <TextInput data-click-id="Auth/email-input" label="Email" placeholder="ash@pallettown.pika" required radius="md" value={email} onChange={(e)=>setEmail(e.target.value)}/>
+            <Button data-click-id="Auth/login-button" fullWidth mt="xl" radius="md" onClick={handleLogin} loading={loading} disabled={!email.trim()}>
+              Sign up with email
+            </Button>
+          </>
+        ) : (
+          <Stack gap="sm">
+            <Text size="sm">{t.signInEmailSent(codeSentTo)}</Text>
+            <TextInput
+              data-click-id="Auth/code-input"
+              label={t.signInCodeLabel}
+              placeholder={t.signInCodePlaceholder}
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              radius="md"
+              value={code}
+              onChange={(e) => {
+                setCode(e.target.value.replace(/\D/g, ''))
+                setLoginMessage(null)
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && code.length >= 6) handleVerifyCode()
+              }}
+            />
+            <Button data-click-id="Auth/verify-code" fullWidth radius="md" onClick={handleVerifyCode} loading={verifying} disabled={code.length < 6}>
+              {t.signInWithCode}
+            </Button>
+            <Group justify="space-between">
+              <Anchor data-click-id="Auth/resend-email" component="button" type="button" size="sm" onClick={handleLogin}>
+                {t.signInResend}
+              </Anchor>
+              <Anchor
+                data-click-id="Auth/change-email"
+                component="button"
+                type="button"
+                size="sm"
+                onClick={() => {
+                  setCodeSentTo(null)
+                  setLoginMessage(null)
+                }}
+              >
+                {t.signInUseDifferentEmail}
+              </Anchor>
+            </Group>
+          </Stack>
+        )}
+        {loginMessage && (
+          <Text size="sm" mt="sm" c={loginMessage.ok ? 'teal' : 'red'}>
+            {loginMessage.text}
+          </Text>
+        )}
 
         <Text size="sm" ta="center" mt="md">
           <Anchor

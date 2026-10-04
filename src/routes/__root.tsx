@@ -9,6 +9,14 @@ import type { Session } from '@supabase/supabase-js';
 import { supabase } from '../supabaseClient';
 import { useAuthStore } from '../store/userStore';
 import { useSavedAccountsStore } from '../store/savedAccountsStore';
+import { useLocalizationStore } from '../store/useLocalizationStore';
+
+// Read before Supabase processes the URL: a failed magic link comes back as
+// #error=...&error_code=otp_expired&error_description=...
+const initialAuthError = (() => {
+  const params = new URLSearchParams(window.location.hash.slice(1))
+  return params.get('error') ? params.get('error_code') ?? 'unknown' : null
+})()
 if(process.env.NODE_ENV === 'production'){
   <TanStackRouterDevtoolsInProd/>
 }
@@ -27,6 +35,15 @@ function useSupabaseSession() {
   const saveSession = useSavedAccountsStore((state) => state.saveSession)
   const setSavedUsername = useSavedAccountsStore((state) => state.setUsername)
   const setAddingAccount = useSavedAccountsStore((state) => state.setAddingAccount)
+  const setNotice = useSavedAccountsStore((state) => state.setNotice)
+  const t = useLocalizationStore((state) => state.t)
+
+  // Explain a failed sign-in link instead of silently ignoring it, and tidy the address bar
+  useEffect(() => {
+    if (!initialAuthError) return
+    setNotice(initialAuthError === 'otp_expired' ? t.linkExpired : t.linkFailed)
+    window.history.replaceState(null, '', window.location.pathname + window.location.search)
+  }, [setNotice, t])
 
   useEffect(() => {
     const apply = (event: string, session: Session | null) => {
