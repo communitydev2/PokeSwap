@@ -1,7 +1,7 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsInProd } from '@tanstack/react-router-devtools'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-import { Header } from './Header'
+import { Header } from '../components/Header'
 import { MantineProvider} from "@mantine/core";
 import { theme } from '../theme';
 import { useEffect } from 'react';

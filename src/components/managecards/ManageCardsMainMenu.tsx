@@ -1,4 +1,3 @@
-import { createFileRoute } from '@tanstack/react-router'
 import { Popover, Text, Button,List,Select,Group, Space,Title, ComboboxItem,UnstyledButton
 
  } from '@mantine/core';
@@ -16,10 +15,7 @@ import SearchBar from '../reusableComponents/SearchBar';
 import { PokeList } from '../pokeList/PokeList';
 import { PokeCard } from '../pokeList/PokeCard';
 import { PokemonCard } from '../../types/PokemonCard';
-import { ConfirmCardsList } from '../../components/ConfirmCardsList/ConfirmCardsList';
-export const Route = createFileRoute('/managecards/ManageCardsMainMenu')({
-  component: ManageCardsMainMenu,
-})
+import { ConfirmCardsList } from '../ConfirmCardsList/ConfirmCardsList';
 
 type tcgAccountType =  {
   available_cards_for_trade : string,

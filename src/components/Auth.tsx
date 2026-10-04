@@ -1,13 +1,9 @@
-import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react';
 import { supabase } from '../supabaseClient';
 import classes from '../assets/Auth.module.css';
 import { useSavedAccountsStore } from '../store/savedAccountsStore';
 import { useAuthStore } from '../store/userStore';
 
-export const Route = createFileRoute('/Auth')({
-  component: Auth,
-})
 
 
 import {

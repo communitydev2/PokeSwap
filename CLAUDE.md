@@ -2,6 +2,10 @@
 
 This app will be used by many real users. Keep dev tooling out of production builds, keep user-facing text written for users, and treat Supabase Row Level Security as the real security boundary (the anon key ships in the page). Draft RLS policies are in `supabase/rls-policies.sql`.
 
+## Where code goes
+- `src/routes/` is only for real pages (each file there becomes a URL): `__root.tsx`, `index.tsx`, `updates.tsx`, `about.tsx`.
+- Everything else (screens shown inside a page, menus, cards, forms) goes in `src/components/`.
+
 ## Branches
 - Work happens on `dev`; commits are pushed to `origin/dev`.
 - `master` is the release branch (it may auto-deploy to the live site). Only merge `dev` into `master` when the user asks for a release.

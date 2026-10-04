@@ -11,17 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UpdatesRouteImport } from './routes/updates'
 import { Route as AboutRouteImport } from './routes/about'
-import { Route as UsernameDialogRouteImport } from './routes/UsernameDialog'
-import { Route as LandingPageRouteImport } from './routes/LandingPage'
-import { Route as HeaderRouteImport } from './routes/Header'
-import { Route as AuthRouteImport } from './routes/Auth'
-import { Route as AccountRouteImport } from './routes/Account'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ReusableComponentsSearchBarRouteImport } from './routes/reusableComponents/SearchBar'
-import { Route as PokeListPokeListRouteImport } from './routes/pokeList/PokeList'
-import { Route as PokeListPokeCardRouteImport } from './routes/pokeList/PokeCard'
-import { Route as ManagecardsManageTCGAccountsMenuRouteImport } from './routes/managecards/ManageTCGAccountsMenu'
-import { Route as ManagecardsManageCardsMainMenuRouteImport } from './routes/managecards/ManageCardsMainMenu'
 
 const UpdatesRoute = UpdatesRouteImport.update({
   id: '/updates',
@@ -33,173 +23,40 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
-const UsernameDialogRoute = UsernameDialogRouteImport.update({
-  id: '/UsernameDialog',
-  path: '/UsernameDialog',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LandingPageRoute = LandingPageRouteImport.update({
-  id: '/LandingPage',
-  path: '/LandingPage',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HeaderRoute = HeaderRouteImport.update({
-  id: '/Header',
-  path: '/Header',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/Auth',
-  path: '/Auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AccountRoute = AccountRouteImport.update({
-  id: '/Account',
-  path: '/Account',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ReusableComponentsSearchBarRoute =
-  ReusableComponentsSearchBarRouteImport.update({
-    id: '/reusableComponents/SearchBar',
-    path: '/reusableComponents/SearchBar',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const PokeListPokeListRoute = PokeListPokeListRouteImport.update({
-  id: '/pokeList/PokeList',
-  path: '/pokeList/PokeList',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PokeListPokeCardRoute = PokeListPokeCardRouteImport.update({
-  id: '/pokeList/PokeCard',
-  path: '/pokeList/PokeCard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ManagecardsManageTCGAccountsMenuRoute =
-  ManagecardsManageTCGAccountsMenuRouteImport.update({
-    id: '/managecards/ManageTCGAccountsMenu',
-    path: '/managecards/ManageTCGAccountsMenu',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ManagecardsManageCardsMainMenuRoute =
-  ManagecardsManageCardsMainMenuRouteImport.update({
-    id: '/managecards/ManageCardsMainMenu',
-    path: '/managecards/ManageCardsMainMenu',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/Account': typeof AccountRoute
-  '/Auth': typeof AuthRoute
-  '/Header': typeof HeaderRoute
-  '/LandingPage': typeof LandingPageRoute
-  '/UsernameDialog': typeof UsernameDialogRoute
   '/about': typeof AboutRoute
   '/updates': typeof UpdatesRoute
-  '/managecards/ManageCardsMainMenu': typeof ManagecardsManageCardsMainMenuRoute
-  '/managecards/ManageTCGAccountsMenu': typeof ManagecardsManageTCGAccountsMenuRoute
-  '/pokeList/PokeCard': typeof PokeListPokeCardRoute
-  '/pokeList/PokeList': typeof PokeListPokeListRoute
-  '/reusableComponents/SearchBar': typeof ReusableComponentsSearchBarRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/Account': typeof AccountRoute
-  '/Auth': typeof AuthRoute
-  '/Header': typeof HeaderRoute
-  '/LandingPage': typeof LandingPageRoute
-  '/UsernameDialog': typeof UsernameDialogRoute
   '/about': typeof AboutRoute
   '/updates': typeof UpdatesRoute
-  '/managecards/ManageCardsMainMenu': typeof ManagecardsManageCardsMainMenuRoute
-  '/managecards/ManageTCGAccountsMenu': typeof ManagecardsManageTCGAccountsMenuRoute
-  '/pokeList/PokeCard': typeof PokeListPokeCardRoute
-  '/pokeList/PokeList': typeof PokeListPokeListRoute
-  '/reusableComponents/SearchBar': typeof ReusableComponentsSearchBarRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/Account': typeof AccountRoute
-  '/Auth': typeof AuthRoute
-  '/Header': typeof HeaderRoute
-  '/LandingPage': typeof LandingPageRoute
-  '/UsernameDialog': typeof UsernameDialogRoute
   '/about': typeof AboutRoute
   '/updates': typeof UpdatesRoute
-  '/managecards/ManageCardsMainMenu': typeof ManagecardsManageCardsMainMenuRoute
-  '/managecards/ManageTCGAccountsMenu': typeof ManagecardsManageTCGAccountsMenuRoute
-  '/pokeList/PokeCard': typeof PokeListPokeCardRoute
-  '/pokeList/PokeList': typeof PokeListPokeListRoute
-  '/reusableComponents/SearchBar': typeof ReusableComponentsSearchBarRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/Account'
-    | '/Auth'
-    | '/Header'
-    | '/LandingPage'
-    | '/UsernameDialog'
-    | '/about'
-    | '/updates'
-    | '/managecards/ManageCardsMainMenu'
-    | '/managecards/ManageTCGAccountsMenu'
-    | '/pokeList/PokeCard'
-    | '/pokeList/PokeList'
-    | '/reusableComponents/SearchBar'
+  fullPaths: '/' | '/about' | '/updates'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/Account'
-    | '/Auth'
-    | '/Header'
-    | '/LandingPage'
-    | '/UsernameDialog'
-    | '/about'
-    | '/updates'
-    | '/managecards/ManageCardsMainMenu'
-    | '/managecards/ManageTCGAccountsMenu'
-    | '/pokeList/PokeCard'
-    | '/pokeList/PokeList'
-    | '/reusableComponents/SearchBar'
-  id:
-    | '__root__'
-    | '/'
-    | '/Account'
-    | '/Auth'
-    | '/Header'
-    | '/LandingPage'
-    | '/UsernameDialog'
-    | '/about'
-    | '/updates'
-    | '/managecards/ManageCardsMainMenu'
-    | '/managecards/ManageTCGAccountsMenu'
-    | '/pokeList/PokeCard'
-    | '/pokeList/PokeList'
-    | '/reusableComponents/SearchBar'
+  to: '/' | '/about' | '/updates'
+  id: '__root__' | '/' | '/about' | '/updates'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AccountRoute: typeof AccountRoute
-  AuthRoute: typeof AuthRoute
-  HeaderRoute: typeof HeaderRoute
-  LandingPageRoute: typeof LandingPageRoute
-  UsernameDialogRoute: typeof UsernameDialogRoute
   AboutRoute: typeof AboutRoute
   UpdatesRoute: typeof UpdatesRoute
-  ManagecardsManageCardsMainMenuRoute: typeof ManagecardsManageCardsMainMenuRoute
-  ManagecardsManageTCGAccountsMenuRoute: typeof ManagecardsManageTCGAccountsMenuRoute
-  PokeListPokeCardRoute: typeof PokeListPokeCardRoute
-  PokeListPokeListRoute: typeof PokeListPokeListRoute
-  ReusableComponentsSearchBarRoute: typeof ReusableComponentsSearchBarRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -218,41 +75,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/UsernameDialog': {
-      id: '/UsernameDialog'
-      path: '/UsernameDialog'
-      fullPath: '/UsernameDialog'
-      preLoaderRoute: typeof UsernameDialogRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/LandingPage': {
-      id: '/LandingPage'
-      path: '/LandingPage'
-      fullPath: '/LandingPage'
-      preLoaderRoute: typeof LandingPageRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/Header': {
-      id: '/Header'
-      path: '/Header'
-      fullPath: '/Header'
-      preLoaderRoute: typeof HeaderRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/Auth': {
-      id: '/Auth'
-      path: '/Auth'
-      fullPath: '/Auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/Account': {
-      id: '/Account'
-      path: '/Account'
-      fullPath: '/Account'
-      preLoaderRoute: typeof AccountRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -260,58 +82,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/reusableComponents/SearchBar': {
-      id: '/reusableComponents/SearchBar'
-      path: '/reusableComponents/SearchBar'
-      fullPath: '/reusableComponents/SearchBar'
-      preLoaderRoute: typeof ReusableComponentsSearchBarRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pokeList/PokeList': {
-      id: '/pokeList/PokeList'
-      path: '/pokeList/PokeList'
-      fullPath: '/pokeList/PokeList'
-      preLoaderRoute: typeof PokeListPokeListRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pokeList/PokeCard': {
-      id: '/pokeList/PokeCard'
-      path: '/pokeList/PokeCard'
-      fullPath: '/pokeList/PokeCard'
-      preLoaderRoute: typeof PokeListPokeCardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/managecards/ManageTCGAccountsMenu': {
-      id: '/managecards/ManageTCGAccountsMenu'
-      path: '/managecards/ManageTCGAccountsMenu'
-      fullPath: '/managecards/ManageTCGAccountsMenu'
-      preLoaderRoute: typeof ManagecardsManageTCGAccountsMenuRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/managecards/ManageCardsMainMenu': {
-      id: '/managecards/ManageCardsMainMenu'
-      path: '/managecards/ManageCardsMainMenu'
-      fullPath: '/managecards/ManageCardsMainMenu'
-      preLoaderRoute: typeof ManagecardsManageCardsMainMenuRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AccountRoute: AccountRoute,
-  AuthRoute: AuthRoute,
-  HeaderRoute: HeaderRoute,
-  LandingPageRoute: LandingPageRoute,
-  UsernameDialogRoute: UsernameDialogRoute,
   AboutRoute: AboutRoute,
   UpdatesRoute: UpdatesRoute,
-  ManagecardsManageCardsMainMenuRoute: ManagecardsManageCardsMainMenuRoute,
-  ManagecardsManageTCGAccountsMenuRoute: ManagecardsManageTCGAccountsMenuRoute,
-  PokeListPokeCardRoute: PokeListPokeCardRoute,
-  PokeListPokeListRoute: PokeListPokeListRoute,
-  ReusableComponentsSearchBarRoute: ReusableComponentsSearchBarRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

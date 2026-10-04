@@ -1,11 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react';
 import { supabase } from '../supabaseClient';
 import classes from '../assets/Auth.module.css';
 import { useAuthStore } from '../store/userStore';
-export const Route = createFileRoute('/UsernameDialog')({
-  component: Username,
-})
 
 
 import {

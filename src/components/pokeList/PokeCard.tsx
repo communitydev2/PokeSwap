@@ -1,4 +1,3 @@
-import { createFileRoute } from '@tanstack/react-router'
 import type{ PokemonCard } from '../../types/PokemonCard'
 import { useState } from 'react'
 import { background } from 'storybook/theming'
@@ -10,9 +9,6 @@ import { useStateStore } from '../../store/useStateStore'
 import { useDisclosure } from '@mantine/hooks';
 import { Popover, Text, Button,List,Select,Group, Space,Title, ComboboxItem,UnstyledButton} from '@mantine/core';
 import { ManageCardsMainMenu } from '../managecards/ManageCardsMainMenu';
-export const Route = createFileRoute('/pokeList/PokeCard')({
-  component: PokeCard,
-})
 
 
 

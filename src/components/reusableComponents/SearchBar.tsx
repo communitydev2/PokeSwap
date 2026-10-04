@@ -1,14 +1,11 @@
 import { Button, Group, Select, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { createFileRoute } from '@tanstack/react-router';
 import { useLocalizationStore } from '../../store/useLocalizationStore';
 import { usePokemonCardStore } from '../../store/pokemonCardsStore';
 import { useSearchFunction } from '../../utils/Utilfunctions';
 import { useEffect } from 'react';
 import { supabase } from '../../supabaseClient';
-export const Route = createFileRoute('/reusableComponents/SearchBar')({
-  component: SearchBar,
-});
+;
 
 type SearchFormValues = {
   searchInput: string;

@@ -1,19 +1,15 @@
-import { createFileRoute } from '@tanstack/react-router'
 import { useEffect,useEffectEvent,useState } from 'react'
 import { supabase } from '../supabaseClient'
 import { Auth } from './Auth'
 import {Account} from './Account'
 import { useAuthStore } from '../store/userStore'
-import { ChangeUsername } from '../components/ChangeUsername/ChangeUsername'
+import { ChangeUsername } from './ChangeUsername/ChangeUsername'
 import { useSavedAccountsStore } from '../store/savedAccountsStore'
 import { Alert, Center, Container, Loader } from '@mantine/core'
 import { PokeList } from './pokeList/PokeList'
 import { usePokemonCardStore } from '../store/pokemonCardsStore'
 import { fetchAllRows } from '../utils/fetchAllRows'
 import type { PokemonCard } from '../types/PokemonCard'
-export const Route = createFileRoute('/LandingPage')({
-  component: LandingPage,
-})
 
 
 

@@ -1,13 +1,9 @@
-import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react';
 import { ActionIcon, Button, Container, Group, Paper, Stack, Text, TextInput, Title } from '@mantine/core';
 import classes from '../../assets/ManageTCGAccountsMenu.module.css';
 import { supabase } from '../../supabaseClient';
 import { useAuthStore } from '../../store/userStore';
 
-export const Route = createFileRoute('/managecards/ManageTCGAccountsMenu')({
-  component: ManageTCGAccountsMenu,
-})
 
 type AccountRow = { key: number; name: string; tcgId: string };
 type RowErrors = { name?: string; tcgId?: string };

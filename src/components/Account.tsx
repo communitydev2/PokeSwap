@@ -1,14 +1,10 @@
-import { createFileRoute } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
 import { useAuthStore } from '../store/userStore';
 import { useStateStore } from '../store/useStateStore';
 import { ManageCardsMainMenu } from './managecards/ManageCardsMainMenu';
 import { useLocalizationStore } from '../store/useLocalizationStore';
-import { ChangeUsername } from '../components/ChangeUsername/ChangeUsername';
-export const Route = createFileRoute('/Account')({
-  component: Account,
-})
+import { ChangeUsername } from './ChangeUsername/ChangeUsername';
 
 
 

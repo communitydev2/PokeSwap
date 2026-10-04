@@ -1,6 +1,6 @@
-import { ColorSchemeToggle } from '../components/ColorSchemeToggle/ColorSchemeToggle';
+import { ColorSchemeToggle } from './ColorSchemeToggle/ColorSchemeToggle';
 
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import {
   IconBook,
   IconChartPie3,
@@ -37,9 +37,6 @@ import { useAuthStore } from '../store/userStore';
 import { useStateStore } from '../store/useStateStore';
 import { supabase } from '../supabaseClient';
 import { useSavedAccountsStore } from '../store/savedAccountsStore';
-export const Route = createFileRoute('/Header')({
-  component: Header,
-})
 
 
 

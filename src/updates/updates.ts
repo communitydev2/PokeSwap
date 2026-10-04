@@ -17,6 +17,18 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'components-out-of-routes',
+    date: '2026-10-04',
+    audience: 'dev',
+    title: 'Components moved out of src/routes',
+    summary: 'Only real pages stay in src/routes; Header, Auth, Account, LandingPage, the card lists and menus moved to src/components.',
+    body: [
+      'Every file in src/routes becomes a URL with TanStack Router, so /Header, /pokeList/PokeCard and /managecards/ManageTCGAccountsMenu were reachable as pages (the accounts form even opened for logged-out visitors). They now return Not Found.',
+      'Moved files lost their createFileRoute definitions; imports were updated and routeTree.gen.ts regenerated. The folder layout is the same under src/components (managecards/, pokeList/, reusableComponents/).',
+    ],
+    tags: ['structure'],
+  },
+  {
     id: 'tcg-accounts-form',
     date: '2026-10-04',
     audience: 'user',
