@@ -1,220 +1,154 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { IconArrowLeft } from '@tabler/icons-react';
-import {
-Anchor,
-Box,
-Button,
-Center,
-Container,
-Group,
-Paper,
-Text,
-TextInput,
-Title,
-Checkbox,
-Space,
-Overlay
-} from '@mantine/core';
+import { useState } from 'react';
+import { ActionIcon, Button, Container, Group, Paper, Stack, Text, TextInput, Title } from '@mantine/core';
 import classes from '../../assets/ManageTCGAccountsMenu.module.css';
 import { supabase } from '../../supabaseClient';
-import { useEffect, useState } from 'react';
-import { useForm,useFieldArray } from "react-hook-form";
-import { Select } from '@mantine/core';
 import { useAuthStore } from '../../store/userStore';
-interface tcgAccountType {
-  index:number;
-
-
-  
-
-}
-
-
-import React from 'react'
-
-
-
-
 
 export const Route = createFileRoute('/managecards/ManageTCGAccountsMenu')({
   component: ManageTCGAccountsMenu,
 })
 
-export function ManageTCGAccountsMenu() {
-  const [tcgIdNames,setTcgIdNames] = useState<string[]>([""])
-  const [tcgIdNumbers,settcgIdNumbers] = useState<number[]>([1])
-  const [accountNumber,setAccountNumber] = useState<string | null>("1");
-  const [submitTcgAccounts,setSubmitTcgAccounts] = useState<boolean>(false);
-  const [visible, setVisible] = useState(false);
-  const authStore = useAuthStore();
-  function submitData(){
-     console.log(tcgIdNames.length)
-     setVisible(true)
-    setSubmitTcgAccounts(true)
+type AccountRow = { key: number; name: string; tcgId: string };
+type RowErrors = { name?: string; tcgId?: string };
+
+let nextKey = 1;
+const emptyRow = (): AccountRow => ({ key: nextKey++, name: '', tcgId: '' });
+
+// Form for adding one or more Pokémon TCG Pocket accounts. Starts with one row;
+// more can be added. Everything is validated before saving, all rows are saved
+// in one request, and onCreated lets the parent reload its account list.
+export function ManageTCGAccountsMenu({ onCreated }: { onCreated?: () => void }) {
+  const userId = useAuthStore((state) => state.session?.user.id);
+  const [rows, setRows] = useState<AccountRow[]>(() => [emptyRow()]);
+  const [errors, setErrors] = useState<Record<number, RowErrors>>({});
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
+
+  function updateRow(key: number, field: 'name' | 'tcgId', value: string) {
+    setRows((current) => current.map((row) => (row.key === key ? { ...row, [field]: value } : row)));
+    setErrors((current) => ({ ...current, [key]: { ...current[key], [field]: undefined } }));
+    setMessage(null);
   }
 
-useEffect(()=>{
-
-  async function submitTcgData(){
-
-    for (let i:number=0;i<=tcgIdNames.length;i++){
-      
-      const { data, error } = await supabase
-      .from('player_tcg_account')
-    .insert([
-      {user_id:authStore.user?.user_id, tcg_id_username: tcgIdNames[i], tcg_id: tcgIdNumbers[i] },
-    ])
-    .select()
-
-       if (error) {
-        console.warn(error)
-      } else if (data) {
-        console.log(data)
-      }
+  function removeRow(key: number) {
+    setRows((current) => current.filter((row) => row.key !== key));
   }
-  setSubmitTcgAccounts(false);
-}
-  if(submitTcgAccounts){
-    submitTcgData()
-}
-},[submitTcgAccounts])
-  
-// turn overlay off after 2 seconds
-useEffect(()=>{
- setTimeout(()=>{
-      setVisible(false);
-    },2000)
 
-},[visible])
+  function validate(): boolean {
+    const found: Record<number, RowErrors> = {};
+    const seenIds = new Set<string>();
+    for (const row of rows) {
+      const rowErrors: RowErrors = {};
+      const id = row.tcgId.replace(/[\s-]/g, '');
+      if (!row.name.trim()) rowErrors.name = 'Enter the account name';
+      if (!id) rowErrors.tcgId = 'Enter the account ID';
+      else if (!/^\d+$/.test(id)) rowErrors.tcgId = 'The ID should only contain numbers';
+      else if (seenIds.has(id)) rowErrors.tcgId = 'This ID is already in the list';
+      seenIds.add(id);
+      if (rowErrors.name || rowErrors.tcgId) found[row.key] = rowErrors;
+    }
+    setErrors(found);
+    return Object.keys(found).length === 0;
+  }
 
+  async function handleSubmit() {
+    setMessage(null);
+    if (!userId || !validate()) return;
 
-  function AccountNumberDropdown() {
-    return (
-      <Select data-click-id="ManageTCGAccountsMenu/account-number-select"
-        label="Select Account Number"
-        placeholder="Pick value"
-        data={[
-          "1",
-          "2",
-          "3",
-          "4",
-          "5",
-          "6",
-          "7",
-          "8",
-          "9",
-          "10",
-          "11",
-          "12",
-          "13",
-          "14",
-          "15",
-          "16",
-          "17",
-          "18",
-          "19",
-          "20",
-          "21",
-          "22",
-          "23",
-          "24",
-          "25",
-          "26",
-          "27"
-        ]}
-        value={accountNumber}
-        onChange={setAccountNumber}
-        defaultValue={"1"}
-      />
+    setSaving(true);
+    const { error } = await supabase.from('player_tcg_account').insert(
+      rows.map((row) => ({
+        user_id: userId,
+        tcg_id_username: row.name.trim(),
+        // Sent as text: 16-digit IDs are too long for a JavaScript number
+        tcg_id: row.tcgId.replace(/[\s-]/g, ''),
+      })),
     );
+    setSaving(false);
+
+    if (error) {
+      console.warn(error);
+      setMessage({
+        ok: false,
+        text: error.code === '23505' ? 'One of these accounts has already been added.' : "Couldn't save your accounts. Please try again.",
+      });
+      return;
+    }
+    setMessage({ ok: true, text: rows.length === 1 ? 'Account added.' : `${rows.length} accounts added.` });
+    setRows([emptyRow()]);
+    onCreated?.();
   }
-
-
-  useEffect(()=>{
-setTcgIdNames(Array.from({length: accountNumber}, (v, i) => "e"))
-
-settcgIdNumbers(Array.from({length: accountNumber}, (v, i) => i))
-
-},[accountNumber])
-
-
-
-
-
-
-
-  const AccountInsertion = ({index}:tcgAccountType,) => {
-    return (
-      <div>
-
-        <Title className={classes.title} ta="center">
-        Tcg Account Number {index+1}
-        </Title>
-
-        <Space h="lg" />
-
-
-        <TextInput data-click-id={`ManageTCGAccountsMenu/account-name:${index}`}
-         withAsterisk
-         label="TCG Account Name"
-         placeholder="pokePlayer555"
-         value={tcgIdNames[index]}
-         onChange={(event)=> setTcgIdNames(tcgIdNames[index])}
-         />
-       <TextInput data-click-id={`ManageTCGAccountsMenu/account-id-number:${index}`}
-         withAsterisk
-         label="TCG ID Number"
-         placeholder="54636463475"
-         value={tcgIdNumbers[index]}
-         onChange={(event)=> settcgIdNumbers(tcgIdNumbers[index])}
-       />
-        <Space h="lg" />
-      </div>
-    )
-  }
-
-
-
 
   return (
-      <Container size={460} my={30}>
-         
-         
-         {visible && (
-
-          <>
-          <Overlay color="#000" backgroundOpacity={0.98} children={
-           <Center maw={"auto"} h={"100%"} bg="var(--mantine-color-gray-light)">
-            <Title className={classes.title} ta="center">
-        Accounts Created
+    <Container size={460} my={30}>
+      <Title className={classes.title} ta="center">
+        Add your Pokémon TCG Pocket accounts
       </Title>
-</Center>
+      <Text c="dimmed" size="sm" ta="center" mt="xs" mb="lg">
+        Add at least one account to start managing your cards.
+      </Text>
 
+      <Stack gap="sm">
+        {rows.map((row, i) => (
+          <Paper key={row.key} withBorder radius="md" p="md">
+            <Group justify="space-between" mb="xs">
+              <Text fw={500}>Account {i + 1}</Text>
+              {rows.length > 1 && (
+                <ActionIcon
+                  data-click-id={`ManageTCGAccountsMenu/remove-account:${i}`}
+                  variant="subtle"
+                  color="gray"
+                  aria-label={`Remove account ${i + 1}`}
+                  onClick={() => removeRow(row.key)}
+                >
+                  ×
+                </ActionIcon>
+              )}
+            </Group>
+            <Stack gap="xs">
+              <TextInput
+                data-click-id={`ManageTCGAccountsMenu/account-name:${i}`}
+                withAsterisk
+                label="Account name"
+                placeholder="pokePlayer555"
+                value={row.name}
+                error={errors[row.key]?.name}
+                onChange={(e) => updateRow(row.key, 'name', e.target.value)}
+              />
+              <TextInput
+                data-click-id={`ManageTCGAccountsMenu/account-id-number:${i}`}
+                withAsterisk
+                label="Account ID"
+                placeholder="1234 5678 9012 3456"
+                inputMode="numeric"
+                value={row.tcgId}
+                error={errors[row.key]?.tcgId}
+                onChange={(e) => updateRow(row.key, 'tcgId', e.target.value)}
+              />
+            </Stack>
+          </Paper>
+        ))}
+      </Stack>
 
-}/>
-        </>
-        
-        )}
-         <Title className={classes.title} ta="center">
-        Please add one or more Pokemon Pocket Accounts
-      </Title>
-       <Space h="lg" />
-<AccountNumberDropdown/>
-       <Space h="lg" />
-  {tcgIdNames != null && tcgIdNames.map((field, index) => ( 
-<AccountInsertion index={index} key={index} />
- ))}
- 
-<Button data-click-id="ManageTCGAccountsMenu/submit-accounts" variant="filled" onClick={submitData}>Submit Accounts</Button>
-  
-  
-  
+      <Group justify="space-between" mt="md">
+        <Button
+          data-click-id="ManageTCGAccountsMenu/add-row"
+          variant="subtle"
+          onClick={() => setRows((current) => [...current, emptyRow()])}
+        >
+          + Add another account
+        </Button>
+        <Button data-click-id="ManageTCGAccountsMenu/submit-accounts" onClick={handleSubmit} loading={saving}>
+          {rows.length === 1 ? 'Save account' : `Save ${rows.length} accounts`}
+        </Button>
+      </Group>
 
-
-
-
-
-     </Container>
+      {message && (
+        <Text size="sm" mt="sm" ta="center" c={message.ok ? 'teal' : 'red'}>
+          {message.text}
+        </Text>
+      )}
+    </Container>
   );
 }
-

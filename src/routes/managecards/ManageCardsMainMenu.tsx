@@ -135,6 +135,8 @@ export function ManageCardsMainMenu({callComponent,exclusiveCardSelected}:{callC
   const useStateStoreWrapper = useStateStore();
   const [loading , setLoading] = useState(false)
   const [hasTcgAccounts,setHasTcgAccounts] = useState(false)
+  // Bumped after new TCG accounts are saved, to reload the list
+  const [tcgAccountsReload,setTcgAccountsReload] = useState(0)
   // tcgAccounts Selection Dropdown
   const [tcgAccounts,setTcgAccounts ] = useState<tcgAccountType[]>()
   const [selectedTcgAccount,setSelectedTcgAccount] = useState<string|null>()
@@ -305,9 +307,9 @@ function TcgAccountDropdown() {
   
         setLoading(false)
       }
-        getTcgAccounts()
+        if (useAuthStoreWrapper.user?.user_id) getTcgAccounts()
   
-    }, [])
+    }, [tcgAccountsReload, useAuthStoreWrapper.user?.user_id])
   
   
   
@@ -320,7 +322,7 @@ function TcgAccountDropdown() {
   
   {/* only this place if it's called from accounts .tsx */}
 {!hasTcgAccounts && callComponent==useLocStore.localizationArray[19] &&(
-  <ManageTCGAccountsMenu/>
+  <ManageTCGAccountsMenu onCreated={() => setTcgAccountsReload((n) => n + 1)}/>
 )}
 {/* display list of accounts */}
 {/* this is if the  call component type is not the exclusive trade so this is not going to show up */}

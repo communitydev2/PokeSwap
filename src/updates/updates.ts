@@ -17,6 +17,31 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'tcg-accounts-form',
+    date: '2026-10-04',
+    audience: 'user',
+    title: 'Adding your game accounts now works properly',
+    summary: 'The form for adding your Pokémon TCG Pocket accounts has been rebuilt and is much easier to use.',
+    body: [
+      'Start with one account, and press "+ Add another account" if you have more. Each account needs a name and its ID (numbers only; spaces are fine).',
+      'Mistakes are pointed out next to the field before anything is saved, and you only see a success message once your accounts really have been saved. You go straight on to managing your cards afterwards.',
+    ],
+    screenshot: '/updates/tcg-accounts-form.png',
+    tags: ['fix'],
+  },
+  {
+    id: 'tcg-accounts-form-dev',
+    date: '2026-10-04',
+    audience: 'dev',
+    title: 'ManageTCGAccountsMenu rewritten',
+    summary: 'The old form could not be typed in, saved placeholder values plus an extra empty row, and always reported success.',
+    body: [
+      'Old bugs: onChange replaced the whole array with one value, the row component was defined inside render (focus lost on every keystroke), the insert loop ran length+1 times, and "Accounts Created" showed regardless of errors.',
+      'Now: rows with stable keys, per-field validation (required, digits only, no duplicate IDs), one bulk insert with tcg_id sent as text (16-digit IDs exceed JS number precision), and an onCreated callback that makes ManageCardsMainMenu reload its accounts.',
+    ],
+    tags: ['fix'],
+  },
+  {
     id: 'all-cards-load',
     date: '2026-10-04',
     audience: 'user',
