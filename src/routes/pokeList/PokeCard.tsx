@@ -180,18 +180,18 @@ export function PokeCard(
 
 
     {useLocStore.localizationArray[22]} : {quantity}{' '}
-
-
-  
-
-
-    
+    {currentCard.language && (
+      <>
+        <br></br>
+        Language : {currentCard.language}
+      </>
+    )}
 
   </>
           )
           }
 
-    
+
       {/* only display if add Cards menu is shown  */}
     {useStateWrapper.showManageCardsMainMenu && (
 

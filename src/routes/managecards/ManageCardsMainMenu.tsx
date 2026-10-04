@@ -53,7 +53,7 @@ function ComponentTitle({props}){
   return (
     <>
       {/* Main Menu? show Main Menu text or Exclusive trade */}
-  {props[0]==props[1].localizationArray[19]? (
+  {props[0]==props[1].localizationArray[19] ? (
     <>
     <Text size="sm">{props[1].localizationArray[16]}</Text>
     </>
@@ -345,6 +345,7 @@ function TcgAccountDropdown() {
   <p> {useLocStore.localizationArray[21]}</p>
   <PokeList listType={'listSelectedSection'}/>
 
+  <Space h="lg" />
   <Space h="lg" />
   <Space h="lg" />
   <Menu_ConfirmCards props={[useLocStore.localizationArray[20],useLocStore.localizationArray[26],useLocStore.localizationArray[20]]}/>

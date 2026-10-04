@@ -89,12 +89,17 @@ if (activeList.length > 10){
         if(card == null)return
         
         
-        return (
-         
-          
-         <li key={i} style={{ listStyleType: 'none' }}>
+        // The confirmation list (cards about to be added) is display-only:
+        // no tap-to-select, highlight, hover zoom or buttons
+        const isConfirmList = listType == useLocalizationStoreWrapper.localizationArray?.[26]
+
+        return isConfirmList ? (
+          <li key={i} style={{ listStyleType: 'none' }}>
+            <PokeCard currentCard={card} isCardSelected={false} pokeListType={listType}/>
+          </li>
+        ) : (
+          <li key={i} style={{ listStyleType: 'none' }}>
             <div data-click-id="PokeList/card"
-              
               onClick={() => setSelectedCard(card)}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'scale(1.02)'

@@ -17,6 +17,31 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'confirm-cards-read-only',
+    date: '2026-10-04',
+    audience: 'user',
+    title: 'Clearer card confirmation',
+    summary: 'The list of cards you are about to add is now just for checking, and shows each card\'s language.',
+    body: [
+      'When you press "Add Cards to My Library", the cards in the confirmation window can no longer be tapped, highlighted or changed by accident. Use "I want to change." to go back and edit them.',
+      'Each card now shows its picture, name, quantity and language, so you can check everything before confirming.',
+    ],
+    screenshot: '/updates/confirm-cards.png',
+    tags: ['improvement'],
+  },
+  {
+    id: 'confirm-cards-read-only-dev',
+    date: '2026-10-04',
+    audience: 'dev',
+    title: 'Confirm list check fixed in PokeList',
+    summary: 'The confirm-list check read useLocalizationStoreWrapper[26] (always undefined) instead of .localizationArray[26].',
+    body: [
+      'PokeList now renders listConfirmAddCards items without the clickable wrapper and passes isCardSelected={false}, so no highlight, hover zoom or Add/Remove button. Each list item has its key on the <li> (fixes the "unique key" warning).',
+      'Removed test content: the placeholder Mantine List in every card and <text>fsdfdsfsdfsdfsdf</text> in ManageCardsMainMenu (the "<text> is unrecognized" warning). PokeCard shows the language in the confirm list.',
+    ],
+    tags: ['fix'],
+  },
+  {
     id: 'switch-accounts',
     date: '2026-10-04',
     audience: 'user',
