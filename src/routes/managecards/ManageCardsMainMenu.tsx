@@ -16,6 +16,7 @@ import SearchBar from '../reusableComponents/SearchBar';
 import { PokeList } from '../pokeList/PokeList';
 import { PokeCard } from '../pokeList/PokeCard';
 import { PokemonCard } from '../../types/PokemonCard';
+import { ConfirmCardsList } from '../../components/ConfirmCardsList/ConfirmCardsList';
 export const Route = createFileRoute('/managecards/ManageCardsMainMenu')({
   component: ManageCardsMainMenu,
 })
@@ -85,7 +86,7 @@ function submitCardsToSupabase(){
 
   return (
     <>
-      <Modal opened={opened} onClose={close} title={props[0]} centered>
+      <Modal opened={opened} onClose={close} title={props[0]} centered size={props[1]=="listConfirmAddCards" ? 'md' : undefined}>
         {/* Modal content */}
         {props[1]=="listSelectedSection" && (
           <>
@@ -102,14 +103,15 @@ function submitCardsToSupabase(){
         )}
         {props[1]=="listConfirmAddCards" && (
           <>
-          <PokeList listType={props[1]}/>
-
+            <ConfirmCardsList />
+            <Group justify="flex-end" gap="sm" mt="md">
               <Button data-click-id="ManageCardsMainMenu/confirm-modal-change" variant="default" onClick={close}>
-        I want to change.
-      </Button>
-              <Button data-click-id="ManageCardsMainMenu/confirm-modal-confirm" variant="default" onClick={submitCardsToSupabase}>
-        Confirm
-      </Button>
+                I want to change.
+              </Button>
+              <Button data-click-id="ManageCardsMainMenu/confirm-modal-confirm" onClick={submitCardsToSupabase}>
+                Confirm
+              </Button>
+            </Group>
           </>
         )}
 

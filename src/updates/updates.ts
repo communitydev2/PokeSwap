@@ -21,10 +21,10 @@ export const updates: Update[] = [
     date: '2026-10-04',
     audience: 'user',
     title: 'Clearer card confirmation',
-    summary: 'The list of cards you are about to add is now just for checking, and shows each card\'s language.',
+    summary: 'The confirmation window now lists your cards neatly, however many you add, so you can check them before confirming.',
     body: [
-      'When you press "Add Cards to My Library", the cards in the confirmation window can no longer be tapped, highlighted or changed by accident. Use "I want to change." to go back and edit them.',
-      'Each card now shows its picture, name, quantity and language, so you can check everything before confirming.',
+      'When you press "Add Cards to My Library", each card appears as a tidy row with its picture, name, quantity and language, plus a total at the top. Long lists scroll, and it fits on phones too.',
+      'The cards in this window are just for checking: they can no longer be tapped, highlighted or changed by accident. Use "I want to change." to go back and edit them.',
     ],
     screenshot: '/updates/confirm-cards.png',
     tags: ['improvement'],
@@ -38,6 +38,7 @@ export const updates: Update[] = [
     body: [
       'PokeList now renders listConfirmAddCards items without the clickable wrapper and passes isCardSelected={false}, so no highlight, hover zoom or Add/Remove button. Each list item has its key on the <li> (fixes the "unique key" warning).',
       'Removed test content: the placeholder Mantine List in every card and <text>fsdfdsfsdfsdfsdf</text> in ManageCardsMainMenu (the "<text> is unrecognized" warning). PokeCard shows the language in the confirm list.',
+      'The confirm modal now renders src/components/ConfirmCardsList (compact rows from listCardsSelected, scrolls past 55vh, no pagination) instead of PokeList, because PokeCard\'s fixed 1000x150 layout with a floated image overlapped when there was more than one card.',
     ],
     tags: ['fix'],
   },
