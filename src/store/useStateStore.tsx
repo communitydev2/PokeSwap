@@ -1,5 +1,5 @@
 import {create} from 'zustand';
-import { UseStateStoreType } from '../types/useStateStoreTYpe';
+import { UseStateStoreType } from '../types/UseStateStoreType';
 
 
 export const useStateStore =create<UseStateStoreType>((set) => ({

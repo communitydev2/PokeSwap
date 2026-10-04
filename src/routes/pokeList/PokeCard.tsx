@@ -3,7 +3,7 @@ import type{ PokemonCard } from '../../types/PokemonCard'
 import { useState } from 'react'
 import { background } from 'storybook/theming'
 import {  Avatar,  Anchor, Stack, Modal } from '@mantine/core';
-import { useLocalizationStore } from '../../store/uselocalizationStore'
+import { useLocalizationStore } from '../../store/useLocalizationStore'
 import { usePokemonCardStore } from '../../store/pokemonCardsStore'
 import { useAuthStore } from '../../store/userStore'
 import { useStateStore } from '../../store/useStateStore'
@@ -233,7 +233,11 @@ export function PokeCard(
   {isCardSelected && (
     <>
     
-    <button data-click-id="PokeCard/add-or-remove-card" type="button" style={{background: `${activeButtonColor}` ,width:'200px'}} 
+    <button data-click-id="PokeCard/add-or-remove-card" type="button"
+    // Adding needs at least 1 copy; removing is always allowed
+    disabled={pokeListType == listTypeAdd && quantity < 1}
+    title={pokeListType == listTypeAdd && quantity < 1 ? 'Choose a quantity first' : undefined}
+    style={{background: `${activeButtonColor}` ,width:'200px', opacity: pokeListType == listTypeAdd && quantity < 1 ? 0.5 : 1, cursor: pokeListType == listTypeAdd && quantity < 1 ? 'not-allowed' : 'pointer'}} 
     onClick={()=>{
 
 

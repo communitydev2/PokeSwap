@@ -4,7 +4,7 @@ import { supabase } from '../supabaseClient'
 import { useAuthStore } from '../store/userStore';
 import { useStateStore } from '../store/useStateStore';
 import { ManageCardsMainMenu } from './managecards/ManageCardsMainMenu';
-import { useLocalizationStore } from '../store/uselocalizationStore';
+import { useLocalizationStore } from '../store/useLocalizationStore';
 import { ChangeUsername } from '../components/ChangeUsername/ChangeUsername';
 export const Route = createFileRoute('/Account')({
   component: Account,
@@ -21,24 +21,19 @@ export function Account({ session }) {
   const useLocStoreWrapper = useLocalizationStore();
 
 
-// set last logged in
+// set last logged in - once per signed-in user, not on every render
+const lastLoggedInUserId = authStore.user?.user_id
 useEffect(()=>{
+  if (!lastLoggedInUserId) return
 
-
-  const date = new Date();
-
-  async function setLastLoggedIn(){
-    setLoading(true)
-    const response = await supabase
-            .from('user_account')
-            .update({ last_logged_in: date })
-            .eq('user_id', authStore.user?.user_id)
-            .select()
-    
-  }
-
-  setLastLoggedIn()
-})
+  supabase
+    .from('user_account')
+    .update({ last_logged_in: new Date() })
+    .eq('user_id', lastLoggedInUserId)
+    .then(({ error }) => {
+      if (error) console.warn(error)
+    })
+}, [lastLoggedInUserId])
 
 
 

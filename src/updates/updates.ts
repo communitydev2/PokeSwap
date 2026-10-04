@@ -17,6 +17,30 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'all-cards-load',
+    date: '2026-10-04',
+    audience: 'user',
+    title: 'Every card is now available',
+    summary: 'The card list now includes all 2,015 cards; before, about half were missing.',
+    body: [
+      'When adding cards, the list only showed the first 1,000 cards, so many newer cards could only be found by searching. All of them now appear.',
+      'You also can no longer add a card with a quantity of 0: "Add to Selected" becomes available once you have chosen at least one copy.',
+    ],
+    tags: ['fix'],
+  },
+  {
+    id: 'quick-fixes-dev',
+    date: '2026-10-04',
+    audience: 'dev',
+    title: 'Linux build fix, paged card loading, fewer DB writes',
+    summary: 'Fixed import casing that broke Linux builds, loaded the catalogue past the 1000-row cap, and stopped writing last_logged_in on every render.',
+    body: [
+      'Five imports used the wrong letter case (uselocalizationStore, useStateStoreTYpe). Windows ignores case, but Netlify builds on Linux where they fail to resolve.',
+      'src/utils/fetchAllRows.ts reads a table in 1000-row pages ordered by a stable column; LandingPage loads cards ordered by card_local_id (same order as before). Account.tsx writes last_logged_in once per signed-in user instead of on every render. The add button is disabled at quantity 0.',
+    ],
+    tags: ['fix'],
+  },
+  {
     id: 'confirm-cards-read-only',
     date: '2026-10-04',
     audience: 'user',

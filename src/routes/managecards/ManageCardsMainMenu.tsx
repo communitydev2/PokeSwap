@@ -9,7 +9,7 @@ import { useAuthStore } from '../../store/userStore';
 import { ManageTCGAccountsMenu } from './ManageTCGAccountsMenu';
 import { useStateStore } from '../../store/useStateStore';
 import { UseLocalizationStoreType } from '../../types/UseLocalizationStoreType';
-import { useLocalizationStore } from '../../store/uselocalizationStore';
+import { useLocalizationStore } from '../../store/useLocalizationStore';
 import { usePokemonCardStore } from '../../store/pokemonCardsStore';
 import { useDisclosure } from '@mantine/hooks';
 import SearchBar from '../reusableComponents/SearchBar';

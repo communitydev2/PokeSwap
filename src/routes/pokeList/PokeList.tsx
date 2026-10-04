@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { supabase } from '../../supabaseClient'
 import { useEffect,useState } from 'react'
-import { useLocalizationStore } from '../../store/uselocalizationStore'
+import { useLocalizationStore } from '../../store/useLocalizationStore'
 import { usePokemonCardStore } from '../../store/pokemonCardsStore'
 import { PokemonCard } from '../../types/PokemonCard'
 import { PokeCard } from './PokeCard'

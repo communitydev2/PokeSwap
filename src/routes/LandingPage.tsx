@@ -9,6 +9,8 @@ import { useSavedAccountsStore } from '../store/savedAccountsStore'
 import { Alert, Center, Container, Loader } from '@mantine/core'
 import { PokeList } from './pokeList/PokeList'
 import { usePokemonCardStore } from '../store/pokemonCardsStore'
+import { fetchAllRows } from '../utils/fetchAllRows'
+import type { PokemonCard } from '../types/PokemonCard'
 export const Route = createFileRoute('/LandingPage')({
   component: LandingPage,
 })
@@ -54,12 +56,13 @@ export default function LandingPage() {
 // setting PokemonCards at launch
     useEffect(()=>{
 async function getCards(){
-
-  let { data: card, error } = await supabase
-  .from('card')
-  .select('*')
-  usePokeCardStore.setPokemonCards(card)
-  // console.log(card)
+  // The catalogue has more than Supabase's 1000-rows-per-request limit, so load it in pages
+  try {
+    const cards = await fetchAllRows<PokemonCard>('card', 'card_local_id')
+    usePokeCardStore.setPokemonCards(cards)
+  } catch (error) {
+    console.warn(error)
+  }
 }
 getCards()
   },[])
