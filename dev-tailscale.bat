@@ -1,6 +1,14 @@
 @echo off
 setlocal EnableDelayedExpansion
-cd /d "%~dp0"
+rem Run from the folder this file is in, or from the project folder when the
+rem file has been copied elsewhere (e.g. the Windows Startup folder)
+set "PROJECT_DIR=C:\Users\Migue\Documents\GitHub\supabase-login-tanstack-router"
+if exist "%~dp0package.json" set "PROJECT_DIR=%~dp0"
+cd /d "%PROJECT_DIR%" || (
+    echo Project folder not found: %PROJECT_DIR%
+    pause
+    exit /b 1
+)
 
 rem First local port to try; moves up until a free one is found
 set PORT=3000

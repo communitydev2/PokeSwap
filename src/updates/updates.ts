@@ -14,6 +14,17 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'dev-tailscale-startup',
+    date: '2026-10-04',
+    title: 'dev-tailscale.bat works from anywhere, including Startup',
+    summary: 'The dev launcher now finds the project even when the .bat is copied to another folder.',
+    body: [
+      'Copying dev-tailscale.bat into the Windows Startup folder (or anywhere else) used to fail with "Could not read package.json", because it looked for the project next to itself.',
+      'It now falls back to the project folder when it is not inside it, so it can start the dev server automatically when you log in.',
+    ],
+    tags: ['tooling', 'fix'],
+  },
+  {
     id: 'updates-page',
     date: '2026-10-04',
     title: 'New Updates page',
