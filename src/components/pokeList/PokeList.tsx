@@ -1,6 +1,6 @@
+import { LIST_TYPE } from '../../constants'
 import { supabase } from '../../supabaseClient'
 import { useEffect,useState } from 'react'
-import { useLocalizationStore } from '../../store/useLocalizationStore'
 import { usePokemonCardStore } from '../../store/pokemonCardsStore'
 import { PokemonCard } from '../../types/PokemonCard'
 import { PokeCard } from './PokeCard'
@@ -13,7 +13,6 @@ export function PokeList({listType}:{listType:string}) {
   const pagesize = 10;
   const [currentPageNumber,setCurrentPageNumber] = useState<number>(1);
   const [currentPageItems,setCurrentPageItems] = useState<PokemonCard[]>([]);
-  const useLocalizationStoreWrapper = useLocalizationStore();
  
   // Logic to add card to database
     const [selectedCard,setSelectedCard] = useState<PokemonCard>();
@@ -26,7 +25,7 @@ export function PokeList({listType}:{listType:string}) {
   // every time the search query gets updated these user fact will determine what is the active list
   useEffect(()=> {
     // if the list is to add the cards then it's going to set the active list to either the search query or the Pokémon cards
-    if (listType=="listAddCards"){
+    if (listType==LIST_TYPE.add){
       usePokeCard.searchQuery.length >0 ? setActiveList(usePokeCard.searchQuery) : setActiveList(usePokeCard.pokemonCards);
       
     }else{
@@ -66,7 +65,7 @@ if (activeList.length > 10){
 },[currentPageNumber,activeList,usePokeCard.listCardsSelected])
 
   return (
-    // {listType != useLocalizationStoreWrapper.localizationArray[26] && (
+    // {listType != LIST_TYPE.confirmAdd && (
     <>
     
    
@@ -87,7 +86,7 @@ if (activeList.length > 10){
         
         // The confirmation list (cards about to be added) is display-only:
         // no tap-to-select, highlight, hover zoom or buttons
-        const isConfirmList = listType == useLocalizationStoreWrapper.localizationArray?.[26]
+        const isConfirmList = listType == LIST_TYPE.confirmAdd
 
         return isConfirmList ? (
           <li key={i} style={{ listStyleType: 'none' }}>

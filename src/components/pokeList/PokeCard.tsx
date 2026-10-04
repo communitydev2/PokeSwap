@@ -1,3 +1,4 @@
+import { CARD_CATEGORY, LIST_TYPE, MENU_MODE } from '../../constants'
 import type{ PokemonCard } from '../../types/PokemonCard'
 import { useState } from 'react'
 import { background } from 'storybook/theming'
@@ -41,9 +42,9 @@ export function PokeCard(
   const usePokeCard = usePokemonCardStore();
   const useLocStore = useLocalizationStore();
   const useStateWrapper = useStateStore();
-  const listTypeAdd = "listAddCards"
-  const listTypeSelected = "listSelectedSection"
-  const listTypeExclusiveTrade = "listExclusiveTrade"
+  const listTypeAdd = LIST_TYPE.add
+  const listTypeSelected = LIST_TYPE.selected
+  const listTypeExclusiveTrade = LIST_TYPE.exclusiveTrade
   const thisCardInSelectedCardsList = pokeListType == listTypeAdd ? "nothing" : usePokeCard.listCardsSelected.find(card => currentCard.card_id == card.card_id)
 
     const [quantity, setQuantity] = useState(pokeListType == listTypeAdd ? 0 : thisCardInSelectedCardsList != null ? 0+ thisCardInSelectedCardsList.quantity : 0)
@@ -56,11 +57,11 @@ export function PokeCard(
     
       return (
         <>
-          <Modal opened={opened} onClose={close} title={useLocStore.localizationArray[15]} centered>
+          <Modal opened={opened} onClose={close} title={useLocStore.t.setUpExclusiveTrade} centered>
             {/* Modal content */}
-            <ManageCardsMainMenu callComponent={useLocStore.localizationArray[18]} exclusiveCardSelected={currentCard}/>
+            <ManageCardsMainMenu callComponent={MENU_MODE.exclusiveTrade} exclusiveCardSelected={currentCard}/>
           </Modal>
-        {useStateWrapper.addingCardsSector == useLocStore.localizationArray[4] && (
+        {useStateWrapper.addingCardsSector == CARD_CATEGORY.trade && (
           <Button data-click-id="PokeCard/open-exclusive-trade" variant="default" onClick={
             ()=> {
             //   useStateWrapper.setStateBooleanArray(useStateWrapper.stateBooleanArray.map((v,i)=>{
@@ -73,7 +74,7 @@ export function PokeCard(
           
           
           }>
-            {useLocStore.localizationArray[15]}
+            {useLocStore.t.setUpExclusiveTrade}
           </Button>
 
         )}
@@ -85,8 +86,8 @@ export function PokeCard(
     
       return (
         <Select data-click-id="PokeCard/language-select"
-          label={useLocStore.localizationArray[6]}
-          placeholder={useLocStore.localizationArray[2]}
+          label={useLocStore.t.pickLanguage}
+          placeholder={useLocStore.t.pickValue}
           data={usePokeCard.languages}
           value={selectedLanguageDropdownChoice}
           onChange={(e)=> {
@@ -124,7 +125,7 @@ export function PokeCard(
 
   {/* This is NOT an exclusive trade AND NOT the confirmation of cards I'm adding AND I will show things for other listTypes */}
   {/* Quantity is hidden in ExclusiveTrade PokeCard Selected on Top */}
-  {pokeListType!=listTypeExclusiveTrade && pokeListType != useLocStore.localizationArray[26] &&(
+  {pokeListType!=listTypeExclusiveTrade && pokeListType != LIST_TYPE.confirmAdd &&(
 
 <>
 
@@ -137,7 +138,7 @@ export function PokeCard(
 
 
     
-    {useLocStore.localizationArray[22]} : {quantity}{' '}
+    {useLocStore.t.quantity} : {quantity}{' '}
     <br></br>
 
     <button data-click-id="PokeCard/quantity-minus" type="button" style={{background: '#df0808' ,width:'50px'}} onClick={decrementQuantity}>-</button>{' '}
@@ -153,7 +154,7 @@ export function PokeCard(
 
       <>
       {/* if it's in the adding selection AND youre adding to the cards you have for trade You are going display language dropdown choice */}
-      {pokeListType==listTypeAdd&& useStateWrapper.addingCardsSector ==useLocStore.localizationArray[4] && (
+      {pokeListType==listTypeAdd&& useStateWrapper.addingCardsSector ==CARD_CATEGORY.trade && (
         
         <>
       <LanguageSelectionDropdown/>
@@ -168,14 +169,14 @@ export function PokeCard(
 
     )}
     {/* this is when I am confirming the cards I'm adding to my library and displayed in the modal */}
-  {pokeListType == useLocStore.localizationArray[26] && (
+  {pokeListType == LIST_TYPE.confirmAdd && (
 
 <>
 
 
 
 
-    {useLocStore.localizationArray[22]} : {quantity}{' '}
+    {useLocStore.t.quantity} : {quantity}{' '}
     {currentCard.language && (
       <>
         <br></br>
@@ -193,7 +194,7 @@ export function PokeCard(
 
       <>
       {/* if it's in the adding selection AND youre adding to the cards you have for trade You are going display language dropdown choice */}
-      {pokeListType==listTypeAdd&& useStateWrapper.addingCardsSector ==useLocStore.localizationArray[4] && (
+      {pokeListType==listTypeAdd&& useStateWrapper.addingCardsSector ==CARD_CATEGORY.trade && (
         
         <>
       <LanguageSelectionDropdown/>

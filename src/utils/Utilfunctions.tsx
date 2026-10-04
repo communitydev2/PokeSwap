@@ -1,3 +1,4 @@
+import { ANY_OPTION } from '../constants'
 import { useEffect } from "react";
 import { supabase } from "../supabaseClient";
 
@@ -219,8 +220,8 @@ export function useSearchFunction(
 
     //  3 - search, rarity set and expansion set
     if (
-      currentRaritySelected.toString() != useLocStore.localizationArray[10] &&
-      currentSetSelected.toString() != useLocStore.localizationArray[10] &&
+      currentRaritySelected.toString() != ANY_OPTION &&
+      currentSetSelected.toString() != ANY_OPTION &&
       searchString.length >0
     ) {
       return (
@@ -231,8 +232,8 @@ export function useSearchFunction(
 
       // 2 - search query, rarity set and expansion any AND search string must be MORE THAN 0 letters
     } else if (
-      currentRaritySelected.toString() != useLocStore.localizationArray[10] &&
-      currentSetSelected.toString() === useLocStore.localizationArray[10] &&
+      currentRaritySelected.toString() != ANY_OPTION &&
+      currentSetSelected.toString() === ANY_OPTION &&
       searchString.length >0
     ) {
       return (
@@ -242,8 +243,8 @@ export function useSearchFunction(
 
       // 1 - only search query, rarity any and expansion set
     } else if (
-      currentRaritySelected.toString() === useLocStore.localizationArray[10] &&
-      currentSetSelected.toString() != useLocStore.localizationArray[10] &&
+      currentRaritySelected.toString() === ANY_OPTION &&
+      currentSetSelected.toString() != ANY_OPTION &&
       searchString.length >0
     ) {
       return (
@@ -252,8 +253,8 @@ export function useSearchFunction(
       );
       // rarity and set are any and SEARCH STRING ISN'T empty
     } else if (
-      currentRaritySelected.toString() == useLocStore.localizationArray[10] &&
-      currentSetSelected.toString() == useLocStore.localizationArray[10] &&
+      currentRaritySelected.toString() == ANY_OPTION &&
+      currentSetSelected.toString() == ANY_OPTION &&
       searchString.length >0
     ) {
 
@@ -263,8 +264,8 @@ export function useSearchFunction(
       );
     }else if(
       // rarity is selected , set is any and SEARCH STRING is empty
-      currentRaritySelected.toString() !=useLocStore.localizationArray[10] &&
-      currentSetSelected.toString() == useLocStore.localizationArray[10] &&
+      currentRaritySelected.toString() !=ANY_OPTION &&
+      currentSetSelected.toString() == ANY_OPTION &&
       searchString.length==0
     ){
       // console.log(`${currentPokemonCard.rarity.toLowerCase()} ${textValueRarity.toLowerCase()}`)
@@ -272,8 +273,8 @@ export function useSearchFunction(
       return currentPokeCardRarity.toLowerCase() == textValueRarity.toLowerCase();
     }else if(
       // rarity is any , set is selected and SEARCH STRING is empty
-      currentRaritySelected.toString() ==useLocStore.localizationArray[10] &&
-      currentSetSelected.toString() != useLocStore.localizationArray[10] &&
+      currentRaritySelected.toString() ==ANY_OPTION &&
+      currentSetSelected.toString() != ANY_OPTION &&
       searchString.length==0
       
     ){
@@ -281,8 +282,8 @@ export function useSearchFunction(
       return currentPokeCardExpansion.toLowerCase() == textValueSet.toLowerCase();
     }else if(
       // rarity is set , expansion is set and SEARCH STRING is empty
-      currentRaritySelected.toString() !=useLocStore.localizationArray[10] &&
-      currentSetSelected.toString() != useLocStore.localizationArray[10] &&
+      currentRaritySelected.toString() !=ANY_OPTION &&
+      currentSetSelected.toString() != ANY_OPTION &&
       searchString.length==0
       
     ){

@@ -17,6 +17,18 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'named-text-keys',
+    date: '2026-10-04',
+    audience: 'dev',
+    title: 'Named text keys and constants replace localizationArray',
+    summary: 'On-screen text moved to src/i18n/en.ts with named keys; internal IDs moved to src/constants.ts.',
+    body: [
+      'useLocalizationStore now holds { language, t, setLanguage } instead of the numbered localizationArray, e.g. t.quantity instead of localizationArray[22]. Adding a language means copying en.ts and registering it in src/i18n/index.ts.',
+      'Internal IDs that lived in the same array (list types, menu modes, "Any") are now LIST_TYPE, MENU_MODE and ANY_OPTION. The card-category dropdown stores CARD_CATEGORY.wishlist / .trade with translated labels, so logic no longer compares against display text (which would break once translated).',
+    ],
+    tags: ['structure', 'i18n'],
+  },
+  {
     id: 'components-out-of-routes',
     date: '2026-10-04',
     audience: 'dev',

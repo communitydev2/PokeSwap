@@ -1,3 +1,4 @@
+import { ANY_OPTION } from '../../constants'
 import { Button, Group, Select, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useLocalizationStore } from '../../store/useLocalizationStore';
@@ -52,7 +53,7 @@ export default function SearchBar() {
 
   async function handleFormSubmit (values: SearchFormValues) {
      try {
-      const anyLabel = useLocStore.localizationArray[10];
+      const anyLabel = ANY_OPTION;
       // is it equal to any?
       const rarityParam =
         values.rarity.toLowerCase() === anyLabel.toLowerCase() ? 'any' : values.rarity;
@@ -84,18 +85,18 @@ export default function SearchBar() {
     <Group>
       <form onSubmit={form.onSubmit(handleFormSubmit)}>
         <TextInput data-click-id="SearchBar/search-input"
-          label={useLocStore.localizationArray[8]}
+          label={useLocStore.t.searchByName}
           {...form.getInputProps('searchInput')}
         />
 
         <Select data-click-id="SearchBar/rarity-select"
-          label={useLocStore.localizationArray[7]}
+          label={useLocStore.t.rarityLabel}
           data={usePokeCardStore.rarities}
           {...form.getInputProps('rarity')}
         />
 
         <Select data-click-id="SearchBar/expansion-select"
-          label={useLocStore.localizationArray[9]}
+          label={useLocStore.t.setLabel}
           data={usePokeCardStore.expansions}
           {...form.getInputProps('expansion')}
         />

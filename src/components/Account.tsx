@@ -1,3 +1,4 @@
+import { MENU_MODE } from '../constants'
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
 import { useAuthStore } from '../store/userStore';
@@ -72,7 +73,7 @@ useEffect(()=>{
 <h1>Signed In</h1>
 <ChangeUsername />
 {useStateStoreHandle.showManageCardsMainMenu && (
-  <ManageCardsMainMenu callComponent={useLocStoreWrapper.localizationArray[19]}/>
+  <ManageCardsMainMenu callComponent={MENU_MODE.mainMenu}/>
 )}
     </div>
 

@@ -6,6 +6,12 @@ This app will be used by many real users. Keep dev tooling out of production bui
 - `src/routes/` is only for real pages (each file there becomes a URL): `__root.tsx`, `index.tsx`, `updates.tsx`, `about.tsx`.
 - Everything else (screens shown inside a page, menus, cards, forms) goes in `src/components/`.
 
+## Text and translations
+The app is meant to support several languages.
+- On-screen text goes in `src/i18n/en.ts` under a descriptive key and is read with `useLocalizationStore().t.someKey`. Don't hard-code new user-facing text in components.
+- To add a language: copy `en.ts` (e.g. `es.ts`), translate the values, register it in `src/i18n/index.ts`.
+- Internal identifiers (list types, menu modes, card categories, "Any") live in `src/constants.ts` and are never translated. Never compare against translated text in logic.
+
 ## Branches
 - Work happens on `dev`; commits are pushed to `origin/dev`.
 - `master` is the release branch (it may auto-deploy to the live site). Only merge `dev` into `master` when the user asks for a release.
