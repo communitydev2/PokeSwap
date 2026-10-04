@@ -5,6 +5,7 @@ import { useAuthStore } from '../store/userStore';
 import { useStateStore } from '../store/useStateStore';
 import { ManageCardsMainMenu } from './managecards/ManageCardsMainMenu';
 import { useLocalizationStore } from '../store/uselocalizationStore';
+import { ChangeUsername } from '../components/ChangeUsername/ChangeUsername';
 export const Route = createFileRoute('/Account')({
   component: Account,
 })
@@ -78,6 +79,7 @@ useEffect(()=>{
 
     <div>
 <h1>Signed In</h1>
+<ChangeUsername />
 {useStateStoreHandle.showManageCardsMainMenu && (
   <ManageCardsMainMenu callComponent={useLocStoreWrapper.localizationArray[19]}/>
 )}

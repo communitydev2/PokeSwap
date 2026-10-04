@@ -17,6 +17,30 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'change-username',
+    date: '2026-10-04',
+    audience: 'user',
+    title: 'Change your username',
+    summary: 'You can now pick a new username after signing in.',
+    body: [
+      'Once you are signed in, the home page shows a "Your username" box. Type a new name and press Save (or Enter).',
+      'Names that are already taken or not allowed will be turned down with a message, so you can try another one.',
+    ],
+    screenshot: '/updates/change-username.png',
+    tags: ['new'],
+  },
+  {
+    id: 'change-username-dev',
+    date: '2026-10-04',
+    audience: 'dev',
+    title: 'ChangeUsername component',
+    summary: 'src/components/ChangeUsername updates user_account.username for the signed-in user and refreshes authStore.user.',
+    body: [
+      'Shown in Account.tsx. Relies on the existing database checks: "Username contains a banned word" and unique violations (23505) map to friendly messages. An update that matches no row reports a missing profile instead of failing silently.',
+    ],
+    tags: ['auth'],
+  },
+  {
     id: 'header-login',
     date: '2026-10-04',
     audience: 'user',
