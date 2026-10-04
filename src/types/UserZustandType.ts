@@ -1,11 +1,12 @@
+import type { Session } from "@supabase/supabase-js";
 import type { User } from "./User";
 
 
 export interface UserZustandType {
     user: User |null,
-    session : string | null,
+    session : Session | null,
 
     setUser: (user:User) => void;
-     setSession : (session:string) => void;
+     setSession : (session:Session | null) => void;
 }
 

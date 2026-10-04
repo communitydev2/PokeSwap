@@ -14,6 +14,17 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'persistent-login',
+    date: '2026-10-04',
+    title: 'Stay signed in on every page',
+    summary: 'Once you sign in on a device, you stay signed in, whichever page you open.',
+    body: [
+      'Your sign-in used to be picked up only on the home page, so opening another page or reloading could make it look like you were signed out. It is now restored on every page and kept fresh automatically.',
+      'Magic links now bring you back to the same address you requested them from, so signing in from your phone over Tailscale keeps you on the phone address.',
+    ],
+    tags: ['feature', 'fix'],
+  },
+  {
     id: 'click-ids',
     date: '2026-10-04',
     title: 'Every button now has a click ID',

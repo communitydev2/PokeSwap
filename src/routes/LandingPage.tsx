@@ -16,7 +16,7 @@ export const Route = createFileRoute('/LandingPage')({
 
 
 export default function LandingPage() {
-    const [session, setSession] = useState(null)
+    const session = useAuthStore((state) => state.session)
     const [userInfo,setUserInfo] = useState(null);
     const authStore = useAuthStore();
     const usePokeCardStore = usePokemonCardStore();
@@ -43,21 +43,7 @@ export default function LandingPage() {
 
     
     
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      authStore.setSession(session)
-    })
-    
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-      authStore.setSession(session)
-      // console.log(session)
-    })
-
-
-    return () => data.subscription.unsubscribe();
-  }, [])
+  // The saved session is restored in __root.tsx and kept in authStore
 
 // setting PokemonCards at launch
     useEffect(()=>{
