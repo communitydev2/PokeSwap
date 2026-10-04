@@ -5,6 +5,10 @@ import "@mantine/core/styles.css";
 // Import the generated route tree
 import { routeTree } from './routeTree.gen'
 import type { Router } from '@tanstack/react-router';
+if (import.meta.env.DEV) {
+  import('./dev/clickRecorder').then((m) => m.startClickRecorder())
+}
+
 // Create a new router instance
 const router = createRouter({ routeTree })
 

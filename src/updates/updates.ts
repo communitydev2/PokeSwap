@@ -14,6 +14,17 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'click-recorder',
+    date: '2026-10-04',
+    title: 'Record a click path in development',
+    summary: 'While running the dev server, every click is logged so a navigation path can be copied and shared.',
+    body: [
+      'In development, each click and typed value is logged to the browser console as a numbered step, with the button text, the components it belongs to and the current page.',
+      'Run copy(clickPath()) in the console to copy the whole path, or clearClicks() to start a new one. Steps survive page reloads, and nothing is recorded in the production build.',
+    ],
+    tags: ['tooling'],
+  },
+  {
     id: 'dev-tailscale-startup',
     date: '2026-10-04',
     title: 'dev-tailscale.bat works from anywhere, including Startup',

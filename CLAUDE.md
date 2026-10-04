@@ -10,3 +10,6 @@ Every change that affects the site or how it is run gets an article on the `/upd
    - Look at the image before using it, then set `screenshot: '/updates/<id>.png'` on the entry.
    - Stop the dev server afterwards.
 3. Changes with nothing to show (tooling, scripts, config) still get an article, just without a screenshot.
+
+## Reaching screens behind clicks
+Most menus are opened through Zustand store flags (e.g. `setShowManageCardsMainMenu`), not URLs, so they can't be linked to directly. In dev, `src/dev/clickRecorder.ts` logs every click; the user can click through the app and paste the output of `copy(clickPath())` from the browser console. Each step names the element, the app components it is inside and the current path; use that to find the buttons and state flags involved.
