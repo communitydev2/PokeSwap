@@ -4,7 +4,6 @@ import { RouterProvider, createRouter } from '@tanstack/react-router'
 import "@mantine/core/styles.css";
 // Import the generated route tree
 import { routeTree } from './routeTree.gen'
-import type { Router } from '@tanstack/react-router';
 import { CLICK_LOG_ENABLED } from './dev/clickLogConfig'
 
 if (import.meta.env.DEV && CLICK_LOG_ENABLED) {
@@ -17,7 +16,7 @@ const router = createRouter({ routeTree })
 // Register the router instance for type safety
 declare module '@tanstack/react-router' {
   interface Register {
-    router: typeof Router
+    router: typeof router
   }
 }
 

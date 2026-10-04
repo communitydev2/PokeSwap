@@ -6,7 +6,7 @@ export interface UserZustandType {
     user: User |null,
     session : Session | null,
 
-    setUser: (user:User) => void;
+    setUser: (user:User | null) => void;
      setSession : (session:Session | null) => void;
 }
 

@@ -63,7 +63,7 @@ useEffect(()=>{
         console.warn(error)
       } else if (data) {
         setUsername(data[0])
-        authStore.setUser(data);
+        authStore.setUser(data[0]);
       }
 
       setLoading(false)

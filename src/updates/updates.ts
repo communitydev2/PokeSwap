@@ -17,6 +17,31 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'header-login',
+    date: '2026-10-04',
+    audience: 'user',
+    title: 'Log in and Log out from the top menu',
+    summary: 'The top-right corner now shows a working Log in button, or Manage Cards and Log out once you are signed in.',
+    body: [
+      'If you are not signed in, press Log in at the top right to go to the sign-in form.',
+      'Once you are signed in, Manage Cards opens your card menu from any page, and Log out signs you out of this device.',
+    ],
+    screenshot: '/updates/header-login.png',
+    tags: ['improvement'],
+  },
+  {
+    id: 'header-login-dev',
+    date: '2026-10-04',
+    audience: 'dev',
+    title: 'Header auth state and profile loading',
+    summary: 'The header uses session + username to decide what to show, and the profile now loads in the root layout.',
+    body: [
+      'isSignedIn = session && user.username. Log in / Manage Cards navigate to "/" (where the sign-in form and the Manage Cards menu live); Log out calls supabase.auth.signOut().',
+      'useSupabaseSession() in __root.tsx now also fetches the user_account row when the session user changes and clears it on sign-out. Fixed Account.tsx storing the result array as the user, and the router type registration (the unused App.tsx re-declared it as typeof Router).',
+    ],
+    tags: ['auth'],
+  },
+  {
     id: 'recover-username',
     date: '2026-10-04',
     audience: 'user',

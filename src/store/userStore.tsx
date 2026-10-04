@@ -6,7 +6,7 @@ export const useAuthStore = create<UserZustandType>((set) => ({
     user : null,
     session : null,
     
-    setUser: (user:User) => set(() => ({user})),
+    setUser: (user:User | null) => set(() => ({user})),
     setSession: (session:Session | null) => set(() => ({session})),
 
 }));

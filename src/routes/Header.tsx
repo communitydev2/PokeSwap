@@ -1,6 +1,6 @@
 import { ColorSchemeToggle } from '../components/ColorSchemeToggle/ColorSchemeToggle';
 
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import {
   IconBook,
   IconChartPie3,
@@ -33,6 +33,7 @@ import { MantineLogo } from '@mantinex/mantine-logo';
 import classes from '../assets/Header.module.css';
 import { useAuthStore } from '../store/userStore';
 import { useStateStore } from '../store/useStateStore';
+import { supabase } from '../supabaseClient';
 export const Route = createFileRoute('/Header')({
   component: Header,
 })
@@ -80,10 +81,28 @@ export function Header() {
   const useStateStoreHandle = useStateStore();
 
 
+  const navigate = useNavigate();
+  // Signed in = has a session and has finished sign-up (chosen a username)
+  const isSignedIn = Boolean(authStore.session && authStore.user?.username);
+
+  // The Manage Cards menu lives on the home page, so go there first
   function handleManageCardsMenu() {
-    // 
-useStateStoreHandle.setShowManageCardsMainMenu(true);
-    
+    closeDrawer();
+    navigate({ to: '/' });
+    useStateStoreHandle.setShowManageCardsMainMenu(true);
+  }
+
+  // The sign-in form (and username setup) is on the home page
+  function handleLogIn() {
+    closeDrawer();
+    navigate({ to: '/' });
+  }
+
+  async function handleLogOut() {
+    closeDrawer();
+    useStateStoreHandle.setShowManageCardsMainMenu(false);
+    await supabase.auth.signOut();
+    navigate({ to: '/' });
   }
 
 
@@ -172,21 +191,18 @@ useStateStoreHandle.setShowManageCardsMainMenu(true);
 
             <ColorSchemeToggle />
 
-            {authStore.session ? (
-                        // <Group visibleFrom="sm"> // This is in case you want it hidden on mobile
-                        <Group >
-              <Text size="xl" c="dimmed">
-                        Hi {authStore.user?.username}
-                      <Button data-click-id="Header/manage-cards" variant="default" onClick={handleManageCardsMenu}>Manage Cards</Button>
-                      </Text>
-          </Group>
-              
+            {isSignedIn ? (
+              <Group visibleFrom="sm">
+                <Text size="xl" c="dimmed">
+                  Hi {authStore.user?.username}
+                </Text>
+                <Button data-click-id="Header/manage-cards" variant="default" onClick={handleManageCardsMenu}>Manage Cards</Button>
+                <Button data-click-id="Header/log-out" variant="subtle" onClick={handleLogOut}>Log out</Button>
+              </Group>
             ) : (
-              <Group >
-              <Button data-click-id="Header/log-in" variant="default">Log in</Button>
-              <Button data-click-id="Header/sign-up">Sign up</Button>
-          </Group>
-
+              <Group visibleFrom="sm">
+                <Button data-click-id="Header/log-in" onClick={handleLogIn}>Log in</Button>
+              </Group>
             )}
 
           <Burger data-click-id="Header/burger" opened={drawerOpened} onClick={toggleDrawer} hiddenFrom="sm" />
@@ -230,8 +246,14 @@ useStateStoreHandle.setShowManageCardsMainMenu(true);
           <Divider my="sm" />
 
           <Group justify="center" grow pb="xl" px="md">
-            <Button data-click-id="Header/drawer-log-in" variant="default">Log in</Button>
-            <Button data-click-id="Header/drawer-sign-up">Sign up</Button>
+            {isSignedIn ? (
+              <>
+                <Button data-click-id="Header/drawer-manage-cards" variant="default" onClick={handleManageCardsMenu}>Manage Cards</Button>
+                <Button data-click-id="Header/drawer-log-out" variant="subtle" onClick={handleLogOut}>Log out</Button>
+              </>
+            ) : (
+              <Button data-click-id="Header/drawer-log-in" onClick={handleLogIn}>Log in</Button>
+            )}
           </Group>
         </ScrollArea>
       </Drawer>
