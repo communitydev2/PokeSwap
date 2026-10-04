@@ -41,9 +41,9 @@ create policy "Sets are readable by everyone"
 -- App queries: select own row (Account, UsernameDialog), update own
 -- last_logged_in / username.
 --
--- No insert/delete policy: rows should be created by a trigger on sign-up
--- (security definer), not by the app. If you don't have that trigger yet,
--- add one or add an insert policy with check (user_id = auth.uid()).
+-- Insert: the app creates the row itself when an account has none yet (the
+-- "Choose your username" screen), so users may insert their own row only.
+-- No delete policy.
 --
 -- NOTE: UsernameDialog also runs `select username from user_account` (all
 -- users). Its result is not used - duplicates and banned words are already
@@ -58,6 +58,10 @@ alter table public.user_account enable row level security;
 create policy "Users can read their own account"
   on public.user_account for select to authenticated
   using (user_id = (select auth.uid()));
+
+create policy "Users can create their own account row"
+  on public.user_account for insert to authenticated
+  with check (user_id = (select auth.uid()));
 
 create policy "Users can update their own account"
   on public.user_account for update to authenticated

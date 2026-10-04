@@ -4,7 +4,9 @@ import { supabase } from '../supabaseClient'
 import { Auth } from './Auth'
 import {Account} from './Account'
 import { useAuthStore } from '../store/userStore'
-import { Username } from './UsernameDialog'
+import { ChangeUsername } from '../components/ChangeUsername/ChangeUsername'
+import { useSavedAccountsStore } from '../store/savedAccountsStore'
+import { Alert, Center, Container, Loader } from '@mantine/core'
 import { PokeList } from './pokeList/PokeList'
 import { usePokemonCardStore } from '../store/pokemonCardsStore'
 export const Route = createFileRoute('/LandingPage')({
@@ -17,6 +19,10 @@ export const Route = createFileRoute('/LandingPage')({
 
 export default function LandingPage() {
     const session = useAuthStore((state) => state.session)
+    const profileLoading = useAuthStore((state) => state.profileLoading)
+    const addingAccount = useSavedAccountsStore((state) => state.addingAccount)
+    const notice = useSavedAccountsStore((state) => state.notice)
+    const setNotice = useSavedAccountsStore((state) => state.setNotice)
     const [userInfo,setUserInfo] = useState(null);
     const authStore = useAuthStore();
     const usePokeCardStore = usePokemonCardStore();
@@ -64,7 +70,22 @@ getCards()
       {/* {<PokeList/>} */}
       {/* Come back this when you want to debug username */}
       {/* {!session ? <Auth /> :  <Username/> } */}
-      {!session ? <Auth /> : authStore.session && !authStore.user?.username ?  <Username/> : <Account key={session.user.id} session={session} />}
+      {notice && (
+        <Container size={420}>
+          <Alert data-click-id="LandingPage/notice" color="yellow" withCloseButton onClose={() => setNotice(null)} mb="md">
+            {notice}
+          </Alert>
+        </Container>
+      )}
+      {!session || addingAccount ? (
+        <Auth />
+      ) : profileLoading ? (
+        <Center py="xl"><Loader /></Center>
+      ) : !authStore.user?.username ? (
+        <ChangeUsername mode="set" />
+      ) : (
+        <Account key={session.user.id} session={session} />
+      )}
     </div>
   )
 }

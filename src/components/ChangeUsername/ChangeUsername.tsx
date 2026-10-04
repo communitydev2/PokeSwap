@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Button, Group, Paper, Text, TextInput, Title } from '@mantine/core';
-import { supabase } from '../../supabaseClient';
 import { useAuthStore } from '../../store/userStore';
+import { saveUsername } from '../../utils/saveUsername';
 
-// Lets a signed-in user change their username. Banned words and duplicate
-// usernames are rejected by the database, so their errors are shown here.
-export function ChangeUsername() {
+// Lets a signed-in user choose their first username (mode "set") or change it
+// (mode "change"). Banned words and duplicates are rejected by the database.
+export function ChangeUsername({ mode = 'change' }: { mode?: 'set' | 'change' }) {
   const user = useAuthStore((state) => state.user);
   const setUser = useAuthStore((state) => state.setUser);
   const userId = useAuthStore((state) => state.session?.user.id);
+  const email = useAuthStore((state) => state.session?.user.email);
 
   const [username, setUsername] = useState(user?.username ?? '');
   const [saving, setSaving] = useState(false);
@@ -31,43 +32,32 @@ export function ChangeUsername() {
 
     setSaving(true);
     setMessage(null);
-    const { data, error } = await supabase
-      .from('user_account')
-      .update({ username: trimmed })
-      .eq('user_id', userId)
-      .select();
+    const result = await saveUsername(userId, trimmed);
     setSaving(false);
 
-    if (error) {
-      console.warn(error);
-      if (error.message === 'Username contains a banned word') {
-        setMessage({ ok: false, text: 'This username is inappropriate, please choose another one.' });
-      } else if (error.code === '23505') {
-        setMessage({ ok: false, text: 'This username already exists. Please pick another one.' });
-      } else {
-        setMessage({ ok: false, text: "Couldn't save your username. Please try again." });
-      }
+    if ('error' in result) {
+      setMessage({ ok: false, text: result.error });
       return;
     }
-    if (!data?.length) {
-      setMessage({ ok: false, text: "Your account profile wasn't found, so the username couldn't be saved." });
-      return;
-    }
-
-    setUser(data[0]);
+    setUser(result.user);
     setMessage({ ok: true, text: 'Username updated.' });
   }
 
   return (
-    <Paper withBorder radius="md" p="lg" maw={420}>
-      <Title order={4} mb="xs">
-        Your username
+    <Paper withBorder radius="md" p="lg" maw={420} mx={mode === 'set' ? 'auto' : undefined}>
+      <Title order={mode === 'set' ? 3 : 4} mb="xs">
+        {mode === 'set' ? 'Choose your username' : 'Your username'}
       </Title>
+      {mode === 'set' && (
+        <Text size="sm" c="dimmed" mb="sm">
+          {email ? `Signed in as ${email}. ` : ''}Pick the name other players will see.
+        </Text>
+      )}
       <Group align="flex-end" wrap="nowrap">
         <TextInput
-          data-click-id="ChangeUsername/username-input"
+          data-click-id={mode === 'set' ? 'ChangeUsername/set-username-input' : 'ChangeUsername/username-input'}
           label="Username"
-          placeholder="Enter a new username"
+          placeholder={mode === 'set' ? 'Enter your username' : 'Enter a new username'}
           value={username}
           onChange={(e) => {
             setUsername(e.target.value);
@@ -78,7 +68,12 @@ export function ChangeUsername() {
           }}
           style={{ flex: 1 }}
         />
-        <Button data-click-id="ChangeUsername/save" onClick={handleSave} loading={saving} disabled={unchanged}>
+        <Button
+          data-click-id={mode === 'set' ? 'ChangeUsername/set-save' : 'ChangeUsername/save'}
+          onClick={handleSave}
+          loading={saving}
+          disabled={unchanged}
+        >
           Save
         </Button>
       </Group>

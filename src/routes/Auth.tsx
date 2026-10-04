@@ -2,6 +2,8 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react';
 import { supabase } from '../supabaseClient';
 import classes from '../assets/Auth.module.css';
+import { useSavedAccountsStore } from '../store/savedAccountsStore';
+import { useAuthStore } from '../store/userStore';
 
 export const Route = createFileRoute('/Auth')({
   component: Auth,
@@ -9,6 +11,7 @@ export const Route = createFileRoute('/Auth')({
 
 
 import {
+  ActionIcon,
   Anchor,
   Button,
   Checkbox,
@@ -34,6 +37,18 @@ export function Auth() {
   const [recoveryEmail, setRecoveryEmail] = useState('')
   const [recoveryLoading, setRecoveryLoading] = useState(false)
   const [recoveryMessage, setRecoveryMessage] = useState<{ ok: boolean; text: string } | null>(null)
+  const savedAccounts = useSavedAccountsStore()
+  const currentUserId = useAuthStore((state) => state.session?.user.id)
+  // Accounts already signed in on this device (other than the current one)
+  const switchable = savedAccounts.accounts.filter((a) => a.userId !== currentUserId)
+  const [switching, setSwitching] = useState<string | null>(null)
+
+  const handleContinueAs = async (userId: string) => {
+    setSwitching(userId)
+    const { ok } = await savedAccounts.switchTo(userId)
+    setSwitching(null)
+    if (!ok) savedAccounts.setNotice('That account was signed out. Please sign in to it again.')
+  }
 
   const handleRecoverUsername = async () => {
     setRecoveryLoading(true)
@@ -75,6 +90,49 @@ export function Auth() {
       {/* <Text className={classes.subtitle}>
         Do not have an account yet? <Anchor data-click-id="Auth/create-account">Create account</Anchor>
       </Text> */}
+
+      {savedAccounts.addingAccount && (
+        <Text size="sm" ta="center" c="dimmed" mt="sm">
+          Sign in to another account. Your current account stays saved on this device.{' '}
+          <Anchor data-click-id="Auth/cancel-add-account" component="button" type="button" onClick={() => savedAccounts.setAddingAccount(false)}>
+            Cancel
+          </Anchor>
+        </Text>
+      )}
+
+      {switchable.length > 0 && (
+        <Paper withBorder shadow="sm" p={22} mt={30} radius="md">
+          <Text fw={500} mb="sm">
+            Accounts on this device
+          </Text>
+          <Stack gap="xs">
+            {switchable.map((account, i) => (
+              <Group key={account.userId} wrap="nowrap" gap="xs">
+                <Button
+                  data-click-id={`Auth/continue-as:${i}`}
+                  variant="light"
+                  radius="md"
+                  style={{ flex: 1 }}
+                  loading={switching === account.userId}
+                  onClick={() => handleContinueAs(account.userId)}
+                >
+                  Continue as {account.username || account.email}
+                </Button>
+                <ActionIcon
+                  data-click-id={`Auth/forget-account:${i}`}
+                  variant="subtle"
+                  color="gray"
+                  aria-label={`Remove ${account.email} from this device`}
+                  title="Remove from this device"
+                  onClick={() => savedAccounts.remove(account.userId)}
+                >
+                  ×
+                </ActionIcon>
+              </Group>
+            ))}
+          </Stack>
+        </Paper>
+      )}
 
       <Paper withBorder shadow="sm" p={22} mt={30} radius="md">
         <TextInput data-click-id="Auth/email-input" label="Email" placeholder="ash@pallettown.pika" required radius="md" onChange={(e)=>setEmail(e.target.value)}/>

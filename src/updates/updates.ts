@@ -17,6 +17,32 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'switch-accounts',
+    date: '2026-10-04',
+    audience: 'user',
+    title: 'Switch between accounts',
+    summary: 'Use more than one account on the same device and switch between them in one click.',
+    body: [
+      'Click your name at the top right to see the accounts you have used on this device. Pick one to switch to it straight away, no new email needed.',
+      'Choose "Add another account" to sign in to a new one; your current account stays saved. "Log out" signs you out and removes that account from this device.',
+      'If an account has no username yet, you will be asked to choose one as soon as you switch to it.',
+    ],
+    screenshot: '/updates/switch-accounts.png',
+    tags: ['new'],
+  },
+  {
+    id: 'switch-accounts-dev',
+    date: '2026-10-04',
+    audience: 'dev',
+    title: 'Saved accounts store and username setup',
+    summary: 'src/store/savedAccountsStore.ts remembers each signed-in account\'s tokens for switching; saveUsername creates missing profile rows.',
+    body: [
+      '__root.tsx saves every session (and every token refresh) into the saved-accounts list in localStorage; switching calls supabase.auth.setSession with that account\'s tokens. Accounts whose tokens fail are removed with a notice. Log out uses signOut({ scope: "local" }) so other devices stay signed in.',
+      'LandingPage now shows a loader while the profile loads, then ChangeUsername in "set" mode when there is no username. saveUsername updates the user_account row or inserts it if missing, so the RLS draft gained an own-row insert policy. UsernameDialog is no longer used.',
+    ],
+    tags: ['auth'],
+  },
+  {
     id: 'change-username',
     date: '2026-10-04',
     audience: 'user',

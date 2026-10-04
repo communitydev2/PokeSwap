@@ -27,6 +27,8 @@ import {
   ThemeIcon,
   UnstyledButton,
   useMantineTheme,
+  Menu,
+  Stack,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { MantineLogo } from '@mantinex/mantine-logo';
@@ -34,6 +36,7 @@ import classes from '../assets/Header.module.css';
 import { useAuthStore } from '../store/userStore';
 import { useStateStore } from '../store/useStateStore';
 import { supabase } from '../supabaseClient';
+import { useSavedAccountsStore } from '../store/savedAccountsStore';
 export const Route = createFileRoute('/Header')({
   component: Header,
 })
@@ -82,8 +85,13 @@ export function Header() {
 
 
   const navigate = useNavigate();
+  const savedAccounts = useSavedAccountsStore();
+  const session = authStore.session;
   // Signed in = has a session and has finished sign-up (chosen a username)
-  const isSignedIn = Boolean(authStore.session && authStore.user?.username);
+  const isSignedIn = Boolean(session && authStore.user?.username);
+  const displayName = authStore.user?.username || session?.user.email || 'there';
+  // Other accounts saved on this device that can be switched to
+  const otherAccounts = savedAccounts.accounts.filter((a) => a.userId !== session?.user.id);
 
   // The Manage Cards menu lives on the home page, so go there first
   function handleManageCardsMenu() {
@@ -98,10 +106,28 @@ export function Header() {
     navigate({ to: '/' });
   }
 
+  // Signs out of this account on this device and forgets it from the switcher
   async function handleLogOut() {
     closeDrawer();
     useStateStoreHandle.setShowManageCardsMainMenu(false);
-    await supabase.auth.signOut();
+    if (session) savedAccounts.remove(session.user.id);
+    await supabase.auth.signOut({ scope: 'local' });
+    navigate({ to: '/' });
+  }
+
+  async function handleSwitchAccount(userId: string) {
+    closeDrawer();
+    useStateStoreHandle.setShowManageCardsMainMenu(false);
+    const { ok } = await savedAccounts.switchTo(userId);
+    if (!ok) savedAccounts.setNotice('That account was signed out. Please sign in to it again.');
+    navigate({ to: '/' });
+  }
+
+  // Shows the sign-in form while keeping the current account saved
+  function handleAddAccount() {
+    closeDrawer();
+    useStateStoreHandle.setShowManageCardsMainMenu(false);
+    savedAccounts.setAddingAccount(true);
     navigate({ to: '/' });
   }
 
@@ -191,13 +217,47 @@ export function Header() {
 
             <ColorSchemeToggle />
 
-            {isSignedIn ? (
+            {session ? (
               <Group visibleFrom="sm">
-                <Text size="xl" c="dimmed">
-                  Hi {authStore.user?.username}
-                </Text>
-                <Button data-click-id="Header/manage-cards" variant="default" onClick={handleManageCardsMenu}>Manage Cards</Button>
-                <Button data-click-id="Header/log-out" variant="subtle" onClick={handleLogOut}>Log out</Button>
+                {isSignedIn ? (
+                  <Button data-click-id="Header/manage-cards" variant="default" onClick={handleManageCardsMenu}>Manage Cards</Button>
+                ) : (
+                  !authStore.profileLoading && (
+                    <Button data-click-id="Header/set-username" onClick={handleLogIn}>Set username</Button>
+                  )
+                )}
+                <Menu position="bottom-end" width={260} shadow="md" withinPortal>
+                  <Menu.Target>
+                    <Button data-click-id="Header/account-menu" variant="subtle" rightSection={<IconChevronDown size={16} />}>
+                      Hi {displayName}
+                    </Button>
+                  </Menu.Target>
+                  <Menu.Dropdown>
+                    <Menu.Label>Signed in as {session.user.email}</Menu.Label>
+                    {otherAccounts.length > 0 && <Menu.Label>Switch account</Menu.Label>}
+                    {otherAccounts.map((account, i) => (
+                      <Menu.Item
+                        key={account.userId}
+                        data-click-id={`Header/switch-account:${i}`}
+                        onClick={() => handleSwitchAccount(account.userId)}
+                      >
+                        <Text size="sm">{account.username || account.email}</Text>
+                        {account.username && (
+                          <Text size="xs" c="dimmed">
+                            {account.email}
+                          </Text>
+                        )}
+                      </Menu.Item>
+                    ))}
+                    <Menu.Item data-click-id="Header/add-account" onClick={handleAddAccount}>
+                      Add another account
+                    </Menu.Item>
+                    <Menu.Divider />
+                    <Menu.Item data-click-id="Header/log-out" color="red" onClick={handleLogOut}>
+                      Log out
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </Menu>
               </Group>
             ) : (
               <Group visibleFrom="sm">
@@ -245,16 +305,34 @@ export function Header() {
 
           <Divider my="sm" />
 
-          <Group justify="center" grow pb="xl" px="md">
-            {isSignedIn ? (
-              <>
+          {session ? (
+            <Stack gap="xs" pb="xl" px="md">
+              <Text size="sm" c="dimmed">
+                Signed in as {session.user.email}
+              </Text>
+              {isSignedIn ? (
                 <Button data-click-id="Header/drawer-manage-cards" variant="default" onClick={handleManageCardsMenu}>Manage Cards</Button>
-                <Button data-click-id="Header/drawer-log-out" variant="subtle" onClick={handleLogOut}>Log out</Button>
-              </>
-            ) : (
+              ) : (
+                <Button data-click-id="Header/drawer-set-username" onClick={handleLogIn}>Set username</Button>
+              )}
+              {otherAccounts.map((account, i) => (
+                <Button
+                  key={account.userId}
+                  data-click-id={`Header/drawer-switch-account:${i}`}
+                  variant="light"
+                  onClick={() => handleSwitchAccount(account.userId)}
+                >
+                  Switch to {account.username || account.email}
+                </Button>
+              ))}
+              <Button data-click-id="Header/drawer-add-account" variant="subtle" onClick={handleAddAccount}>Add another account</Button>
+              <Button data-click-id="Header/drawer-log-out" variant="subtle" color="red" onClick={handleLogOut}>Log out</Button>
+            </Stack>
+          ) : (
+            <Group justify="center" grow pb="xl" px="md">
               <Button data-click-id="Header/drawer-log-in" onClick={handleLogIn}>Log in</Button>
-            )}
-          </Group>
+            </Group>
+          )}
         </ScrollArea>
       </Drawer>
     </Box>
