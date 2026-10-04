@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UpdatesRouteImport } from './routes/updates'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as UsernameDialogRouteImport } from './routes/UsernameDialog'
 import { Route as LandingPageRouteImport } from './routes/LandingPage'
@@ -22,6 +23,11 @@ import { Route as PokeListPokeCardRouteImport } from './routes/pokeList/PokeCard
 import { Route as ManagecardsManageTCGAccountsMenuRouteImport } from './routes/managecards/ManageTCGAccountsMenu'
 import { Route as ManagecardsManageCardsMainMenuRouteImport } from './routes/managecards/ManageCardsMainMenu'
 
+const UpdatesRoute = UpdatesRouteImport.update({
+  id: '/updates',
+  path: '/updates',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/LandingPage': typeof LandingPageRoute
   '/UsernameDialog': typeof UsernameDialogRoute
   '/about': typeof AboutRoute
+  '/updates': typeof UpdatesRoute
   '/managecards/ManageCardsMainMenu': typeof ManagecardsManageCardsMainMenuRoute
   '/managecards/ManageTCGAccountsMenu': typeof ManagecardsManageTCGAccountsMenuRoute
   '/pokeList/PokeCard': typeof PokeListPokeCardRoute
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/LandingPage': typeof LandingPageRoute
   '/UsernameDialog': typeof UsernameDialogRoute
   '/about': typeof AboutRoute
+  '/updates': typeof UpdatesRoute
   '/managecards/ManageCardsMainMenu': typeof ManagecardsManageCardsMainMenuRoute
   '/managecards/ManageTCGAccountsMenu': typeof ManagecardsManageTCGAccountsMenuRoute
   '/pokeList/PokeCard': typeof PokeListPokeCardRoute
@@ -123,6 +131,7 @@ export interface FileRoutesById {
   '/LandingPage': typeof LandingPageRoute
   '/UsernameDialog': typeof UsernameDialogRoute
   '/about': typeof AboutRoute
+  '/updates': typeof UpdatesRoute
   '/managecards/ManageCardsMainMenu': typeof ManagecardsManageCardsMainMenuRoute
   '/managecards/ManageTCGAccountsMenu': typeof ManagecardsManageTCGAccountsMenuRoute
   '/pokeList/PokeCard': typeof PokeListPokeCardRoute
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
     | '/LandingPage'
     | '/UsernameDialog'
     | '/about'
+    | '/updates'
     | '/managecards/ManageCardsMainMenu'
     | '/managecards/ManageTCGAccountsMenu'
     | '/pokeList/PokeCard'
@@ -153,6 +163,7 @@ export interface FileRouteTypes {
     | '/LandingPage'
     | '/UsernameDialog'
     | '/about'
+    | '/updates'
     | '/managecards/ManageCardsMainMenu'
     | '/managecards/ManageTCGAccountsMenu'
     | '/pokeList/PokeCard'
@@ -167,6 +178,7 @@ export interface FileRouteTypes {
     | '/LandingPage'
     | '/UsernameDialog'
     | '/about'
+    | '/updates'
     | '/managecards/ManageCardsMainMenu'
     | '/managecards/ManageTCGAccountsMenu'
     | '/pokeList/PokeCard'
@@ -182,6 +194,7 @@ export interface RootRouteChildren {
   LandingPageRoute: typeof LandingPageRoute
   UsernameDialogRoute: typeof UsernameDialogRoute
   AboutRoute: typeof AboutRoute
+  UpdatesRoute: typeof UpdatesRoute
   ManagecardsManageCardsMainMenuRoute: typeof ManagecardsManageCardsMainMenuRoute
   ManagecardsManageTCGAccountsMenuRoute: typeof ManagecardsManageTCGAccountsMenuRoute
   PokeListPokeCardRoute: typeof PokeListPokeCardRoute
@@ -191,6 +204,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/updates': {
+      id: '/updates'
+      path: '/updates'
+      fullPath: '/updates'
+      preLoaderRoute: typeof UpdatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -286,6 +306,7 @@ const rootRouteChildren: RootRouteChildren = {
   LandingPageRoute: LandingPageRoute,
   UsernameDialogRoute: UsernameDialogRoute,
   AboutRoute: AboutRoute,
+  UpdatesRoute: UpdatesRoute,
   ManagecardsManageCardsMainMenuRoute: ManagecardsManageCardsMainMenuRoute,
   ManagecardsManageTCGAccountsMenuRoute: ManagecardsManageTCGAccountsMenuRoute,
   PokeListPokeCardRoute: PokeListPokeCardRoute,

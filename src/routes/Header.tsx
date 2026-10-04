@@ -1,6 +1,6 @@
 import { ColorSchemeToggle } from '../components/ColorSchemeToggle/ColorSchemeToggle';
 
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import {
   IconBook,
   IconChartPie3,
@@ -165,6 +165,9 @@ useStateStoreHandle.setShowManageCardsMainMenu(true);
             <a href="#" className={classes.link}>
               Academy
             </a>
+            <Link to="/updates" className={classes.link}>
+              Updates
+            </Link>
           </Group>
 
             <ColorSchemeToggle />
@@ -220,6 +223,9 @@ useStateStoreHandle.setShowManageCardsMainMenu(true);
           <a href="#" className={classes.link}>
             Academy
           </a>
+          <Link to="/updates" className={classes.link} onClick={closeDrawer}>
+            Updates
+          </Link>
 
           <Divider my="sm" />
 
