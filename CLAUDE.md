@@ -3,7 +3,7 @@
 This app will be used by many real users. Keep dev tooling out of production builds, keep user-facing text written for users, and treat Supabase Row Level Security as the real security boundary (the anon key ships in the page). Draft RLS policies are in `supabase/rls-policies.sql`.
 
 ## Where code goes
-- `src/routes/` is only for real pages (each file there becomes a URL): `__root.tsx`, `index.tsx`, `updates.tsx`, `about.tsx`.
+- `src/routes/` is only for real pages (each file there becomes a URL): `__root.tsx`, `index.tsx`, `updates.tsx`, `support.tsx`, `about.tsx`.
 - Everything else (screens shown inside a page, menus, cards, forms) goes in `src/components/`.
 
 ## Text and translations
@@ -11,6 +11,11 @@ The app is meant to support several languages.
 - On-screen text goes in `src/i18n/en.ts` under a descriptive key and is read with `useLocalizationStore().t.someKey`. Don't hard-code new user-facing text in components.
 - To add a language: copy `en.ts` (e.g. `es.ts`), translate the values, register it in `src/i18n/index.ts`.
 - Internal identifiers (list types, menu modes, card categories, "Any") live in `src/constants.ts` and are never translated. Never compare against translated text in logic.
+
+## Payments (support page)
+- Contributions are only recorded by the `stripe-webhook` Edge Function after Stripe confirms a payment. Never write to `contributions` from the browser, and never trust amounts sent by the client.
+- Money is stored in pence (integers). Format with `formatPence` from `src/utils/money.ts`.
+- Use Stripe test mode (`sk_test_...`) while developing. Setup steps are in `supabase/support.sql` and the two function files.
 
 ## Branches
 - Work happens on `dev`; commits are pushed to `origin/dev`.

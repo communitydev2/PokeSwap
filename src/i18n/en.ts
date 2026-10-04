@@ -39,6 +39,37 @@ export const en = {
   signInUseDifferentEmail: 'Use a different email',
   linkExpired: 'That sign-in link has expired or was already used. Send a new one below, or use the code from the email.',
   linkFailed: "Signing in with that link didn't work. Please try again.",
+
+  // Support page
+  supportNav: 'Support',
+  supportTitle: 'Support the site',
+  supportIntro:
+    'Poke app is free to use. Contributions pay for the server and sign-in emails, and fund upgrades that make it better for everyone.',
+  supportThisMonth: 'This month',
+  supportRaisedOf: (raised: string, target: string) => `${raised} of ${target}`,
+  supportGoalReached: 'Goal reached, thank you!',
+  supportMonthlyResets: 'Resets at the start of each month.',
+  supportWhereMoneyGoes: 'Where the money goes',
+  supportUpgrades: 'Upgrades',
+  supportContributeTitle: 'Contribute',
+  supportMonthly: 'Monthly',
+  supportOneOff: 'One-off',
+  supportOtherAmount: 'Other amount (£)',
+  supportAmountLimits: 'Between £1 and £500',
+  supportPutTowards: 'Put it towards',
+  supportMonthlyCostsOption: "This month's running costs",
+  supportContinue: (amount: string, monthly: boolean) => (monthly ? `Support with ${amount} a month` : `Give ${amount}`),
+  supportSecureNote: "You'll finish on Stripe's secure payment page. We never see your card details.",
+  supportSignInNote: "Sign in first if you'd like a supporter badge and a place in the thank-you list.",
+  supportShowMe: 'Show my username in the thank-you list',
+  supportThanksTitle: 'Thank you for your support!',
+  supportThanksBody: 'Your contribution will show up in the bars in a moment.',
+  supportThankYouList: 'Thank you to our supporters',
+  supportNoSupportersYet: 'Be the first name on this list!',
+  supportManage: 'Manage or cancel your monthly support',
+  supportNotSetUp: "The support page isn't set up yet.",
+  supportStartFailed: "Couldn't start the payment. Please try again.",
+  supporterBadge: 'Supporter',
 };
 
 export type Translations = typeof en;

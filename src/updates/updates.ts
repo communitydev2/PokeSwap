@@ -17,6 +17,31 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'support-page',
+    date: '2026-10-04',
+    audience: 'user',
+    title: 'Help keep the site running',
+    summary: 'A new Support page shows what it costs to run the site each month, and lets you chip in.',
+    body: [
+      'Open Support in the top menu to see this month's running costs filling up, what the money pays for, and upgrades we are saving for, like a faster server.',
+      'You can give once or monthly, from £1, and choose which bar your money goes towards. Payment happens on Stripe's secure page. Signed-in supporters get a Supporter badge and can choose to appear in the thank-you list.',
+    ],
+    screenshot: '/updates/support-page.png',
+    tags: ['new'],
+  },
+  {
+    id: 'support-page-dev',
+    date: '2026-10-04',
+    audience: 'dev',
+    title: 'Support page with Stripe Checkout and webhook',
+    summary: 'funding_goals / monthly_costs / contributions tables, create-checkout and stripe-webhook Edge Functions, /support route.',
+    body: [
+      'create-checkout validates amount (£1-£500), mode and goal, links the signed-in user via metadata, and returns a Stripe Checkout URL (subscription for monthly, payment otherwise). stripe-webhook verifies the signature and records checkout.session.completed (one-off) and invoice.paid (every monthly renewal) idempotently by Stripe object id; charge.refunded marks one-off payments refunded.',
+      'The page reads the funding_progress and supporters_public views (totals and opted-in usernames only). Badge = my_supporter_status() (contributed in the last 35 days). Setup: run supabase/support.sql, set STRIPE_SECRET_KEY / STRIPE_WEBHOOK_SECRET / SITE_URLS secrets, deploy both functions with --no-verify-jwt, add the webhook endpoint in Stripe. Optional VITE_STRIPE_PORTAL_URL for the manage/cancel link.',
+    ],
+    tags: ['payments'],
+  },
+  {
     id: 'sign-in-code',
     date: '2026-10-04',
     audience: 'user',

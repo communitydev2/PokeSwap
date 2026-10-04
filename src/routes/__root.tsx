@@ -30,6 +30,7 @@ function useSupabaseSession() {
   const setSession = useAuthStore((state) => state.setSession)
   const setUser = useAuthStore((state) => state.setUser)
   const setProfileLoading = useAuthStore((state) => state.setProfileLoading)
+  const setIsSupporter = useAuthStore((state) => state.setIsSupporter)
   const userId = useAuthStore((state) => state.session?.user.id)
   const username = useAuthStore((state) => state.user?.username ?? null)
   const saveSession = useSavedAccountsStore((state) => state.saveSession)
@@ -66,6 +67,11 @@ function useSupabaseSession() {
     }
     let cancelled = false
     setProfileLoading(true)
+    // Supporter badge (false if the support SQL hasn't been run yet)
+    setIsSupporter(false)
+    supabase.rpc('my_supporter_status').then(({ data, error }) => {
+      if (!cancelled && !error) setIsSupporter(data === true)
+    })
     supabase
       .from('user_account')
       .select('*')
@@ -80,7 +86,7 @@ function useSupabaseSession() {
     return () => {
       cancelled = true
     }
-  }, [userId, setUser, setProfileLoading])
+  }, [userId, setUser, setProfileLoading, setIsSupporter])
 
   // Keep the saved account's username in sync for the account switcher
   useEffect(() => {

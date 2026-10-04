@@ -6,10 +6,12 @@ export const useAuthStore = create<UserZustandType>((set) => ({
     user : null,
     session : null,
     profileLoading: false,
+    isSupporter: false,
     
     setUser: (user:User | null) => set(() => ({user})),
     setSession: (session:Session | null) => set(() => ({session})),
     setProfileLoading: (profileLoading: boolean) => set(() => ({profileLoading})),
+    setIsSupporter: (isSupporter: boolean) => set(() => ({isSupporter})),
 
 }));
 

@@ -6,5 +6,6 @@ export interface User {
   show_discord_id: boolean;
   discordId:string;
   last_logged_in: Date;
+  show_in_supporters?: boolean;
   
 }

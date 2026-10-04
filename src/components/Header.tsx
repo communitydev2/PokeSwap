@@ -12,6 +12,7 @@ import {
 } from '@tabler/icons-react';
 import {
   Anchor,
+  Badge,
   Box,
   Burger,
   Button,
@@ -37,6 +38,7 @@ import { useAuthStore } from '../store/userStore';
 import { useStateStore } from '../store/useStateStore';
 import { supabase } from '../supabaseClient';
 import { useSavedAccountsStore } from '../store/savedAccountsStore';
+import { useLocalizationStore } from '../store/useLocalizationStore';
 
 
 
@@ -83,6 +85,7 @@ export function Header() {
 
   const navigate = useNavigate();
   const savedAccounts = useSavedAccountsStore();
+  const t = useLocalizationStore((state) => state.t);
   const session = authStore.session;
   // Signed in = has a session and has finished sign-up (chosen a username)
   const isSignedIn = Boolean(session && authStore.user?.username);
@@ -210,6 +213,9 @@ export function Header() {
             <Link data-click-id="Header/updates" to="/updates" className={classes.link}>
               Updates
             </Link>
+            <Link data-click-id="Header/support" to="/support" className={classes.link}>
+              {t.supportNav}
+            </Link>
           </Group>
 
             <ColorSchemeToggle />
@@ -227,6 +233,11 @@ export function Header() {
                   <Menu.Target>
                     <Button data-click-id="Header/account-menu" variant="subtle" rightSection={<IconChevronDown size={16} />}>
                       Hi {displayName}
+                      {authStore.isSupporter && (
+                        <Badge ml={6} size="xs" variant="filled" color="pink">
+                          {t.supporterBadge}
+                        </Badge>
+                      )}
                     </Button>
                   </Menu.Target>
                   <Menu.Dropdown>
@@ -298,6 +309,9 @@ export function Header() {
           </a>
           <Link data-click-id="Header/drawer-updates" to="/updates" className={classes.link} onClick={closeDrawer}>
             Updates
+          </Link>
+          <Link data-click-id="Header/drawer-support" to="/support" className={classes.link} onClick={closeDrawer}>
+            {t.supportNav}
           </Link>
 
           <Divider my="sm" />
