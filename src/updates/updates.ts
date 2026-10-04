@@ -17,6 +17,31 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'recover-username',
+    date: '2026-10-04',
+    audience: 'user',
+    title: 'Forgot your username? We can email it to you',
+    summary: 'You can now get your username sent to the email address you signed up with.',
+    body: [
+      'On the sign-in screen, click "Forgot your username?", enter your email address and press "Email me my username".',
+      'If an account uses that email, we will send its username there within a minute or two.',
+    ],
+    screenshot: '/updates/recover-username.png',
+    tags: ['new'],
+  },
+  {
+    id: 'recover-username-dev',
+    date: '2026-10-04',
+    audience: 'dev',
+    title: 'recover-username Edge Function',
+    summary: 'Username recovery runs in a Supabase Edge Function that emails the username via Resend.',
+    body: [
+      'supabase/functions/recover-username looks the username up with get_username_by_email (service-role only, see supabase/username-recovery.sql) and sends it with Resend. It always answers { ok: true } so it cannot be used to check which emails have accounts.',
+      'Rate limited to 3 requests per email and 10 per IP per hour, stored as SHA-256 hashes in username_recovery_requests. Needs the SQL run, the RESEND_API_KEY / FROM_EMAIL / SITE_URL secrets set, and deploying with --no-verify-jwt.',
+    ],
+    tags: ['auth', 'email'],
+  },
+  {
     id: 'rls-draft-and-dev-branch',
     date: '2026-10-04',
     audience: 'dev',
