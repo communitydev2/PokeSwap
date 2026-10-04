@@ -23,8 +23,8 @@ export const updates: Update[] = [
     title: 'Help keep the site running',
     summary: 'A new Support page shows what it costs to run the site each month, and lets you chip in.',
     body: [
-      'Open Support in the top menu to see this month's running costs filling up, what the money pays for, and upgrades we are saving for, like a faster server.',
-      'You can give once or monthly, from £1, and choose which bar your money goes towards. Payment happens on Stripe's secure page. Signed-in supporters get a Supporter badge and can choose to appear in the thank-you list.',
+      "Open Support in the top menu to see this month's running costs filling up, what the money pays for, and upgrades we are saving for, like a faster server.",
+      "You can give once or monthly, from £1, and choose which bar your money goes towards. Payment happens on Stripe's secure page. Signed-in supporters get a Supporter badge and can choose to appear in the thank-you list.",
     ],
     screenshot: '/updates/support-page.png',
     tags: ['new'],
