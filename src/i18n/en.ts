@@ -1,6 +1,10 @@
 // English text for the app. To add a language, copy this file (e.g. es.ts),
 // translate the values (keep the keys), and register it in ./index.ts.
 export const en = {
+  // Header
+  switchToLight: 'Switch to light mode',
+  switchToDark: 'Switch to dark mode',
+
   // Manage cards menu
   addCardsTitle: 'Add cards',
   selectPocketAccount: 'Select your Pocket Account',

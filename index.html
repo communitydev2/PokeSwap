@@ -8,6 +8,18 @@
       content="minimum-scale=1, initial-scale=1, width=device-width, user-scalable=no"
     />
     <title>PokeSwap</title>
+    <!-- Apply the colour scheme before the page draws (dark unless the visitor chose otherwise) -->
+    <script>
+      try {
+        var saved = localStorage.getItem('mantine-color-scheme-value');
+        var scheme = saved === 'light' ? 'light'
+          : saved === 'auto' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+          : 'dark';
+        document.documentElement.setAttribute('data-mantine-color-scheme', scheme);
+      } catch (e) {
+        document.documentElement.setAttribute('data-mantine-color-scheme', 'dark');
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

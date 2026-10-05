@@ -101,7 +101,7 @@ const RootLayout =() => {
 
   
   <>
-  <MantineProvider theme={ theme }>
+  <MantineProvider theme={ theme } defaultColorScheme="dark">
    <Header/>
     <Outlet />
      </MantineProvider>

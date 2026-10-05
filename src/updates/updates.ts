@@ -17,6 +17,30 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'theme-toggle',
+    date: '2026-10-05',
+    audience: 'user',
+    title: 'Dark mode by default, with one switch',
+    summary: 'The site now opens in dark mode, and a single button at the top switches between dark and light.',
+    body: [
+      'The three Light / Dark / Auto buttons are now one sun or moon button. Press it to switch, and the site remembers your choice next time.',
+      'If you had already picked light mode, nothing changes for you.',
+    ],
+    screenshot: '/updates/theme-toggle.png',
+    tags: ['improvement'],
+  },
+  {
+    id: 'theme-toggle-dev',
+    date: '2026-10-05',
+    audience: 'dev',
+    title: 'Single colour-scheme toggle, dark default',
+    summary: 'ColorSchemeToggle is one ActionIcon; MantineProvider defaultColorScheme="dark"; index.html sets the scheme before first paint.',
+    body: [
+      'The inline script in index.html reads mantine-color-scheme-value from localStorage (light / auto / dark, defaulting to dark) and sets data-mantine-color-scheme on <html> so there is no light flash on load.',
+    ],
+    tags: ['ui'],
+  },
+  {
     id: 'lighter-card-images',
     date: '2026-10-05',
     audience: 'user',
