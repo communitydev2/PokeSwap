@@ -37,6 +37,8 @@ export const en = {
   signInSendFailed: "Couldn't send the email. Please check the address and try again.",
   signInResend: 'Send a new email',
   signInUseDifferentEmail: 'Use a different email',
+  signInHaveCode: 'I already have a code',
+  signInEnterEmailFirst: 'Enter your email first, then the code.',
   linkExpired: 'That sign-in link has expired or was already used. Send a new one below, or use the code from the email.',
   linkFailed: "Signing in with that link didn't work. Please try again.",
 

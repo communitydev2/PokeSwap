@@ -50,6 +50,7 @@ export const updates: Update[] = [
     body: [
       'After you enter your email, the sign-in email contains both a link and a code. Tap the link on the same device, or type the code on the sign-in screen. The code is handy when you read your email on a different device, or when the link opens in your mail app instead of your browser.',
       'If a sign-in link has expired or was already used, the site now tells you, so you can send a new one.',
+      'Already have a code from an earlier email? Enter your email and press "I already have a code" to type it in without sending a new email.',
     ],
     screenshot: '/updates/sign-in-code.png',
     tags: ['new'],

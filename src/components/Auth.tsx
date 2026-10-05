@@ -162,6 +162,25 @@ export function Auth() {
             <Button data-click-id="Auth/login-button" fullWidth mt="xl" radius="md" onClick={handleLogin} loading={loading} disabled={!email.trim()}>
               Sign up with email
             </Button>
+            {/* Use a code from an earlier email without sending a new one (e.g. after hitting the rate limit) */}
+            <Text size="sm" ta="center" mt="sm">
+              <Anchor
+                data-click-id="Auth/have-code"
+                component="button"
+                type="button"
+                onClick={() => {
+                  if (!email.trim()) {
+                    setLoginMessage({ ok: false, text: t.signInEnterEmailFirst })
+                    return
+                  }
+                  setLoginMessage(null)
+                  setCode('')
+                  setCodeSentTo(email.trim())
+                }}
+              >
+                {t.signInHaveCode}
+              </Anchor>
+            </Text>
           </>
         ) : (
           <Stack gap="sm">
