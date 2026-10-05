@@ -1,5 +1,6 @@
 import { Badge, Group, Image, Paper, ScrollArea, Stack, Text } from '@mantine/core';
 import { usePokemonCardStore } from '../../store/pokemonCardsStore';
+import { cardImageUrl, fallBackToPng } from '../../utils/cardImage';
 
 type SelectedCard = {
   card_id: string;
@@ -34,12 +35,16 @@ export function ConfirmCardsList() {
             <Paper key={`${card.card_id}-${card.language ?? ''}`} withBorder radius="md" p="xs">
               <Group wrap="nowrap" gap="md">
                 <Image
-                  src={`${card.card_image}/low.png`}
+                  src={cardImageUrl(card.card_image)}
+                  onError={fallBackToPng}
+                  loading="lazy"
+                  decoding="async"
                   alt={card.card_name}
                   w={56}
                   h={78}
                   fit="contain"
                   radius="sm"
+                  bg="gray.2"
                   style={{ flexShrink: 0 }}
                 />
                 <Stack gap={6} style={{ minWidth: 0 }}>

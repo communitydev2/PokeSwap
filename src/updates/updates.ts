@@ -17,6 +17,29 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'lighter-card-images',
+    date: '2026-10-05',
+    audience: 'user',
+    title: 'Card pictures load faster',
+    summary: 'Card pictures now use about a quarter of the data, which helps a lot on a weak phone signal.',
+    body: [
+      'Each card picture is now around 15 to 25 KB instead of about 60 KB, with no visible difference. A page of 10 cards went from roughly 600 KB to about 160 KB.',
+      'Pictures also only load when they are about to come into view, and a grey placeholder keeps the page steady while they arrive.',
+    ],
+    tags: ['improvement'],
+  },
+  {
+    id: 'lighter-card-images-dev',
+    date: '2026-10-05',
+    audience: 'dev',
+    title: 'Card images: WebP, lazy loading, PNG fallback',
+    summary: 'src/utils/cardImage.ts builds TCGdex low.webp URLs; PokeCard and ConfirmCardsList use loading="lazy" and fall back to low.png on error.',
+    body: [
+      'Measured: low.png ~56-69 KB vs low.webp ~15-24 KB per card. Use cardImageUrl(card.card_image) for any new card picture rather than building the URL by hand.',
+    ],
+    tags: ['performance'],
+  },
+  {
     id: 'support-page',
     date: '2026-10-04',
     audience: 'user',

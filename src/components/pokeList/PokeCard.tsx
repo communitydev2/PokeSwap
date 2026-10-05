@@ -7,6 +7,7 @@ import { useLocalizationStore } from '../../store/useLocalizationStore'
 import { usePokemonCardStore } from '../../store/pokemonCardsStore'
 import { useAuthStore } from '../../store/userStore'
 import { useStateStore } from '../../store/useStateStore'
+import { cardImageUrl, fallBackToPng } from '../../utils/cardImage'
 import { useDisclosure } from '@mantine/hooks';
 import { Popover, Text, Button,List,Select,Group, Space,Title, ComboboxItem,UnstyledButton} from '@mantine/core';
 import { ManageCardsMainMenu } from '../managecards/ManageCardsMainMenu';
@@ -112,13 +113,17 @@ export function PokeCard(
   <div data-click-context={`card: ${currentCard.card_name}`} style={{width:'1000px',height:'150px'}}>
     <img
 
-    src={`${currentCard.card_image}/low.png`}
+    src={cardImageUrl(currentCard.card_image)}
+    onError={fallBackToPng}
+    loading="lazy"
+    decoding="async"
 
     alt={currentCard.card_name}
 
     width={150}
+    height={206}
 
-    style={{ display: "block", marginTop: "8px",float:"left" }} />
+    style={{ display: "block", marginTop: "8px",float:"left", height: 'auto', aspectRatio: '245 / 337', background: 'var(--mantine-color-gray-2)', borderRadius: 6 }} />
 
 
   <p>{currentCard.card_name}</p>
