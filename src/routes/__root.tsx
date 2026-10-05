@@ -2,6 +2,7 @@ import { createRootRoute, Outlet } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsInProd } from '@tanstack/react-router-devtools'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { Header } from '../components/Header'
+import { NewSetBanner } from '../components/NewSetBanner'
 import { MantineProvider} from "@mantine/core";
 import { theme } from '../theme';
 import { useEffect } from 'react';
@@ -103,6 +104,7 @@ const RootLayout =() => {
   <>
   <MantineProvider theme={ theme } defaultColorScheme="dark">
    <Header/>
+   <NewSetBanner/>
     <Outlet />
      </MantineProvider>
     <TanStackRouterDevtools />

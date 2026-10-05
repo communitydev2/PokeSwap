@@ -17,6 +17,11 @@ The app is meant to support several languages.
 - Money is stored in pence (integers). Format with `formatPence` from `src/utils/money.ts`.
 - Use Stripe test mode (`sk_test_...`) while developing. Setup steps are in `supabase/support.sql` and the two function files.
 
+## Card data
+- Sets, cards and rarities come from TCGdex (api.tcgdex.net, Pocket series "tcgp"). The `sync-cards` Edge Function adds new expansion sets/cards and refreshes existing ones monthly (pg_cron, see `supabase/card-sync.sql`); promo sets are skipped. Don't hand-edit card data that the sync owns.
+- Never hard-code set or rarity lists in the UI; build them from the `set` / `rarity` tables (`src/utils/searchOptions.ts`).
+- Cards can exist without a picture (new sets before TCGdex has images): render pictures with `CardPicture`, which shows a placeholder.
+
 ## Branches
 - Work happens on `dev`; commits are pushed to `origin/dev`.
 - `master` is the release branch (it may auto-deploy to the live site). Only merge `dev` into `master` when the user asks for a release.

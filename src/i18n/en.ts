@@ -30,6 +30,7 @@ export const en = {
   removeFromSelected: 'Remove from selected',
   setUpExclusiveTrade: 'Set up Exclusive Trade',
   quantity: 'Quantity',
+  noPictureYet: 'Picture coming soon',
   increaseQuantity: 'Increase quantity',
   decreaseQuantity: 'Decrease quantity',
   chooseQuantityFirst: 'Choose a quantity first',
@@ -50,6 +51,12 @@ export const en = {
   signInEnterEmailFirst: 'Enter your email first, then the code.',
   linkExpired: 'That sign-in link has expired or was already used. Send a new one below, or use the code from the email.',
   linkFailed: "Signing in with that link didn't work. Please try again.",
+
+  // New expansion banner
+  newSetBanner: (name: string, count: number) => `New expansion: ${name} (${count} cards) is now available.`,
+  newSetArticleTitle: (name: string) => `New expansion: ${name}`,
+  newSetArticleSummary: (name: string, count: number) => `${count} cards from ${name} have been added.`,
+  newSetArticleBody: 'Search for them by name, or pick the set in the search filters, and add them to your library or wishlist.',
 
   // Support page
   supportNav: 'Support',

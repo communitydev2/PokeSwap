@@ -1,6 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Badge, Card, Container, Group, Image, Stack, Text, Title } from '@mantine/core'
-import { visibleUpdates } from '../updates/updates'
+import { useEffect, useState } from 'react'
+import { visibleUpdates, type Update } from '../updates/updates'
+import { fetchAddedSets } from '../utils/newSets'
+import { useLocalizationStore } from '../store/useLocalizationStore'
 
 export const Route = createFileRoute('/updates')({
   component: Updates,
@@ -15,6 +18,26 @@ function formatDate(date: string) {
 }
 
 function Updates() {
+  const t = useLocalizationStore((state) => state.t)
+  // Written articles plus one automatic article per expansion the card sync added
+  const [articles, setArticles] = useState<Update[]>(visibleUpdates)
+
+  useEffect(() => {
+    fetchAddedSets().then((sets) => {
+      if (!sets.length) return
+      const newSetArticles: Update[] = sets.map((set) => ({
+        id: `new-set-${set.set_code}`,
+        date: set.added_at.slice(0, 10),
+        audience: 'user',
+        title: t.newSetArticleTitle(set.set_name),
+        summary: t.newSetArticleSummary(set.set_name, set.total_card_count ?? 0),
+        body: [t.newSetArticleBody],
+        tags: ['new set'],
+      }))
+      setArticles([...newSetArticles, ...visibleUpdates].sort((a, b) => b.date.localeCompare(a.date)))
+    })
+  }, [t])
+
   return (
     <Container size="sm" pb="xl">
       <Title order={1} mb="xs">
@@ -25,7 +48,7 @@ function Updates() {
       </Text>
 
       <Stack gap="xl">
-        {visibleUpdates.map((update) => (
+        {articles.map((update) => (
           <Card key={update.id} id={update.id} withBorder radius="md" padding="lg" component="article">
             {update.screenshot && (
               <Card.Section mb="md">

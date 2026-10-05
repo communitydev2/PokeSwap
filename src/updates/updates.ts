@@ -17,6 +17,31 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'auto-card-updates',
+    date: '2026-10-05',
+    audience: 'user',
+    title: 'New expansions arrive automatically',
+    summary: 'New card sets are now added to the site automatically each month, and all rarities can be searched.',
+    body: [
+      "When a new expansion comes out, its cards are added for you, with a banner at the top of the site and an article here. Cards whose pictures aren't available yet show \"Picture coming soon\" until they are.",
+      'The search filters now list every set and every rarity, including Three Star and Crown, which were missing before.',
+    ],
+    screenshot: '/updates/new-set-banner.png',
+    tags: ['new'],
+  },
+  {
+    id: 'auto-card-updates-dev',
+    date: '2026-10-05',
+    audience: 'dev',
+    title: 'sync-cards: monthly TCGdex card sync',
+    summary: 'Edge Function that adds new Pocket sets/cards from TCGdex and refreshes existing ones; scheduled monthly with pg_cron.',
+    body: [
+      'Matches sets by set_code and cards by card_local_id (both made unique), rarities by name (new rarity names are inserted). Fetches rarities with one request per rarity per set instead of one per card (~160 requests, ~15 s). Never deletes, never overwrites a value with an empty one; logs each run in card_sync_runs; ?dryRun=1 reports changes without writing. A dry run against the live data on 2026-10-05: B2 and B2a to add (365 cards), 0 existing cards changed.',
+      'UI: rarity/set filters built from the DB (src/utils/searchOptions.ts), CardPicture placeholder for missing pictures, NewSetBanner for sets added in the last 14 days (dismissible per set), and automatic "New expansion" articles on /updates from set.added_at.',
+    ],
+    tags: ['data'],
+  },
+  {
     id: 'card-buttons',
     date: '2026-10-05',
     audience: 'user',

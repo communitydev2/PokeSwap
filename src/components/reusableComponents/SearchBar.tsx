@@ -6,6 +6,7 @@ import { usePokemonCardStore } from '../../store/pokemonCardsStore';
 import { useSearchFunction } from '../../utils/Utilfunctions';
 import { useEffect } from 'react';
 import { supabase } from '../../supabaseClient';
+import { expansionOptions, rarityOptions } from '../../utils/searchOptions';
 ;
 
 type SearchFormValues = {
@@ -91,13 +92,13 @@ export default function SearchBar() {
 
         <Select data-click-id="SearchBar/rarity-select"
           label={useLocStore.t.rarityLabel}
-          data={usePokeCardStore.rarities}
+          data={rarityOptions(usePokeCardStore.supabase_rarity, usePokeCardStore.rarities)}
           {...form.getInputProps('rarity')}
         />
 
         <Select data-click-id="SearchBar/expansion-select"
           label={useLocStore.t.setLabel}
-          data={usePokeCardStore.expansions}
+          data={expansionOptions(usePokeCardStore.supabase_expansion, usePokeCardStore.expansions)}
           {...form.getInputProps('expansion')}
         />
 

@@ -7,7 +7,7 @@ import { useLocalizationStore } from '../../store/useLocalizationStore'
 import { usePokemonCardStore } from '../../store/pokemonCardsStore'
 import { useAuthStore } from '../../store/userStore'
 import { useStateStore } from '../../store/useStateStore'
-import { cardImageUrl, fallBackToPng } from '../../utils/cardImage'
+import { CardPicture } from '../CardPicture'
 import { useDisclosure } from '@mantine/hooks';
 import { Popover, Text, Button,List,Select,Group, Space,Title, ComboboxItem,UnstyledButton} from '@mantine/core';
 import { ManageCardsMainMenu } from '../managecards/ManageCardsMainMenu';
@@ -146,16 +146,7 @@ export function PokeCard(
 
   return (
     <Group data-click-context={`card: ${currentCard.card_name}`} wrap="nowrap" align="flex-start" gap="md">
-      <img
-        src={cardImageUrl(currentCard.card_image)}
-        onError={fallBackToPng}
-        loading="lazy"
-        decoding="async"
-        alt={currentCard.card_name}
-        width={120}
-        height={165}
-        style={{ display: 'block', flexShrink: 0, width: 'clamp(90px, 28vw, 120px)', height: 'auto', aspectRatio: '245 / 337', background: 'var(--mantine-color-default-hover)', borderRadius: 8 }}
-      />
+      <CardPicture cardImage={currentCard.card_image} alt={currentCard.card_name} width="clamp(90px, 28vw, 120px)" />
 
       <Stack gap="xs" style={{ flex: 1, minWidth: 0 }}>
         <Text fw={600} size="lg" lineClamp={2}>{currentCard.card_name}</Text>
