@@ -1,8 +1,8 @@
 import { CARD_CATEGORY, LIST_TYPE, MENU_MODE } from '../../constants'
 import type{ PokemonCard } from '../../types/PokemonCard'
 import { useState } from 'react'
-import { background } from 'storybook/theming'
-import {  Avatar,  Anchor, Stack, Modal } from '@mantine/core';
+import { ActionIcon, Badge, Stack, Modal } from '@mantine/core';
+import { IconMinus, IconPlus, IconTrash } from '@tabler/icons-react';
 import { useLocalizationStore } from '../../store/useLocalizationStore'
 import { usePokemonCardStore } from '../../store/pokemonCardsStore'
 import { useAuthStore } from '../../store/userStore'
@@ -49,8 +49,6 @@ export function PokeCard(
   const thisCardInSelectedCardsList = pokeListType == listTypeAdd ? "nothing" : usePokeCard.listCardsSelected.find(card => currentCard.card_id == card.card_id)
 
     const [quantity, setQuantity] = useState(pokeListType == listTypeAdd ? 0 : thisCardInSelectedCardsList != null ? 0+ thisCardInSelectedCardsList.quantity : 0)
-    const activeButtonText = pokeListType == listTypeAdd ? "Add to Selected" : "Remove from selected";
-    const activeButtonColor =  pokeListType == listTypeAdd ? '#089bdf' : '#df0808'
     
     const [selectedLanguageDropdownChoice,setSelectedLanguageDropdownChoice] = useState<string | null>(usePokeCard.languages[0]);
     const [opened, { open, close }] = useDisclosure(false);
@@ -83,22 +81,24 @@ export function PokeCard(
       );
     }
 
-    function LanguageSelectionDropdown() {
-    
-      return (
+    // A plain element (not a component defined inside PokeCard), so selecting the
+    // card doesn't remount it and close the dropdown while it's open
+    const languageSelectionDropdown = (
         <Select data-click-id="PokeCard/language-select"
           label={useLocStore.t.pickLanguage}
           placeholder={useLocStore.t.pickValue}
           data={usePokeCard.languages}
           value={selectedLanguageDropdownChoice}
-          onChange={(e)=> {
-            setSelectedLanguageDropdownChoice(e.value)
-            useStateWrapper.setManageCardsSelectedLanguage(e.value)
+          size="sm"
+          allowDeselect={false}
+          onChange={(value)=> {
+            if (!value) return
+            setSelectedLanguageDropdownChoice(value)
+            useStateWrapper.setManageCardsSelectedLanguage(value)
           }
           }
         />
-      );
-    }
+    );
 
 
   const incrementQuantity = () => {
@@ -109,221 +109,101 @@ export function PokeCard(
     setQuantity((prev) => Math.max(0, prev - 1))
   }
 
-  return (
-  <div data-click-context={`card: ${currentCard.card_name}`} style={{width:'1000px',height:'150px'}}>
-    <img
+  const isAddList = pokeListType == listTypeAdd
+  const isSelectedList = pokeListType == listTypeSelected
+  const showStepper = pokeListType != listTypeExclusiveTrade && pokeListType != LIST_TYPE.confirmAdd
+  const showLanguageSelect = useStateWrapper.showManageCardsMainMenu && isAddList && useStateWrapper.addingCardsSector == CARD_CATEGORY.trade
+  const selectedEntry = isSelectedList ? usePokeCard.listCardsSelected.find(card => currentCard.card_id == card.card_id) : undefined
+  const cannotAdd = isAddList && quantity < 1
 
-    src={cardImageUrl(currentCard.card_image)}
-    onError={fallBackToPng}
-    loading="lazy"
-    decoding="async"
-
-    alt={currentCard.card_name}
-
-    width={150}
-    height={206}
-
-    style={{ display: "block", marginTop: "8px",float:"left", height: 'auto', aspectRatio: '245 / 337', background: 'var(--mantine-color-gray-2)', borderRadius: 6 }} />
-
-
-  <p>{currentCard.card_name}</p>
-
-  {/* This is NOT an exclusive trade AND NOT the confirmation of cards I'm adding AND I will show things for other listTypes */}
-  {/* Quantity is hidden in ExclusiveTrade PokeCard Selected on Top */}
-  {pokeListType!=listTypeExclusiveTrade && pokeListType != LIST_TYPE.confirmAdd &&(
-
-<>
-
-
-
-
-
-
-  
-
-
-    
-    {useLocStore.t.quantity} : {quantity}{' '}
-    <br></br>
-
-    <button data-click-id="PokeCard/quantity-minus" type="button" style={{background: '#df0808' ,width:'50px'}} onClick={decrementQuantity}>-</button>{' '}
-    <button data-click-id="PokeCard/quantity-plus" type="button" style={{background: '#3adf08' ,width:'50px'}}  onClick={incrementQuantity}>+</button>
-
-  </>
-          )
-          }
-
-    
-      {/* only display if add Cards menu is shown  */}
-    {useStateWrapper.showManageCardsMainMenu && (
-
-      <>
-      {/* if it's in the adding selection AND youre adding to the cards you have for trade You are going display language dropdown choice */}
-      {pokeListType==listTypeAdd&& useStateWrapper.addingCardsSector ==CARD_CATEGORY.trade && (
-        
-        <>
-      <LanguageSelectionDropdown/>
-        
-        
-        </>
-
-      )}
-      
-      </>
-
-
-    )}
-    {/* this is when I am confirming the cards I'm adding to my library and displayed in the modal */}
-  {pokeListType == LIST_TYPE.confirmAdd && (
-
-<>
-
-
-
-
-    {useLocStore.t.quantity} : {quantity}{' '}
-    {currentCard.language && (
-      <>
-        <br></br>
-        Language : {currentCard.language}
-      </>
-    )}
-
-  </>
-          )
-          }
-
-
-      {/* only display if add Cards menu is shown  */}
-    {useStateWrapper.showManageCardsMainMenu && (
-
-      <>
-      {/* if it's in the adding selection AND youre adding to the cards you have for trade You are going display language dropdown choice */}
-      {pokeListType==listTypeAdd&& useStateWrapper.addingCardsSector ==CARD_CATEGORY.trade && (
-        
-        <>
-      <LanguageSelectionDropdown/>
-        
-        
-        </>
-
-      )}
-      
-      </>
-
-
-    )}
-    
-    
-    
-
-      
-    {pokeListType == listTypeSelected && usePokeCard.listCardsSelected.length >0 &&(
-      <>
-      <Text> Language : {usePokeCard.listCardsSelected.find(card => currentCard.card_id == card.card_id)?.language} </Text>
-
-      
-      {/* button for setting up exclusive trade */}
-      {/* <Menu_ExclusiveTrade/> */}
-      </>
-    )}
-
-
-
-
-
-  {isCardSelected && (
-    <>
-    
-    <button data-click-id="PokeCard/add-or-remove-card" type="button"
-    // Adding needs at least 1 copy; removing is always allowed
-    disabled={pokeListType == listTypeAdd && quantity < 1}
-    title={pokeListType == listTypeAdd && quantity < 1 ? 'Choose a quantity first' : undefined}
-    style={{background: `${activeButtonColor}` ,width:'200px', opacity: pokeListType == listTypeAdd && quantity < 1 ? 0.5 : 1, cursor: pokeListType == listTypeAdd && quantity < 1 ? 'not-allowed' : 'pointer'}} 
-    onClick={()=>{
-
-
-      if (pokeListType ==listTypeAdd ){
-
-
+  function handleAddOrRemove() {
+    if (isAddList) {
       // does card added already exist in list cards selected
       const isCardAlreadyAdded = usePokeCard.listCardsSelected.find(card => currentCard.card_id == card.card_id)
       const cardToBeAdded = {
-            ...currentCard,
-            language: useStateWrapper.manageCardsSelectedLanguage,
-            quantity : quantity,
-          }
-
-          
-          // console.log({
-          //   ...currentCard,
-          //   language: useStateWrapper.manageCardsSelectedLanguage
-          // })
-        if (typeof isCardAlreadyAdded === "undefined"){
-          // ads card if doesn't exist
-          usePokeCard.setListCardsSelected(
-            [
-              ...usePokeCard.listCardsSelected,
-              cardToBeAdded
-            ]
+        ...currentCard,
+        language: useStateWrapper.manageCardsSelectedLanguage,
+        quantity : quantity,
+      }
+      if (typeof isCardAlreadyAdded === "undefined") {
+        // adds card if it doesn't exist
+        usePokeCard.setListCardsSelected([...usePokeCard.listCardsSelected, cardToBeAdded])
+      } else {
+        // card already selected: add to its quantity
+        usePokeCard.setListCardsSelected(
+          usePokeCard.listCardsSelected.map((card) =>
+            card.card_id === currentCard.card_id ? { ...card, quantity: card.quantity + quantity } : card
           )
-          
-        }else{
-          // adds quantity to existing card
-          usePokeCard.setListCardsSelected(
-            usePokeCard.listCardsSelected.map((card) => 
-            
-              card.card_id === currentCard.card_id
-                ? { ...card, quantity: card.quantity + quantity }
-                : card
-            )
-          )
-
-          
-        }
-
-        // reset Quantity to zero
-        setQuantity(0);
-
-
-    
-    
-  }else if(pokeListType ==listTypeSelected){
-    // by not selecting the current card it will remove this card from the list of current cards selected
-
+        )
+      }
+      setQuantity(0);
+    } else if (isSelectedList) {
       usePokeCard.setListCardsSelected(
-        usePokeCard.listCardsSelected.filter((card)=> {
-          return !(isCardSelected && card.card_id === currentCard.card_id)        
-        }
-        
-      
-    )
-  )
+        usePokeCard.listCardsSelected.filter((card) => !(isCardSelected && card.card_id === currentCard.card_id))
+      )
+    }
   }
 
-    
-    
-}
-}
-    
-    >
-    
-    
-    
-    
-      
-      
-      {activeButtonText}</button>
-    </>
-  )}
-  
+  return (
+    <Group data-click-context={`card: ${currentCard.card_name}`} wrap="nowrap" align="flex-start" gap="md">
+      <img
+        src={cardImageUrl(currentCard.card_image)}
+        onError={fallBackToPng}
+        loading="lazy"
+        decoding="async"
+        alt={currentCard.card_name}
+        width={120}
+        height={165}
+        style={{ display: 'block', flexShrink: 0, width: 'clamp(90px, 28vw, 120px)', height: 'auto', aspectRatio: '245 / 337', background: 'var(--mantine-color-default-hover)', borderRadius: 8 }}
+      />
 
+      <Stack gap="xs" style={{ flex: 1, minWidth: 0 }}>
+        <Text fw={600} size="lg" lineClamp={2}>{currentCard.card_name}</Text>
 
+        {/* Cards already selected: show what was chosen */}
+        {isSelectedList && selectedEntry && (
+          <Group gap="xs">
+            <Badge variant="filled" radius="sm">× {selectedEntry.quantity}</Badge>
+            {selectedEntry.language && <Badge variant="light" color="gray" radius="sm">{selectedEntry.language.toUpperCase()}</Badge>}
+          </Group>
+        )}
 
+        {/* Quantity stepper (hidden in Exclusive Trade and the confirmation list) */}
+        {showStepper && !isSelectedList && (
+          <Group gap="xs" wrap="nowrap">
+            <Text size="sm" c="dimmed">{useLocStore.t.quantity}</Text>
+            <ActionIcon data-click-id="PokeCard/quantity-minus" variant="default" radius="md" size="lg" aria-label={useLocStore.t.decreaseQuantity} disabled={quantity < 1} onClick={decrementQuantity}>
+              <IconMinus size={16} />
+            </ActionIcon>
+            <Text fw={600} w="2ch" ta="center">{quantity}</Text>
+            <ActionIcon data-click-id="PokeCard/quantity-plus" variant="default" radius="md" size="lg" aria-label={useLocStore.t.increaseQuantity} onClick={incrementQuantity}>
+              <IconPlus size={16} />
+            </ActionIcon>
+          </Group>
+        )}
 
-</div>
+        {/* Adding cards for trade: pick the card's language */}
+        {showLanguageSelect && languageSelectionDropdown}
 
-
-
+        {isCardSelected && (isAddList || isSelectedList) && (
+          <Button
+            data-click-id="PokeCard/add-or-remove-card"
+            radius="md"
+            color={isAddList ? 'blue' : 'red'}
+            variant={isAddList ? 'filled' : 'light'}
+            leftSection={isAddList ? <IconPlus size={16} /> : <IconTrash size={16} />}
+            disabled={cannotAdd}
+            title={cannotAdd ? useLocStore.t.chooseQuantityFirst : undefined}
+            onClick={(e) => {
+              e.stopPropagation()
+              handleAddOrRemove()
+            }}
+            style={{ alignSelf: 'flex-start' }}
+          >
+            {isAddList ? useLocStore.t.addToSelected : useLocStore.t.removeFromSelected}
+          </Button>
+        )}
+      </Stack>
+    </Group>
   )
 }

@@ -214,9 +214,11 @@ function cardCategoryOnChange(e) {
         placeholder={useLocStore.t.pickValue}
         data={usePokeCardStore.languages}
         value={selectedLanguageDropdownChoice}
-        onChange={(e)=> {
-          setSelectedLanguageDropdownChoice(e.value)
-          useStateStore.setManageCardsSelectedLanguage(e.value)
+        allowDeselect={false}
+        onChange={(value)=> {
+          if (!value) return
+          setSelectedLanguageDropdownChoice(value)
+          useStateStoreWrapper.setManageCardsSelectedLanguage(value)
         }
         }
       />
@@ -231,7 +233,9 @@ function cardCategoryOnChange(e) {
         data={cardCategoryOptions}
         defaultValue={cardCategoryOptions[0].value}
         value={selectedCardCategory ? selectedCardCategory.value : null}
+        allowDeselect={false}
         onChange={(_value,option)=> {
+          if (!option) return
           
            setSelectedCardCategory(option)
           // update the adding cards sector on Georgetown so that I will be able to pass that value onto the PokeCard

@@ -17,6 +17,31 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'card-buttons',
+    date: '2026-10-05',
+    audience: 'user',
+    title: 'Cleaner card controls',
+    summary: 'Cards in the add-cards list have a tidier layout, clearer buttons, and work properly on phones.',
+    body: [
+      'Each card now shows its picture with the name and controls beside it: a - / + quantity stepper, the language choice for trade cards, and a clear "Add to Selected" button. The card you tap is outlined in blue.',
+      'Choosing a language for a card now actually saves it (before, it was ignored), the language list opens on the first tap, and Next no longer takes you past the last page.',
+    ],
+    screenshot: '/updates/card-buttons.png',
+    tags: ['improvement', 'fix'],
+  },
+  {
+    id: 'card-buttons-dev',
+    date: '2026-10-05',
+    audience: 'dev',
+    title: 'PokeCard redesign and language bugs',
+    summary: 'PokeCard rebuilt with Mantine (Group/Stack, ActionIcon stepper, Button); PokeList frames, pager and width cap.',
+    body: [
+      'Bugs fixed: Select onChange read e.value (Mantine passes the value) so language was always undefined; the per-card language Select was rendered twice and defined as a component inside PokeCard, so it remounted and closed when the card got selected; ManageCardsMainMenu called setManageCardsSelectedLanguage on the useStateStore hook instead of the store (crash); the category Select crashed when an option was deselected.',
+      'PokeList: selected card is outlined (blue border + light background) instead of brown fill and scale; list capped at 760px; Previous/Next are Mantine buttons with "page / pages", disabled at the ends. Removed the stray storybook/theming import from PokeCard.',
+    ],
+    tags: ['ui', 'fix'],
+  },
+  {
     id: 'theme-toggle',
     date: '2026-10-05',
     audience: 'user',

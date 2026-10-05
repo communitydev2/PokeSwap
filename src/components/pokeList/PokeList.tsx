@@ -4,6 +4,9 @@ import { useEffect,useState } from 'react'
 import { usePokemonCardStore } from '../../store/pokemonCardsStore'
 import { PokemonCard } from '../../types/PokemonCard'
 import { PokeCard } from './PokeCard'
+import { Button, Group, Text } from '@mantine/core'
+import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
+import { useLocalizationStore } from '../../store/useLocalizationStore'
 
 export function PokeList({listType}:{listType:string}) {
   const [loading, setLoading] = useState(true)
@@ -13,6 +16,7 @@ export function PokeList({listType}:{listType:string}) {
   const pagesize = 10;
   const [currentPageNumber,setCurrentPageNumber] = useState<number>(1);
   const [currentPageItems,setCurrentPageItems] = useState<PokemonCard[]>([]);
+  const t = useLocalizationStore((state) => state.t);
  
   // Logic to add card to database
     const [selectedCard,setSelectedCard] = useState<PokemonCard>();
@@ -64,12 +68,14 @@ if (activeList.length > 10){
 
 },[currentPageNumber,activeList,usePokeCard.listCardsSelected])
 
+  const pageCount = Math.ceil(activeList.length / pagesize)
+
   return (
     // {listType != LIST_TYPE.confirmAdd && (
     <>
     
    
-      <ul>
+      <ul style={{ listStyle: 'none', padding: 0, margin: '0 auto', maxWidth: 760, display: 'flex', flexDirection: 'column', gap: 'var(--mantine-spacing-sm)' }}>
       {
         // only usestates get recognized here , not zustand
         // so this has to be called so that currentPageItems can be set
@@ -94,21 +100,16 @@ if (activeList.length > 10){
           </li>
         ) : (
           <li key={i} style={{ listStyleType: 'none' }}>
+            {/* Tap a card to select it; the selected card is outlined and shows its main button */}
             <div data-click-id="PokeList/card"
               onClick={() => setSelectedCard(card)}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.02)'
-                e.currentTarget.style.cursor = 'pointer'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)'
-              }}
               style={{
-                transition: 'transform 150ms ease',
-                height: '300px',
-                background: selectedCard === card ? '#735e5e' : 'transparent',
-                border: 'none',
-                padding: 0,
+                cursor: 'pointer',
+                padding: 'var(--mantine-spacing-sm)',
+                borderRadius: 'var(--mantine-radius-md)',
+                border: `1px solid ${selectedCard === card ? 'var(--mantine-color-blue-filled)' : 'var(--mantine-color-default-border)'}`,
+                background: selectedCard === card ? 'var(--mantine-color-blue-light)' : 'var(--mantine-color-body)',
+                transition: 'border-color 150ms ease, background 150ms ease',
               }}
             >
               <PokeCard currentCard={card} isCardSelected={selectedCard === card} pokeListType={listType}/>
@@ -122,28 +123,19 @@ if (activeList.length > 10){
     }
       </ul>
       
-      {currentPageNumber >1 && activeList.length >9 &&  (
-<button data-click-id="PokeList/previous-page" onClick={()=> {
-
-        setCurrentPageNumber(currentPageNumber>1 ?currentPageNumber-1 : currentPageNumber)
-
-      }}>Previous</button>
-
-
+      {pageCount > 1 && (
+        <Group justify="space-between" mt="md" maw={760} mx="auto">
+          <Button data-click-id="PokeList/previous-page" variant="default" leftSection={<IconChevronLeft size={16} />} disabled={currentPageNumber <= 1}
+            onClick={() => setCurrentPageNumber(Math.max(1, currentPageNumber - 1))}>
+            {t.previousPage}
+          </Button>
+          <Text size="sm" c="dimmed">{currentPageNumber} / {pageCount}</Text>
+          <Button data-click-id="PokeList/next-page" variant="default" rightSection={<IconChevronRight size={16} />} disabled={currentPageNumber >= pageCount}
+            onClick={() => setCurrentPageNumber(Math.min(pageCount, currentPageNumber + 1))}>
+            {t.nextPage}
+          </Button>
+        </Group>
       )}
-      {activeList.length >9 && (
-      <button data-click-id="PokeList/next-page" onClick={()=> {
-
- setCurrentPageNumber(currentPageNumber+1)
-
- }
-
-      }>Next</button>
-
-    
-    
-    
-    )}
     </>
   // )} -- This is where I have to end the condition for the different list type
   ) 

@@ -30,6 +30,11 @@ export const en = {
   removeFromSelected: 'Remove from selected',
   setUpExclusiveTrade: 'Set up Exclusive Trade',
   quantity: 'Quantity',
+  increaseQuantity: 'Increase quantity',
+  decreaseQuantity: 'Decrease quantity',
+  chooseQuantityFirst: 'Choose a quantity first',
+  previousPage: 'Previous',
+  nextPage: 'Next',
 
   // Sign in (email link or 6-digit code)
   signInEmailSent: (email: string) =>
