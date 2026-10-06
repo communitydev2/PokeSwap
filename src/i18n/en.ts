@@ -37,6 +37,8 @@ export const en = {
   setUpExclusiveTrade: 'Set up Exclusive Trade',
   quantity: 'Quantity',
   noPictureYet: 'Picture coming soon',
+  parallelFoil: 'Parallel Foil',
+  reprintOf: (original: string) => `Reprint of ${original}`,
   increaseQuantity: 'Increase quantity',
   decreaseQuantity: 'Decrease quantity',
   chooseQuantityFirst: 'Choose a quantity first',

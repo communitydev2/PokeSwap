@@ -33,10 +33,10 @@ const RARITY_NAMES: Record<string, string> = {
 };
 
 type DatasetSet = { code: string; releaseDate?: string; count?: number; name: Record<string, string> | string };
-type DatasetCard = { set: string; number: number; rarity: string; name: string };
+type DatasetCard = { set: string; number: number; rarity: string; name: string; image?: string };
 type TcgdexSet = { id: string; name: string; cardCount: { total: number; official: number }; releaseDate?: string; cards: { id: string; name: string; image?: string }[] };
 type SetRow = { set_id: string; set_code: string; set_name: string; total_card_count: number | null; official_card_count: number | null; release_date: string | null };
-type CardRow = { card_id: string; card_local_id: string; card_name: string; card_image: string | null; rarity_id: string | null; set_id: string };
+type CardRow = { card_id: string; card_local_id: string; card_name: string; card_image: string | null; rarity_id: string | null; set_id: string; reprint_of?: string | null; variant?: string | null };
 
 async function getJson<T>(url: string): Promise<T> {
   for (let attempt = 1; ; attempt++) {
@@ -51,6 +51,15 @@ const isPromo = (code: string) => /^(P-|PROMO)/i.test(code);
 // The dataset uses typographic apostrophes; ours are plain
 const tidy = (text: string) => text.replace(/[’‘]/g, "'").trim();
 const cardId = (card: DatasetCard) => `${card.set}-${String(card.number).padStart(3, '0')}`;
+
+// The dataset's picture filenames identify the artwork, e.g.
+// cPK_10_014860_00_GILLGARD_R.webp = artwork 014860, version 00. A different
+// version number is usually an alternate artwork, but inside a Deluxe pack a
+// second copy of a card it already contains is its Parallel Foil version.
+const artworkParts = (image?: string) => {
+  const m = image?.match(/^(.*_\d{6})_(\d{2})_(.*)$/);
+  return m ? { base: `${m[1]}_${m[3]}`, version: Number(m[2]) } : undefined;
+};
 
 async function sync(dryRun: boolean) {
   const summary = { setsAdded: [] as string[], cardsAdded: 0, cardsUpdated: 0, changes: [] as string[] };
@@ -69,6 +78,35 @@ async function sync(dryRun: boolean) {
     tcgdexSets.set(id, await getJson<TcgdexSet>(`${TCGDEX}/sets/${encodeURIComponent(id)}`));
   }
   const tcgdexCards = new Map([...tcgdexSets.values()].flatMap((s) => s.cards.map((c) => [c.id, c] as const)));
+
+  // Reprints: the first card (in release order) that used exactly this picture
+  const setOrder = new Map(datasetSets.map((s, i) => [s.code, i]));
+  const ordered = [...datasetCards]
+    .filter((c) => setOrder.has(c.set) && c.image)
+    .sort((a, b) => setOrder.get(a.set)! - setOrder.get(b.set)! || a.number - b.number);
+  const firstWithImage = new Map<string, DatasetCard>();
+  for (const card of ordered) if (!firstWithImage.has(card.image!)) firstWithImage.set(card.image!, card);
+  const reprintSource = (card: DatasetCard) => {
+    const first = card.image ? firstWithImage.get(card.image) : undefined;
+    return first && first.set !== card.set ? first : undefined;
+  };
+
+  // Parallel Foils: in a Deluxe pack, a card whose artwork the same pack already
+  // has with a lower version number (e.g. Deluxe Pack: Mega #340 is the foil of #163)
+  const deluxeSets = new Set(datasetSets.filter((s) => /deluxe/i.test(typeof s.name === 'string' ? s.name : s.name.en)).map((s) => s.code));
+  const normalVersionOf = (card: DatasetCard) => {
+    if (!deluxeSets.has(card.set)) return undefined;
+    const parts = artworkParts(card.image);
+    if (!parts || parts.version === 0) return undefined;
+    return ordered.find((c) => {
+      const other = artworkParts(c.image);
+      return c.set === card.set && c.name === card.name && other?.base === parts.base && other.version < parts.version;
+    });
+  };
+  const originalOf = (card: DatasetCard) => {
+    const normal = normalVersionOf(card);
+    return { original: reprintSource(normal ?? card), variant: normal ? 'parallel_foil' : null };
+  };
 
   // 2. What we have
   const [{ data: setRows, error: setsError }, { data: rarityRows, error: raritiesError }] = await Promise.all([
@@ -127,7 +165,7 @@ async function sync(dryRun: boolean) {
 
     const { data: cardRows, error: cardsError } = await admin
       .from('card')
-      .select('card_id, card_local_id, card_name, card_image, rarity_id, set_id')
+      .select('*')
       .eq('set_id', local.set_id);
     if (cardsError) throw cardsError;
     const existing = new Map((cardRows as CardRow[]).map((c) => [c.card_local_id, c]));
@@ -137,15 +175,21 @@ async function sync(dryRun: boolean) {
       const id = cardId(card);
       const fromTcgdex = tcgdexCards.get(id);
       const current = existing.get(id);
+      const { original, variant } = originalOf(card);
+      const reprintOf = original ? cardId(original) : null;
+      // A reprint shows its original's picture until TCGdex has one of its own
+      const picture = fromTcgdex?.image ?? (reprintOf ? tcgdexCards.get(reprintOf)?.image : undefined) ?? null;
 
       if (!current) {
         toInsert.push({
           card_id: crypto.randomUUID(),
           card_local_id: id,
           card_name: fromTcgdex?.name ?? tidy(card.name),
-          card_image: fromTcgdex?.image ?? null,
+          card_image: picture,
           rarity_id: await rarityIdFor(card.rarity),
           set_id: local.set_id,
+          reprint_of: reprintOf,
+          variant,
         });
         continue;
       }
@@ -154,6 +198,9 @@ async function sync(dryRun: boolean) {
       // or a rarity that was never set). Never replace something with nothing.
       const update: Partial<CardRow> = {};
       if (fromTcgdex?.image && fromTcgdex.image !== current.card_image) update.card_image = fromTcgdex.image;
+      else if (!current.card_image && picture) update.card_image = picture;
+      if (reprintOf && reprintOf !== current.reprint_of) update.reprint_of = reprintOf;
+      if (variant && variant !== current.variant) update.variant = variant;
       if (!current.rarity_id) update.rarity_id = await rarityIdFor(card.rarity);
       if (Object.keys(update).length) {
         summary.cardsUpdated++;

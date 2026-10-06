@@ -1,7 +1,8 @@
-import { Badge, Group, Text, Tooltip, type BadgeProps } from '@mantine/core';
+import { Badge, Group, Stack, Text, Tooltip, type BadgeProps } from '@mantine/core';
 import { IconCrown } from '@tabler/icons-react';
 import type { ReactNode } from 'react';
 import { usePokemonCardStore } from '../store/pokemonCardsStore';
+import { useLocalizationStore } from '../store/useLocalizationStore';
 
 type RarityStyle = { symbols: ReactNode; badge: Pick<BadgeProps, 'variant' | 'color' | 'gradient'> };
 
@@ -27,7 +28,10 @@ const RARITIES: Record<string, RarityStyle> = {
 };
 
 type CardLike = {
+  card_id?: string;
   card_local_id?: string;
+  reprint_of?: string | null;
+  variant?: string | null;
   set_id?: string;
   rarity_id?: string | null;
   // Search results already include these names
@@ -40,6 +44,8 @@ type CardLike = {
 export function CardMeta({ card, size = 'sm' }: { card: CardLike; size?: 'xs' | 'sm' }) {
   const expansions = usePokemonCardStore((state) => state.supabase_expansion);
   const rarities = usePokemonCardStore((state) => state.supabase_rarity);
+  const allCards = usePokemonCardStore((state) => state.pokemonCards);
+  const t = useLocalizationStore((state) => state.t);
 
   const setName = card.set_name ?? expansions.find((s) => s.set_id === card.set_id)?.set_name;
   const rarityName = card.rarity_name ?? rarities.find((r) => r.rarity_id === card.rarity_id)?.name;
@@ -49,8 +55,22 @@ export function CardMeta({ card, size = 'sm' }: { card: CardLike; size?: 'xs' | 
   const parts = [setName, number && `#${number}`].filter(Boolean);
   if (!parts.length && !rarityName) return null;
 
+  // Search results don't carry these, so fall back to the full card list
+  const full = card.reprint_of === undefined && card.card_id ? allCards.find((c) => c.card_id === card.card_id) : undefined;
+  const reprintOf = card.reprint_of ?? full?.reprint_of;
+  const isFoil = (card.variant ?? full?.variant) === 'parallel_foil';
+  // "B2-120" -> "Fantastical Parade #120"
+  const reprintLabel = reprintOf
+    ? (() => {
+        const code = reprintOf.split('-').slice(0, -1).join('-');
+        const name = expansions.find((s) => s.set_code === code)?.set_name ?? code;
+        return t.reprintOf(`${name} #${reprintOf.split('-').pop()}`);
+      })()
+    : undefined;
+
   return (
-    <Group gap={6} wrap="nowrap" mt={2}>
+    <Stack gap={2} mt={2}>
+    <Group gap={6} wrap="nowrap">
       {rarityName && (
         <Tooltip label={rarityName} withArrow>
           <Badge
@@ -70,5 +90,20 @@ export function CardMeta({ card, size = 'sm' }: { card: CardLike; size?: 'xs' | 
         </Text>
       )}
     </Group>
+    {(isFoil || reprintLabel) && (
+      <Group gap={6} wrap="nowrap">
+        {isFoil && (
+          <Badge size={size === 'xs' ? 'xs' : 'sm'} radius="sm" variant="gradient" gradient={{ from: 'cyan', to: 'indigo', deg: 90 }} style={{ flexShrink: 0 }}>
+            {t.parallelFoil}
+          </Badge>
+        )}
+        {reprintLabel && (
+          <Text size="xs" c="dimmed" lineClamp={1}>
+            {reprintLabel}
+          </Text>
+        )}
+      </Group>
+    )}
+    </Stack>
   );
 }

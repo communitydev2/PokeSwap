@@ -6,6 +6,8 @@ export interface PokemonCard {
   card_image: string | null; // TCGdex base URL; null until a picture exists
   rarity_id: string | null;
   set_id: string;
+  reprint_of?: string | null; // card_local_id of the card whose artwork this re-uses
+  variant?: string | null; // e.g. 'parallel_foil'
 
   // Included in search results (search_cards_filter)
   set_name?: string;
