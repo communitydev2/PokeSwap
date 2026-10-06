@@ -1,5 +1,6 @@
 import { ANY_OPTION } from '../../constants'
-import { Button, Group, Select, TextInput } from '@mantine/core';
+import { Button, Group, Select, SimpleGrid, Stack, TextInput } from '@mantine/core';
+import { IconSearch } from '@tabler/icons-react';
 import { useForm } from '@mantine/form';
 import { useLocalizationStore } from '../../store/useLocalizationStore';
 import { usePokemonCardStore } from '../../store/pokemonCardsStore';
@@ -82,28 +83,41 @@ export default function SearchBar() {
     }
   };
 
+  // Clear the filters and show the full card list again
+  function handleClear() {
+    form.reset();
+    usePokeCardStore.setPokemonCardsSearchQuery([]);
+  }
+
   return (
-    <Group>
-      <form onSubmit={form.onSubmit(handleFormSubmit)}>
+    <form onSubmit={form.onSubmit(handleFormSubmit)}>
+      <Stack gap="sm">
         <TextInput data-click-id="SearchBar/search-input"
           label={useLocStore.t.searchByName}
+          placeholder={useLocStore.t.searchPlaceholder}
+          leftSection={<IconSearch size={16} />}
           {...form.getInputProps('searchInput')}
         />
-
-        <Select data-click-id="SearchBar/rarity-select"
-          label={useLocStore.t.rarityLabel}
-          data={rarityOptions(usePokeCardStore.supabase_rarity, usePokeCardStore.rarities)}
-          {...form.getInputProps('rarity')}
-        />
-
-        <Select data-click-id="SearchBar/expansion-select"
-          label={useLocStore.t.setLabel}
-          data={expansionOptions(usePokeCardStore.supabase_expansion, usePokeCardStore.expansions)}
-          {...form.getInputProps('expansion')}
-        />
-
-        <Button data-click-id="SearchBar/submit" type="submit">Submit</Button>
-      </form>
-    </Group>
+        <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
+          <Select data-click-id="SearchBar/rarity-select"
+            label={useLocStore.t.rarityLabel}
+            data={rarityOptions(usePokeCardStore.supabase_rarity, usePokeCardStore.rarities)}
+            allowDeselect={false}
+            {...form.getInputProps('rarity')}
+          />
+          <Select data-click-id="SearchBar/expansion-select"
+            label={useLocStore.t.setLabel}
+            data={expansionOptions(usePokeCardStore.supabase_expansion, usePokeCardStore.expansions)}
+            allowDeselect={false}
+            searchable
+            {...form.getInputProps('expansion')}
+          />
+        </SimpleGrid>
+        <Group justify="flex-end" gap="sm">
+          <Button data-click-id="SearchBar/clear" variant="default" onClick={handleClear}>{useLocStore.t.clearSearch}</Button>
+          <Button data-click-id="SearchBar/submit" type="submit" leftSection={<IconSearch size={16} />}>{useLocStore.t.search}</Button>
+        </Group>
+      </Stack>
+    </form>
   );
 }

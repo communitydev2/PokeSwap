@@ -17,6 +17,31 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'manage-cards-layout',
+    date: '2026-10-06',
+    audience: 'user',
+    title: 'A tidier Add cards screen',
+    summary: 'The options on the Add cards screen are now grouped into two clear sections.',
+    body: [
+      '"Where are these cards going?" holds your Pocket account, wishlist or trade, and the language, side by side. "Find cards" holds the search box with the rarity and set filters next to each other.',
+      'There is also a new Clear button to reset the search and show every card again, and the set filter can be typed into to find a set quickly.',
+    ],
+    screenshot: '/updates/manage-cards-layout.png',
+    tags: ['improvement'],
+  },
+  {
+    id: 'manage-cards-layout-dev',
+    date: '2026-10-06',
+    audience: 'dev',
+    title: 'ManageCardsMainMenu layout cleanup',
+    summary: 'Dropdowns grouped in two Paper sections; the three copies of the add-cards block share one addCardsControls element.',
+    body: [
+      'TcgAccountDropdown / CardCategoryDropdown / LanguageSelectionDropdown were components defined inside ManageCardsMainMenu (remounted every render); they are now plain elements. The category Select shows Wishlist by default to match the visible language dropdown; selectedCardCategory starts as null instead of a string typed as ComboboxItem.',
+      'SearchBar: Stack + SimpleGrid layout, Search / Clear buttons (Clear resets the form and the search results), searchable set Select. Space spacers replaced by Stack gaps; "Cards selected" only shows once something is selected.',
+    ],
+    tags: ['ui'],
+  },
+  {
     id: 'card-details',
     date: '2026-10-06',
     audience: 'user',

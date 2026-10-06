@@ -19,11 +19,17 @@ export const en = {
   cardsSelected: 'Cards Selected',
   changeCard: 'Change Card',
   cardsAdded: 'Your Cards Have been added',
+  manageWhereSection: 'Where are these cards going?',
+  manageFindSection: 'Find cards',
+  selectCardsToAdd: 'Select cards to add',
 
   // Search
   rarityLabel: "Select Pokemon Card's Rarity",
   searchByName: 'Search Pokemon Card By Name',
   setLabel: "Select Pokemon Card's Set",
+  searchPlaceholder: 'e.g. Pikachu ex',
+  search: 'Search',
+  clearSearch: 'Clear',
 
   // Cards
   addToSelected: 'Add to Selected',
