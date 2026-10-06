@@ -18,7 +18,7 @@ The app is meant to support several languages.
 - Use Stripe test mode (`sk_test_...`) while developing. Setup steps are in `supabase/support.sql` and the two function files.
 
 ## Card data
-- Sets, cards and rarities come from TCGdex (api.tcgdex.net, Pocket series "tcgp"). The `sync-cards` Edge Function adds new expansion sets/cards and refreshes existing ones monthly (pg_cron, see `supabase/card-sync.sql`); promo sets are skipped. Don't hand-edit card data that the sync owns.
+- Card data (sets, cards, rarities) comes from the flibustier/pokemon-tcg-pocket-database dataset (MIT, up to date); pictures come from TCGdex, which lags behind, so newer cards have no picture until TCGdex adds one. The `sync-cards` Edge Function runs monthly (pg_cron, see `supabase/card-sync.sql`), adds new sets/cards, fills in pictures as TCGdex gets them, never deletes, and skips promo sets. Cards both sources have keep TCGdex's name and picture. Don't hand-edit card data that the sync owns. Hosting pictures ourselves is undecided (the user will choose later).
 - Never hard-code set or rarity lists in the UI; build them from the `set` / `rarity` tables (`src/utils/searchOptions.ts`).
 - Cards can exist without a picture (new sets before TCGdex has images): render pictures with `CardPicture`, which shows a placeholder.
 

@@ -17,6 +17,31 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'all-expansions-added',
+    date: '2026-10-06',
+    audience: 'user',
+    title: 'Every expansion up to Deluxe Pack: Mega',
+    summary: 'Eight more expansions have been added, from Deluxe Pack: ex to Deluxe Pack: Mega: 1,717 new cards in total.',
+    body: [
+      "New: Deluxe Pack: ex, Mega Shine, Pulsing Aura, Paradox Drive, Everyday Wonders, Ruler of the Skies, Team Rocket's Ambition and Deluxe Pack: Mega. You can find them in the search and the set filter.",
+      'Pictures for these newer cards are not available yet, so they show "Picture coming soon" for now.',
+    ],
+    screenshot: '/updates/new-sets-catch-up.png',
+    tags: ['new'],
+  },
+  {
+    id: 'all-expansions-added-dev',
+    date: '2026-10-06',
+    audience: 'dev',
+    title: 'sync-cards now uses the flibustier dataset for card data',
+    summary: 'TCGdex stopped at B2a; the sync now reads sets/cards/rarities from flibustier/pokemon-tcg-pocket-database and only takes pictures (and names of shared cards) from TCGdex.',
+    body: [
+      'Rarity codes map C/U/R/RR -> One-Four Diamond, AR -> One Star, SR/SAR -> Two Star, IM -> Three Star, UR -> Crown, S/SSR -> One/Two Shiny (checked against the 2,380 shared cards). Typographic apostrophes are normalised. Existing cards are only filled in (pictures as TCGdex gets them, missing rarities), never renamed.',
+      "First run 2026-10-06: 8 sets and 1,717 cards added (4,097 cards, 22 sets); a second run changes nothing. NewSetBanner shows one combined banner when more than two sets are new.",
+    ],
+    tags: ['data'],
+  },
+  {
     id: 'set-dropdown-no-stale-list',
     date: '2026-10-06',
     audience: 'dev',

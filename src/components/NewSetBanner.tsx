@@ -30,13 +30,33 @@ export function NewSetBanner() {
   if (!visible.length) return null;
 
   function dismiss(code: string) {
-    const next = [...dismissed, code];
-    setDismissed(next);
-    try {
-      localStorage.setItem(DISMISSED_KEY, JSON.stringify(next));
-    } catch {
-      // storage unavailable - dismissed for this visit only
-    }
+    setDismissed((current) => {
+      const next = [...current, code];
+      try {
+        localStorage.setItem(DISMISSED_KEY, JSON.stringify(next));
+      } catch {
+        // storage unavailable - dismissed for this visit only
+      }
+      return next;
+    });
+  }
+
+  // Several sets at once (e.g. catching up after a while): one combined banner
+  if (visible.length > 2) {
+    return (
+      <Container size="md" mt="md">
+        <Alert
+          data-click-id="NewSetBanner/combined"
+          color="grape"
+          variant="light"
+          icon={<IconSparkles size={18} />}
+          withCloseButton
+          onClose={() => visible.forEach((set) => dismiss(set.set_code))}
+        >
+          {t.newSetsBanner(visible.length, visible.map((set) => set.set_name).join(', '))}
+        </Alert>
+      </Container>
+    );
   }
 
   return (

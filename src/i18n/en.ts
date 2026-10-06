@@ -54,6 +54,7 @@ export const en = {
 
   // New expansion banner
   newSetBanner: (name: string, count: number) => `New expansion: ${name} (${count} cards) is now available.`,
+  newSetsBanner: (count: number, names: string) => `${count} new expansions are now available: ${names}.`,
   newSetArticleTitle: (name: string) => `New expansion: ${name}`,
   newSetArticleSummary: (name: string, count: number) => `${count} cards from ${name} have been added.`,
   newSetArticleBody: 'Search for them by name, or pick the set in the search filters, and add them to your library or wishlist.',

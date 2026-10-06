@@ -1,9 +1,14 @@
-// Supabase Edge Function: sync Pokémon TCG Pocket sets and cards from TCGdex.
+// Supabase Edge Function: sync Pokémon TCG Pocket sets and cards.
 //
-// Adds new expansion sets and their cards, and updates name / rarity / picture
-// of cards already in the database. Never deletes anything, so running it
-// twice changes nothing. Promo sets (ids starting "P-") are skipped.
-// Every run is logged in public.card_sync_runs.
+// Card data comes from the flibustier/pokemon-tcg-pocket-database dataset
+// (MIT, kept up to date with every release). Pictures come from TCGdex, which
+// lags behind: cards TCGdex doesn't have yet are saved without a picture and
+// the app shows "Picture coming soon" until a later run finds one.
+//
+// For cards TCGdex also has, TCGdex's name and picture are used, so existing
+// cards don't get renamed between the two sources' spellings.
+// Adds sets / cards, never deletes; running it twice changes nothing.
+// Promo sets are skipped. Every run is logged in public.card_sync_runs.
 //
 // Called monthly by pg_cron (see supabase/card-sync.sql), or by hand:
 //   curl -X POST https://<project-ref>.supabase.co/functions/v1/sync-cards \
@@ -15,43 +20,57 @@
 
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
-const API = 'https://api.tcgdex.net/v2/en';
+const DATASET = 'https://raw.githubusercontent.com/flibustier/pokemon-tcg-pocket-database/main/dist';
+const TCGDEX = 'https://api.tcgdex.net/v2/en';
 const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
 
-type TcgdexSetBrief = { id: string; name: string; cardCount: { total: number; official: number } };
-type TcgdexSet = TcgdexSetBrief & { releaseDate?: string; cards: { id: string; localId: string; name: string; image?: string }[] };
+// flibustier rarity codes -> the rarity names used in our rarity table
+// (checked against the 2,380 cards both sources share)
+const RARITY_NAMES: Record<string, string> = {
+  C: 'One Diamond', U: 'Two Diamond', R: 'Three Diamond', RR: 'Four Diamond',
+  AR: 'One Star', SR: 'Two Star', SAR: 'Two Star', IM: 'Three Star',
+  UR: 'Crown', S: 'One Shiny', SSR: 'Two Shiny',
+};
+
+type DatasetSet = { code: string; releaseDate?: string; count?: number; name: Record<string, string> | string };
+type DatasetCard = { set: string; number: number; rarity: string; name: string };
+type TcgdexSet = { id: string; name: string; cardCount: { total: number; official: number }; releaseDate?: string; cards: { id: string; name: string; image?: string }[] };
 type SetRow = { set_id: string; set_code: string; set_name: string; total_card_count: number | null; official_card_count: number | null; release_date: string | null };
 type CardRow = { card_id: string; card_local_id: string; card_name: string; card_image: string | null; rarity_id: string | null; set_id: string };
 
-async function api<T>(path: string): Promise<T> {
+async function getJson<T>(url: string): Promise<T> {
   for (let attempt = 1; ; attempt++) {
-    const res = await fetch(`${API}/${path}`);
+    const res = await fetch(url);
     if (res.ok) return res.json();
-    if (attempt >= 3) throw new Error(`TCGdex ${path}: ${res.status}`);
+    if (attempt >= 3) throw new Error(`${url}: ${res.status}`);
     await new Promise((r) => setTimeout(r, 1000 * attempt));
   }
 }
 
-const isPromo = (set: { id: string; name: string }) => set.id.startsWith('P-') || /promo/i.test(set.name);
-
-// Card id -> rarity name for one set, with one request per rarity instead of one per card
-async function raritiesForSet(setId: string, rarityNames: string[], cardIds: string[]) {
-  const byCard = new Map<string, string>();
-  for (const rarity of rarityNames) {
-    const cards = await api<{ id: string }[]>(`cards?set.id=eq:${encodeURIComponent(setId)}&rarity=eq:${encodeURIComponent(rarity)}`);
-    for (const card of cards) byCard.set(card.id, rarity);
-  }
-  // Anything left has a rarity we don't know yet: ask for those cards one by one
-  for (const id of cardIds.filter((id) => !byCard.has(id))) {
-    const card = await api<{ rarity?: string }>(`cards/${encodeURIComponent(id)}`);
-    if (card.rarity && card.rarity !== 'None') byCard.set(id, card.rarity);
-  }
-  return byCard;
-}
+const isPromo = (code: string) => /^(P-|PROMO)/i.test(code);
+// The dataset uses typographic apostrophes; ours are plain
+const tidy = (text: string) => text.replace(/[’‘]/g, "'").trim();
+const cardId = (card: DatasetCard) => `${card.set}-${String(card.number).padStart(3, '0')}`;
 
 async function sync(dryRun: boolean) {
   const summary = { setsAdded: [] as string[], cardsAdded: 0, cardsUpdated: 0, changes: [] as string[] };
 
+  // 1. Sources
+  const [datasetSetsByLetter, datasetCards] = await Promise.all([
+    getJson<Record<string, DatasetSet[]>>(`${DATASET}/sets.json`),
+    getJson<DatasetCard[]>(`${DATASET}/cards.json`),
+  ]);
+  const datasetSets = Object.values(datasetSetsByLetter).flat().filter((s) => !isPromo(s.code));
+
+  // TCGdex: set details and pictures for the sets it has
+  const tcgdexSeries = await getJson<{ sets: { id: string }[] }>(`${TCGDEX}/series/tcgp`);
+  const tcgdexSets = new Map<string, TcgdexSet>();
+  for (const { id } of tcgdexSeries.sets.filter((s) => !isPromo(s.id))) {
+    tcgdexSets.set(id, await getJson<TcgdexSet>(`${TCGDEX}/sets/${encodeURIComponent(id)}`));
+  }
+  const tcgdexCards = new Map([...tcgdexSets.values()].flatMap((s) => s.cards.map((c) => [c.id, c] as const)));
+
+  // 2. What we have
   const [{ data: setRows, error: setsError }, { data: rarityRows, error: raritiesError }] = await Promise.all([
     admin.from('set').select('*'),
     admin.from('rarity').select('rarity_id, name'),
@@ -61,22 +80,36 @@ async function sync(dryRun: boolean) {
   const sets = new Map((setRows as SetRow[]).map((s) => [s.set_code, s]));
   const rarityIds = new Map((rarityRows ?? []).map((r) => [r.name as string, r.rarity_id as string]));
 
-  const series = await api<{ sets: TcgdexSetBrief[] }>('series/tcgp');
+  async function rarityIdFor(code: string) {
+    const name = RARITY_NAMES[code] ?? code;
+    if (!rarityIds.has(name)) {
+      const id = crypto.randomUUID();
+      rarityIds.set(name, id);
+      summary.changes.push(`new rarity: ${name}`);
+      if (!dryRun) {
+        const { error } = await admin.from('rarity').insert({ rarity_id: id, name });
+        if (error) throw error;
+      }
+    }
+    return rarityIds.get(name)!;
+  }
 
-  for (const brief of series.sets.filter((s) => !isPromo(s))) {
-    const remote = await api<TcgdexSet>(`sets/${encodeURIComponent(brief.id)}`);
-
-    // Set row: add it, or refresh its name / counts / release date
-    let local = sets.get(remote.id);
+  // 3. Sets and their cards
+  for (const dataset of datasetSets) {
+    const tcgdex = tcgdexSets.get(dataset.code);
+    const datasetName = typeof dataset.name === 'string' ? dataset.name : dataset.name.en;
     const setFields = {
-      set_name: remote.name,
-      total_card_count: remote.cardCount.total,
-      official_card_count: remote.cardCount.official,
-      release_date: remote.releaseDate ?? null,
+      set_name: tcgdex?.name ?? tidy(datasetName),
+      total_card_count: tcgdex?.cardCount.total ?? dataset.count ?? null,
+      // The dataset has no "official" count: use TCGdex's, else fall back to the total
+      official_card_count: tcgdex?.cardCount.official ?? dataset.count ?? null,
+      release_date: tcgdex?.releaseDate ?? dataset.releaseDate ?? null,
     };
+
+    let local = sets.get(dataset.code);
     if (!local) {
-      local = { set_id: crypto.randomUUID(), set_code: remote.id, ...setFields };
-      summary.setsAdded.push(`${remote.id} ${remote.name}`);
+      local = { set_id: crypto.randomUUID(), set_code: dataset.code, ...setFields };
+      summary.setsAdded.push(`${dataset.code} ${setFields.set_name}`);
       if (!dryRun) {
         const { error } = await admin.from('set').insert({ ...local, added_at: new Date().toISOString() });
         if (error) throw error;
@@ -85,14 +118,13 @@ async function sync(dryRun: boolean) {
       local.set_name !== setFields.set_name || local.total_card_count !== setFields.total_card_count ||
       local.official_card_count !== setFields.official_card_count || local.release_date !== setFields.release_date
     ) {
-      summary.changes.push(`set ${remote.id}: details updated`);
+      summary.changes.push(`set ${dataset.code}: details updated`);
       if (!dryRun) {
         const { error } = await admin.from('set').update(setFields).eq('set_id', local.set_id);
         if (error) throw error;
       }
     }
 
-    // Cards in this set
     const { data: cardRows, error: cardsError } = await admin
       .from('card')
       .select('card_id, card_local_id, card_name, card_image, rarity_id, set_id')
@@ -100,44 +132,32 @@ async function sync(dryRun: boolean) {
     if (cardsError) throw cardsError;
     const existing = new Map((cardRows as CardRow[]).map((c) => [c.card_local_id, c]));
 
-    const rarityOf = await raritiesForSet(remote.id, [...rarityIds.keys()], remote.cards.map((c) => c.id));
-
     const toInsert: CardRow[] = [];
-    for (const card of remote.cards) {
-      const rarityName = rarityOf.get(card.id);
-      // New rarity names (e.g. a brand-new rarity tier) are added to the rarity table
-      if (rarityName && !rarityIds.has(rarityName)) {
-        const id = crypto.randomUUID();
-        rarityIds.set(rarityName, id);
-        summary.changes.push(`new rarity: ${rarityName}`);
-        if (!dryRun) {
-          const { error } = await admin.from('rarity').insert({ rarity_id: id, name: rarityName });
-          if (error) throw error;
-        }
-      }
-      const rarityId = rarityName ? rarityIds.get(rarityName)! : null;
-      const current = existing.get(card.id);
+    for (const card of datasetCards.filter((c) => c.set === dataset.code)) {
+      const id = cardId(card);
+      const fromTcgdex = tcgdexCards.get(id);
+      const current = existing.get(id);
 
       if (!current) {
         toInsert.push({
           card_id: crypto.randomUUID(),
-          card_local_id: card.id,
-          card_name: card.name,
-          card_image: card.image ?? null,
-          rarity_id: rarityId,
+          card_local_id: id,
+          card_name: fromTcgdex?.name ?? tidy(card.name),
+          card_image: fromTcgdex?.image ?? null,
+          rarity_id: await rarityIdFor(card.rarity),
           set_id: local.set_id,
         });
         continue;
       }
 
-      // Corrections from TCGdex; never replace something with nothing
+      // Existing cards: only fill in what's missing (a picture TCGdex now has,
+      // or a rarity that was never set). Never replace something with nothing.
       const update: Partial<CardRow> = {};
-      if (card.name && card.name !== current.card_name) update.card_name = card.name;
-      if (card.image && card.image !== current.card_image) update.card_image = card.image;
-      if (rarityId && rarityId !== current.rarity_id) update.rarity_id = rarityId;
+      if (fromTcgdex?.image && fromTcgdex.image !== current.card_image) update.card_image = fromTcgdex.image;
+      if (!current.rarity_id) update.rarity_id = await rarityIdFor(card.rarity);
       if (Object.keys(update).length) {
         summary.cardsUpdated++;
-        summary.changes.push(`card ${card.id}: ${Object.keys(update).join(', ')}`);
+        summary.changes.push(`card ${id}: ${Object.keys(update).join(', ')}`);
         if (!dryRun) {
           const { error } = await admin.from('card').update(update).eq('card_id', current.card_id);
           if (error) throw error;
