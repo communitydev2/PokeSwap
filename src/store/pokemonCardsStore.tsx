@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { ANY_OPTION } from "../constants";
 import type { PokemonCard } from "../types/PokemonCard";
 import type { PokemonDBStoreType } from "../types/pokemonDBStoreType";
 import { SupabaseRarityType } from "../types/SupabaseRarityType";
@@ -6,32 +7,10 @@ import { SupabaseExpansionType } from "../types/SupabaseExpansionType";
 
 export const usePokemonCardStore = create<PokemonDBStoreType>((set) => ({
   pokemonCards: [],
-  rarities: [
-    "Any",
-    "One Diamond",
-    "Two Diamond",
-    "Three Diamond",
-    "Four Diamond",
-    "One Star",
-    "Two Star",
-    "One Shiny",
-    "Two Shiny",
-  ],
-  expansions: [
-    "Any",
-    "Genetic Apex",
-    "Mythical Island",
-    "Space-Time Smackdown",
-    "Triumphant Light",
-    "Shining Revelry",
-    "Celestial Guardians",
-    "Extradimensional Crisis",
-    "Eevee Grove",
-    "Wisdom of Sea and Sky",
-    "Secluded Springs",
-    "Mega Rising",
-    "Crimson Blaze",
-  ],
+  // Filter options come from the rarity / set tables (src/utils/searchOptions.ts);
+  // these are only shown until those load, so they never go out of date.
+  rarities: [ANY_OPTION],
+  expansions: [ANY_OPTION],
   searchQuery: [],
   splitSearchPokemonNameCharacters: [" ","-"],
   languages: [

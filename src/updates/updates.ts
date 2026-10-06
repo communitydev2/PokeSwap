@@ -17,6 +17,17 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'set-dropdown-no-stale-list',
+    date: '2026-10-06',
+    audience: 'dev',
+    title: 'Set and rarity filters: no hard-coded lists left',
+    summary: 'The store fallbacks for the rarity/set dropdowns are now just "Any" instead of a typed list that had stopped at Crimson Blaze.',
+    body: [
+      'The dropdowns are built from the set / rarity tables (expansionOptions / rarityOptions), so they include every set the card sync adds; checked against the live database: 14 sets ending with Fantastical Parade and Paldean Wonders, and a search filtered to Fantastical Parade returns its cards.',
+    ],
+    tags: ['data'],
+  },
+  {
     id: 'auto-card-updates',
     date: '2026-10-05',
     audience: 'user',
