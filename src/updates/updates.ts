@@ -17,6 +17,30 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'rarity-badges',
+    date: '2026-10-06',
+    audience: 'user',
+    title: 'Rarity stands out more',
+    summary: "Each card's rarity is now shown as a coloured badge, so rare cards catch your eye.",
+    body: [
+      'Diamond cards have a soft blue badge, star cards a gold one, shiny cards a purple-to-pink badge, and crown cards a gold-to-orange badge with a crown.',
+      'Hover over (or long-press) a badge to see the rarity name.',
+    ],
+    screenshot: '/updates/rarity-badges.png',
+    tags: ['improvement'],
+  },
+  {
+    id: 'rarity-badges-dev',
+    date: '2026-10-06',
+    audience: 'dev',
+    title: 'CardMeta rarity badge',
+    summary: 'CardMeta shows rarity as a Mantine Badge styled per tier (diamond light blue, star filled yellow, shiny grape-pink gradient, crown yellow-orange gradient) with a Tooltip.',
+    body: [
+      'The crown uses Tabler IconCrown because the ♛ character rendered as an unreadable blob on the badge. Unknown rarity names fall back to a grey badge with the name.',
+    ],
+    tags: ['ui'],
+  },
+  {
     id: 'manage-cards-layout',
     date: '2026-10-06',
     audience: 'user',
