@@ -8,6 +8,7 @@ import { usePokemonCardStore } from '../../store/pokemonCardsStore'
 import { useAuthStore } from '../../store/userStore'
 import { useStateStore } from '../../store/useStateStore'
 import { CardPicture } from '../CardPicture'
+import { CardMeta } from '../CardMeta'
 import { useDisclosure } from '@mantine/hooks';
 import { Popover, Text, Button,List,Select,Group, Space,Title, ComboboxItem,UnstyledButton} from '@mantine/core';
 import { ManageCardsMainMenu } from '../managecards/ManageCardsMainMenu';
@@ -149,7 +150,10 @@ export function PokeCard(
       <CardPicture cardImage={currentCard.card_image} alt={currentCard.card_name} width="clamp(90px, 28vw, 120px)" />
 
       <Stack gap="xs" style={{ flex: 1, minWidth: 0 }}>
-        <Text fw={600} size="lg" lineClamp={2}>{currentCard.card_name}</Text>
+        <div>
+          <Text fw={600} size="lg" lineClamp={2}>{currentCard.card_name}</Text>
+          <CardMeta card={currentCard} />
+        </div>
 
         {/* Cards already selected: show what was chosen */}
         {isSelectedList && selectedEntry && (

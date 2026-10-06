@@ -17,6 +17,31 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'card-details',
+    date: '2026-10-06',
+    audience: 'user',
+    title: 'Tell apart cards with the same name',
+    summary: 'Every card now shows its set, card number and rarity, so different versions of the same Pokémon are easy to tell apart.',
+    body: [
+      'Many Pokémon have several cards with different artwork: there are 12 versions of Pikachu ex alone. Under each card name you will now see something like "Genetic Apex · #096 · ◆◆◆◆".',
+      'Hover over (or long-press) the symbols to see the rarity name. The same details appear in your selected cards and in the confirmation window.',
+    ],
+    screenshot: '/updates/card-details.png',
+    tags: ['improvement'],
+  },
+  {
+    id: 'card-details-dev',
+    date: '2026-10-06',
+    audience: 'dev',
+    title: 'CardMeta component and corrected PokemonCard type',
+    summary: 'CardMeta shows set name, number and rarity symbols; PokemonCard now matches the card table.',
+    body: [
+      '3,713 of 4,097 cards share a name with another card. CardMeta takes set_name / rarity_name from search results, or looks them up by set_id / rarity_id in the store, and reads the number from card_local_id.',
+      'PokemonCard previously described an old shape (_id, localId, tradeUsers...) that nothing used; it now lists the real columns plus language / quantity / search fields, which removed 15 type errors.',
+    ],
+    tags: ['ui', 'types'],
+  },
+  {
     id: 'all-expansions-added',
     date: '2026-10-06',
     audience: 'user',

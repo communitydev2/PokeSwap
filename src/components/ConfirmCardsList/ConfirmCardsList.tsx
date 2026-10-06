@@ -1,11 +1,15 @@
 import { Badge, Group, Paper, ScrollArea, Stack, Text } from '@mantine/core';
 import { usePokemonCardStore } from '../../store/pokemonCardsStore';
 import { CardPicture } from '../CardPicture';
+import { CardMeta } from '../CardMeta';
 
 type SelectedCard = {
   card_id: string;
   card_name: string;
   card_image: string | null;
+  card_local_id?: string;
+  set_id?: string;
+  rarity_id?: string | null;
   quantity: number;
   language?: string | null;
 };
@@ -36,9 +40,12 @@ export function ConfirmCardsList() {
               <Group wrap="nowrap" gap="md">
                 <CardPicture cardImage={card.card_image} alt={card.card_name} width={56} radius={4} />
                 <Stack gap={6} style={{ minWidth: 0 }}>
-                  <Text fw={600} lineClamp={2}>
-                    {card.card_name}
-                  </Text>
+                  <div>
+                    <Text fw={600} lineClamp={2}>
+                      {card.card_name}
+                    </Text>
+                    <CardMeta card={card} size="xs" />
+                  </div>
                   <Group gap="xs">
                     <Badge variant="filled" radius="sm">
                       × {card.quantity}
