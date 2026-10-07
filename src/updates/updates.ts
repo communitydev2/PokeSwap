@@ -17,6 +17,38 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'trades',
+    date: '2026-10-07',
+    audience: 'user',
+    title: 'Trade cards with other players',
+    summary: 'Find players who have the cards you want, send them a trade offer, and swap in Pokémon TCG Pocket once they accept.',
+    body: [
+      'Open Manage Cards and press Trades. Find trades lists players who have cards from your wishlist, in the language you want. Pick one of your cards of the same rarity and send an offer; cards they are looking for are suggested first.',
+      "Offers shows offers waiting for your answer, the ones you sent, and accepted trades. When an offer is accepted, you both see each other's Pocket friend ID: add each other as friends in the game and make the trade there.",
+      'After trading, press Mark as done. The card you gave comes off your trade list and the card you got comes off your wishlist.',
+      'Only trades the game allows are suggested: both cards must have the same rarity, from one to four diamonds or one star.',
+      'Your wishlist and your cards for trade can now be seen by everyone, so other players can find you. Your Pocket friend ID stays hidden until you accept an offer or someone accepts yours.',
+      'Pocket friend IDs with all 16 digits can now be saved when adding an account.',
+    ],
+    screenshot: '/updates/trades.png',
+    tags: ['new'],
+  },
+  {
+    id: 'trades-dev',
+    date: '2026-10-07',
+    audience: 'dev',
+    title: 'Trade offers: schema, RPCs and Trades component',
+    summary: 'Migration 20261007000200_trades.sql adds trade_offer and six security-definer RPCs; src/components/managecards/Trades.tsx is the UI.',
+    body: [
+      'trade_offer(from_account, to_account, give_card/lang, get_card/lang, status pending|accepted|declined|cancelled|completed, from_done, to_done). RLS: participants can select; no direct writes - create_trade_offer, respond_trade_offer, cancel_trade_offer, mark_trade_done do all checks (ownership, both cards on the trade lists, same tradable rarity, not your own user, max 50 pending, unique open offer). find_trade_partners and get_trade_offers read; get_trade_offers only returns the partner tcg_id once accepted.',
+      "mark_trade_done only edits the caller's own lists (deletes rows at quantity 1 before decrementing the rest, so a row just lowered to 1 is not removed). Tradable rarities: rarity.tradable (null = default by name via rarity_is_tradable(): One-Four Diamond, One Star) - set it per rarity to override, e.g. if the game opens up more rarities.",
+      'wishlist / cards_available_for_trade are now readable by anon and authenticated (account id, card, language, quantity only). Usernames come through trade_account_name() inside the RPCs; player_tcg_account stays owner-only.',
+      'Fix: player_tcg_account.tcg_id was integer (max 2147483647) so real 16-digit friend IDs failed to save; now text with a digits-only check.',
+      'Tested locally with three users in SQL (rules, permissions, anon) and two in the browser (offer, accept, friend ID, mark done, list changes). The Manage Cards Trades button shows a badge with pending incoming offers.',
+    ],
+    tags: ['feature', 'database', 'security'],
+  },
+  {
     id: 'my-cards',
     date: '2026-10-07',
     audience: 'user',
@@ -50,7 +82,6 @@ export const updates: Update[] = [
     body: [
       'Pick your Pocket account and whether the cards go on your wishlist or your cards for trade, select the cards and how many of each, then press Confirm. A message tells you how many cards were added and where.',
       'Adding a card you already have on the list adds to its quantity instead of listing it twice. The language you picked is saved with each card.',
-      'Your wishlist and trade cards are private to you.',
     ],
     screenshot: '/updates/save-selected-cards.png',
     tags: ['new'],

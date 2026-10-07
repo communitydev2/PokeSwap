@@ -1,5 +1,5 @@
 import { CARD_CATEGORY, LIST_TYPE, MENU_MODE } from '../../constants'
-import { Popover, Text, Button,List,Select,Group, Space,Title, ComboboxItem,UnstyledButton,Alert
+import { Popover, Text, Button,List,Select,Group, Space,Title, ComboboxItem,UnstyledButton,Alert,Badge
 
  } from '@mantine/core';
 import { Stack, Modal, Paper, SimpleGrid } from '@mantine/core';
@@ -18,6 +18,7 @@ import { PokeCard } from '../pokeList/PokeCard';
 import { PokemonCard } from '../../types/PokemonCard';
 import { ConfirmCardsList } from '../ConfirmCardsList/ConfirmCardsList';
 import { MyCards } from './MyCards';
+import { Trades } from './Trades';
 
 type tcgAccountType =  {
   available_cards_for_trade : string,
@@ -154,8 +155,11 @@ export function ManageCardsMainMenu({callComponent,exclusiveCardSelected}:{callC
   const [comboData_accountUsernames,setComboData_accountUsernames] = useState<ComboboxItem[]|null>(null)
   // Shown above the card search after cards are saved
   const [savedMessage,setSavedMessage] = useState<string|null>(null)
-  // "My cards" view of the selected account's saved cards, and which tab it opens on
-  const [showMyCards,setShowMyCards] = useState(false)
+  // Screen shown instead of the menu: the selected account's saved cards or its trades
+  const [view,setView] = useState<'menu'|'myCards'|'trades'>('menu')
+  // Offers waiting for this account's answer, shown on the Trades button
+  const [incomingOffers,setIncomingOffers] = useState(0)
+  const [offersReload,setOffersReload] = useState(0)
   const [myCardsCategory,setMyCardsCategory] = useState<typeof CARD_CATEGORY[keyof typeof CARD_CATEGORY]>(CARD_CATEGORY.wishlist)
   const [activeVarables,setActiveVariables] = useState()
 
@@ -316,7 +320,7 @@ function cardCategoryOnChange(e) {
         <Alert color="green">
           <Group justify="space-between" gap="sm">
             <Text size="sm">{savedMessage}</Text>
-            <Button data-click-id="ManageCardsMainMenu/see-my-cards" size="xs" variant="white" color="green" onClick={() => setShowMyCards(true)}>
+            <Button data-click-id="ManageCardsMainMenu/see-my-cards" size="xs" variant="white" color="green" onClick={() => setView('myCards')}>
               {useLocStore.t.seeMyCards}
             </Button>
           </Group>
@@ -379,18 +383,26 @@ function cardCategoryOnChange(e) {
   
   
   
-  // Saved cards of the selected account (replaces the rest of the menu while open)
-  if (showMyCards && callComponent==MENU_MODE.mainMenu) {
+  useEffect(() => {
+    if (!selectedTcgAccount || callComponent!=MENU_MODE.mainMenu) return
+    supabase.from('trade_offer').select('id', { count: 'exact', head: true })
+      .eq('to_account', selectedTcgAccount).eq('status', 'pending')
+      .then(({ count }) => setIncomingOffers(count ?? 0))
+  }, [selectedTcgAccount, offersReload, view, callComponent])
+
+  // Saved cards or trades of the selected account (replace the rest of the menu while open)
+  if (view != 'menu' && callComponent==MENU_MODE.mainMenu) {
     return (
       <Stack gap="lg" maw={760} mx="auto">
         <Group justify="space-between">
-          <Title order={2}>{useLocStore.t.myCards}</Title>
-          <Button data-click-id="ManageCardsMainMenu/my-cards-back" variant="default" onClick={() => setShowMyCards(false)}>
+          <Title order={2}>{view == 'trades' ? useLocStore.t.trades : useLocStore.t.myCards}</Title>
+          <Button data-click-id="ManageCardsMainMenu/my-cards-back" variant="default" onClick={() => setView('menu')}>
             {useLocStore.t.myCardsBack}
           </Button>
         </Group>
         {tcgAccountSelect}
-        {selectedTcgAccount && <MyCards key={selectedTcgAccount} tcgAccountId={selectedTcgAccount} initialCategory={myCardsCategory} />}
+        {selectedTcgAccount && view == 'myCards' && <MyCards key={selectedTcgAccount} tcgAccountId={selectedTcgAccount} initialCategory={myCardsCategory} />}
+        {selectedTcgAccount && view == 'trades' && <Trades key={selectedTcgAccount} tcgAccountId={selectedTcgAccount} onOffersChanged={() => setOffersReload((n) => n + 1)} />}
       </Stack>
     )
   }
@@ -412,7 +424,11 @@ function cardCategoryOnChange(e) {
   <Group justify="center">
 
   <Button data-click-id="ManageCardsMainMenu/add-cards" onClick={handleMainMenuAddCardsButton}>Add Cards</Button>
-  <Button data-click-id="ManageCardsMainMenu/my-cards" variant="default" onClick={() => setShowMyCards(true)}>{useLocStore.t.myCards}</Button>
+  <Button data-click-id="ManageCardsMainMenu/my-cards" variant="default" onClick={() => setView('myCards')}>{useLocStore.t.myCards}</Button>
+  <Button data-click-id="ManageCardsMainMenu/trades" variant="default" onClick={() => setView('trades')}
+    rightSection={incomingOffers > 0 ? <Badge size="sm" circle>{incomingOffers}</Badge> : undefined}>
+    {useLocStore.t.trades}
+  </Button>
   </Group>
   <Space h="xl" />
   {tcgAccountSelect}
