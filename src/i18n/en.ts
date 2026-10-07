@@ -22,6 +22,17 @@ export const en = {
   manageWhereSection: 'Where are these cards going?',
   manageFindSection: 'Find cards',
   selectCardsToAdd: 'Select cards to add',
+  confirmChange: 'I want to change.',
+  confirmAddCards: 'Confirm',
+  noCardsSelected: 'No cards selected yet.',
+  selectedCardsSummary: (different: number, total: number) =>
+    `${different} ${different === 1 ? 'card' : 'different cards'} · ${total} in total`,
+  cardsSavedToWishlist: (total: number, account: string) =>
+    `${total} ${total === 1 ? 'card was' : 'cards were'} added to the wishlist of ${account}.`,
+  cardsSavedForTrade: (total: number, account: string) =>
+    `${total} ${total === 1 ? 'card was' : 'cards were'} added to the cards ${account} has for trade.`,
+  cardsSaveFailed: "Couldn't add your cards. Nothing was saved, so please try again.",
+  cardsSaveNoAccount: 'Choose a Pocket account first.',
 
   // Search
   rarityLabel: "Select Pokemon Card's Rarity",

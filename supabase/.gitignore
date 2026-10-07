@@ -1,0 +1,11 @@
+# Supabase
+.branches
+.temp
+
+# dotenvx
+.env.keys
+.env.local
+.env.*.local
+
+# Card data copied from the live project for local dev (regenerate, don't commit)
+seed.sql

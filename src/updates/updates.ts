@@ -17,6 +17,34 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'save-selected-cards',
+    date: '2026-10-07',
+    audience: 'user',
+    title: 'Selected cards are now saved to your Pocket account',
+    summary: 'Pressing Confirm now adds every card you selected to your wishlist or your cards for trade.',
+    body: [
+      'Pick your Pocket account and whether the cards go on your wishlist or your cards for trade, select the cards and how many of each, then press Confirm. A message tells you how many cards were added and where.',
+      'Adding a card you already have on the list adds to its quantity instead of listing it twice. The language you picked is saved with each card.',
+      'Your wishlist and trade cards are private to you.',
+    ],
+    screenshot: '/updates/save-selected-cards.png',
+    tags: ['new'],
+  },
+  {
+    id: 'save-selected-cards-dev',
+    date: '2026-10-07',
+    audience: 'dev',
+    title: 'Card saving, local Supabase and account RLS fix',
+    summary: 'Confirm calls the new add_cards_to_tcg_account RPC; the schema now lives in supabase/migrations and runs locally with supabase start.',
+    body: [
+      'Migration 20261007000100_user_cards.sql rebuilds the (empty) wishlist and cards_available_for_trade tables: tcg_account_id uuid FK to player_tcg_account (cascade), card_id FK, language text (checked against the app\'s codes), quantity 1-9999, unique (account, card, language). RLS is owner-only via owns_tcg_account(); anon has no access.',
+      'add_cards_to_tcg_account(p_tcg_account_id, p_category, p_cards jsonb) is security invoker and upserts the batch in one statement, adding to existing quantities. Verified with two users: own account works, another user\'s account, bad language, quantity 0 and unknown category are all rejected.',
+      'The migration also replaces the live player_tcg_account policy "get" (any signed-in user could read and change every account) with owner-only policies. Not yet applied to the live project.',
+      'Local dev: 20261007000000_remote_schema.sql is a schema-only dump of the live project. supabase/seed.sql (gitignored) holds the public card/set/rarity data: regenerate with supabase db dump --linked --data-only --schema public and -x for every user table. .env.development.local points npm run dev at http://127.0.0.1:54321; delete it to use the live project again.',
+    ],
+    tags: ['database', 'security', 'tooling'],
+  },
+  {
     id: 'rarity-badges',
     date: '2026-10-06',
     audience: 'user',

@@ -2,6 +2,7 @@ import { Badge, Group, Paper, ScrollArea, Stack, Text } from '@mantine/core';
 import { usePokemonCardStore } from '../../store/pokemonCardsStore';
 import { CardPicture } from '../CardPicture';
 import { CardMeta } from '../CardMeta';
+import { useLocalizationStore } from '../../store/useLocalizationStore';
 
 type SelectedCard = {
   card_id: string;
@@ -18,12 +19,13 @@ type SelectedCard = {
 // One compact row per card so any number of cards fits (scrolls when long).
 export function ConfirmCardsList() {
   const cards = usePokemonCardStore((state) => state.listCardsSelected) as unknown as SelectedCard[];
+  const t = useLocalizationStore((state) => state.t);
   const totalQuantity = cards.reduce((sum, card) => sum + (Number(card.quantity) || 0), 0);
 
   if (!cards.length) {
     return (
       <Text c="dimmed" ta="center" py="lg">
-        No cards selected yet.
+        {t.noCardsSelected}
       </Text>
     );
   }
@@ -31,7 +33,7 @@ export function ConfirmCardsList() {
   return (
     <Stack gap="sm">
       <Text size="sm" c="dimmed">
-        {cards.length} {cards.length === 1 ? 'card' : 'different cards'} · {totalQuantity} in total
+        {t.selectedCardsSummary(cards.length, totalQuantity)}
       </Text>
       <ScrollArea.Autosize mah="55vh" offsetScrollbars type="auto">
         <Stack gap="xs">

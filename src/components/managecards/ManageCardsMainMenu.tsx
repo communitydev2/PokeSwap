@@ -1,5 +1,5 @@
 import { CARD_CATEGORY, LIST_TYPE, MENU_MODE } from '../../constants'
-import { Popover, Text, Button,List,Select,Group, Space,Title, ComboboxItem,UnstyledButton
+import { Popover, Text, Button,List,Select,Group, Space,Title, ComboboxItem,UnstyledButton,Alert
 
  } from '@mantine/core';
 import { Stack, Modal, Paper, SimpleGrid } from '@mantine/core';
@@ -71,12 +71,21 @@ function ComponentTitle({props}){
 //  2 - open modal button text
 
 
-function Menu_ConfirmCards({props}) {
+// onConfirm saves the selected cards and returns an error message, or null on success
+function Menu_ConfirmCards({props, onConfirm}:{props:any[], onConfirm?:() => Promise<string|null>}) {
 const [opened, { open, close }] = useDisclosure(false);
-// console.log(props)
+const t = useLocalizationStore((state) => state.t);
+const [saving, setSaving] = useState(false);
+const [saveError, setSaveError] = useState<string|null>(null);
 
-function submitCardsToSupabase(){
-  close();
+async function submitCardsToSupabase(){
+  if (!onConfirm) return close();
+  setSaving(true);
+  setSaveError(null);
+  const error = await onConfirm();
+  setSaving(false);
+  if (error) setSaveError(error);
+  else close();
 }
 
 
@@ -101,12 +110,15 @@ function submitCardsToSupabase(){
         {props[1]==LIST_TYPE.confirmAdd && (
           <>
             <ConfirmCardsList />
+            {saveError && (
+              <Alert color="red" mt="md">{saveError}</Alert>
+            )}
             <Group justify="flex-end" gap="sm" mt="md">
-              <Button data-click-id="ManageCardsMainMenu/confirm-modal-change" variant="default" onClick={close}>
-                I want to change.
+              <Button data-click-id="ManageCardsMainMenu/confirm-modal-change" variant="default" onClick={close} disabled={saving}>
+                {t.confirmChange}
               </Button>
-              <Button data-click-id="ManageCardsMainMenu/confirm-modal-confirm" onClick={submitCardsToSupabase}>
-                Confirm
+              <Button data-click-id="ManageCardsMainMenu/confirm-modal-confirm" onClick={submitCardsToSupabase} loading={saving}>
+                {t.confirmAddCards}
               </Button>
             </Group>
           </>
@@ -137,7 +149,10 @@ export function ManageCardsMainMenu({callComponent,exclusiveCardSelected}:{callC
   // tcgAccounts Selection Dropdown
   const [tcgAccounts,setTcgAccounts ] = useState<tcgAccountType[]>()
   const [selectedTcgAccount,setSelectedTcgAccount] = useState<string|null>()
-  const [comboData_accountUsernames,setComboData_accountUsernames] = useState<string[]|null>(null)
+  // value is the account's tcg_account_id, label is what the player sees
+  const [comboData_accountUsernames,setComboData_accountUsernames] = useState<ComboboxItem[]|null>(null)
+  // Shown above the card search after cards are saved
+  const [savedMessage,setSavedMessage] = useState<string|null>(null)
   const [activeVarables,setActiveVariables] = useState()
 
   // its true by default, and set to false when pressing anything inside the main menu
@@ -254,10 +269,49 @@ function cardCategoryOnChange(e) {
     />
   )
 
+  // Saves every selected card to the chosen Pocket account's wishlist or trade
+  // cards in one request. Cards already there get the new quantity added.
+  // Returns an error message to show, or null when saved.
+  async function saveSelectedCards(): Promise<string|null> {
+    const t = useLocStore.t
+    const account = tcgAccounts?.find((a) => a.tcg_account_id == selectedTcgAccount)
+    if (!account) return t.cardsSaveNoAccount
+    const category = useStateStoreWrapper.addingCardsSector ?? CARD_CATEGORY.wishlist
+    const cards = usePokeCardStore.listCardsSelected
+      .filter((card) => (card.quantity ?? 0) > 0)
+      .map((card) => ({
+        card_id: card.card_id,
+        language: card.language ?? useStateStoreWrapper.manageCardsSelectedLanguage ?? 'en',
+        quantity: card.quantity,
+      }))
+    if (!cards.length) return t.noCardsSelected
+
+    const { error } = await supabase.rpc('add_cards_to_tcg_account', {
+      p_tcg_account_id: account.tcg_account_id,
+      p_category: category,
+      p_cards: cards,
+    })
+    if (error) {
+      console.warn(error)
+      return t.cardsSaveFailed
+    }
+
+    const total = cards.reduce((sum, card) => sum + (card.quantity ?? 0), 0)
+    const accountName = account.tcg_id_username ?? String(account.tcg_id)
+    setSavedMessage(category == CARD_CATEGORY.trade ? t.cardsSavedForTrade(total, accountName) : t.cardsSavedToWishlist(total, accountName))
+    usePokeCardStore.setListCardsSelected([])
+    return null
+  }
+
   // Top of the add-cards screen: where the cards go, then searching for them
   const addCardsControls = (
     <>
       <Title order={2}>{useLocStore.t.addCardsTitle}</Title>
+      {savedMessage && (
+        <Alert color="green">
+          {savedMessage}
+        </Alert>
+      )}
       <Paper withBorder radius="md" p="md">
         <Text fw={600} mb="sm">{useLocStore.t.manageWhereSection}</Text>
         <SimpleGrid cols={{ base: 1, sm: useStateStoreWrapper.showLanguageDropdown ? 3 : 2 }} spacing="sm">
@@ -299,8 +353,8 @@ function cardCategoryOnChange(e) {
           // console.log(data.map((v,i,a)=> `${v.tcg_id_username} | ${v.tcg_id}`))
           setHasTcgAccounts(data.length>0);
           setTcgAccounts(data);
-          setComboData_accountUsernames(data.map((v,i,a)=> `${v.tcg_id_username} | ${v.tcg_id}`))
-          setSelectedTcgAccount(data.map((v,i,a)=> `${v.tcg_id_username} | ${v.tcg_id}`)[0])
+          setComboData_accountUsernames(data.map((v)=> ({ value: v.tcg_account_id, label: `${v.tcg_id_username} | ${v.tcg_id}` })))
+          setSelectedTcgAccount(data[0]?.tcg_account_id ?? null)
 
 
           // setUsername(data[0])
@@ -350,7 +404,7 @@ function cardCategoryOnChange(e) {
       </>
     )}
     <Group justify="flex-end">
-      <Menu_ConfirmCards props={[useLocStore.t.addCardsToLibrary,LIST_TYPE.confirmAdd,useLocStore.t.addCardsToLibrary]}/>
+      <Menu_ConfirmCards props={[useLocStore.t.addCardsToLibrary,LIST_TYPE.confirmAdd,useLocStore.t.addCardsToLibrary]} onConfirm={saveSelectedCards}/>
     </Group>
     <Title order={4}>{useLocStore.t.selectCardsToAdd}</Title>
     <PokeList listType={'listAddCards'}/>
@@ -429,7 +483,7 @@ function cardCategoryOnChange(e) {
       </>
     )}
     <Group justify="flex-end">
-      <Menu_ConfirmCards props={[useLocStore.t.cardsAdded,LIST_TYPE.confirmAdd,useLocStore.t.addCardsToLibrary]}/>
+      <Menu_ConfirmCards props={[useLocStore.t.cardsAdded,LIST_TYPE.confirmAdd,useLocStore.t.addCardsToLibrary]} onConfirm={saveSelectedCards}/>
     </Group>
     <Title order={4}>{useLocStore.t.selectCardsToAdd}</Title>
     <PokeList listType={'listAddCards'}/>
