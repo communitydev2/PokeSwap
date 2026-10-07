@@ -17,6 +17,31 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'my-cards',
+    date: '2026-10-07',
+    audience: 'user',
+    title: 'See and change your saved cards',
+    summary: 'The new My cards screen shows the cards you are looking for and the cards you have for trade, and lets you change them.',
+    body: [
+      'Open Manage Cards and press My cards, or press "See my cards" right after adding cards. Switch between "Looking for" and "I have for trade", and pick another Pocket account to see its cards.',
+      'Use + and − to change how many of a card you want or have, or the bin button to remove it from the list. Changes are saved straight away.',
+    ],
+    screenshot: '/updates/my-cards.png',
+    tags: ['new'],
+  },
+  {
+    id: 'my-cards-dev',
+    date: '2026-10-07',
+    audience: 'dev',
+    title: 'MyCards component',
+    summary: 'src/components/managecards/MyCards.tsx lists the wishlist and cards_available_for_trade rows of one account, with quantity update and delete.',
+    body: [
+      'Reads both tables with card(*) joined, newest first, 20 per page. Quantity changes and removals are applied optimistically and rolled back with an error message if the update/delete fails; the row\'s buttons are disabled while its request is in flight, so clicks can\'t race. Removing asks for confirmation in a Popover.',
+      'ManageCardsMainMenu shows it in place of the menu (showMyCards state) from the new My cards button or the "See my cards" button in the post-save message, which opens the list the cards were just added to. RLS from the user_cards migration already allows owners to update and delete their rows.',
+    ],
+    tags: ['feature'],
+  },
+  {
     id: 'save-selected-cards',
     date: '2026-10-07',
     audience: 'user',

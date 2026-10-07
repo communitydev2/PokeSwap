@@ -33,6 +33,21 @@ export const en = {
     `${total} ${total === 1 ? 'card was' : 'cards were'} added to the cards ${account} has for trade.`,
   cardsSaveFailed: "Couldn't add your cards. Nothing was saved, so please try again.",
   cardsSaveNoAccount: 'Choose a Pocket account first.',
+  seeMyCards: 'See my cards',
+
+  // My cards (saved wishlist and trade cards)
+  myCards: 'My cards',
+  myCardsBack: 'Back',
+  myCardsLookingFor: 'Looking for',
+  myCardsForTrade: 'I have for trade',
+  myCardsWishlistEmpty: "Your wishlist is empty. Use Add Cards to add the cards you're looking for.",
+  myCardsTradeEmpty: 'You have no cards for trade yet. Use Add Cards to add the cards you have.',
+  myCardsLoadFailed: "Couldn't load your cards. Please try again.",
+  myCardsSaveFailed: "Couldn't save that change, so it was undone. Please try again.",
+  myCardsRemove: 'Remove',
+  myCardsRemoveConfirm: 'Remove this card from the list?',
+  cancel: 'Cancel',
+  dismiss: 'Dismiss',
 
   // Search
   rarityLabel: "Select Pokemon Card's Rarity",

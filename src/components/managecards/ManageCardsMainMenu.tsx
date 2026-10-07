@@ -17,6 +17,7 @@ import { PokeList } from '../pokeList/PokeList';
 import { PokeCard } from '../pokeList/PokeCard';
 import { PokemonCard } from '../../types/PokemonCard';
 import { ConfirmCardsList } from '../ConfirmCardsList/ConfirmCardsList';
+import { MyCards } from './MyCards';
 
 type tcgAccountType =  {
   available_cards_for_trade : string,
@@ -153,6 +154,9 @@ export function ManageCardsMainMenu({callComponent,exclusiveCardSelected}:{callC
   const [comboData_accountUsernames,setComboData_accountUsernames] = useState<ComboboxItem[]|null>(null)
   // Shown above the card search after cards are saved
   const [savedMessage,setSavedMessage] = useState<string|null>(null)
+  // "My cards" view of the selected account's saved cards, and which tab it opens on
+  const [showMyCards,setShowMyCards] = useState(false)
+  const [myCardsCategory,setMyCardsCategory] = useState<typeof CARD_CATEGORY[keyof typeof CARD_CATEGORY]>(CARD_CATEGORY.wishlist)
   const [activeVarables,setActiveVariables] = useState()
 
   // its true by default, and set to false when pressing anything inside the main menu
@@ -299,6 +303,7 @@ function cardCategoryOnChange(e) {
     const total = cards.reduce((sum, card) => sum + (card.quantity ?? 0), 0)
     const accountName = account.tcg_id_username ?? String(account.tcg_id)
     setSavedMessage(category == CARD_CATEGORY.trade ? t.cardsSavedForTrade(total, accountName) : t.cardsSavedToWishlist(total, accountName))
+    setMyCardsCategory(category == CARD_CATEGORY.trade ? CARD_CATEGORY.trade : CARD_CATEGORY.wishlist)
     usePokeCardStore.setListCardsSelected([])
     return null
   }
@@ -309,7 +314,12 @@ function cardCategoryOnChange(e) {
       <Title order={2}>{useLocStore.t.addCardsTitle}</Title>
       {savedMessage && (
         <Alert color="green">
-          {savedMessage}
+          <Group justify="space-between" gap="sm">
+            <Text size="sm">{savedMessage}</Text>
+            <Button data-click-id="ManageCardsMainMenu/see-my-cards" size="xs" variant="white" color="green" onClick={() => setShowMyCards(true)}>
+              {useLocStore.t.seeMyCards}
+            </Button>
+          </Group>
         </Alert>
       )}
       <Paper withBorder radius="md" p="md">
@@ -369,6 +379,22 @@ function cardCategoryOnChange(e) {
   
   
   
+  // Saved cards of the selected account (replaces the rest of the menu while open)
+  if (showMyCards && callComponent==MENU_MODE.mainMenu) {
+    return (
+      <Stack gap="lg" maw={760} mx="auto">
+        <Group justify="space-between">
+          <Title order={2}>{useLocStore.t.myCards}</Title>
+          <Button data-click-id="ManageCardsMainMenu/my-cards-back" variant="default" onClick={() => setShowMyCards(false)}>
+            {useLocStore.t.myCardsBack}
+          </Button>
+        </Group>
+        {tcgAccountSelect}
+        {selectedTcgAccount && <MyCards key={selectedTcgAccount} tcgAccountId={selectedTcgAccount} initialCategory={myCardsCategory} />}
+      </Stack>
+    )
+  }
+
   return (
   <>
 <ComponentTitle props={[callComponent,useLocStore]}/>
@@ -386,6 +412,7 @@ function cardCategoryOnChange(e) {
   <Group justify="center">
 
   <Button data-click-id="ManageCardsMainMenu/add-cards" onClick={handleMainMenuAddCardsButton}>Add Cards</Button>
+  <Button data-click-id="ManageCardsMainMenu/my-cards" variant="default" onClick={() => setShowMyCards(true)}>{useLocStore.t.myCards}</Button>
   </Group>
   <Space h="xl" />
   {tcgAccountSelect}
