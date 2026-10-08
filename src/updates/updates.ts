@@ -17,6 +17,35 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'exclusive-trades',
+    date: '2026-10-08',
+    audience: 'user',
+    title: 'Exclusive trades: choose what you will take for a card',
+    summary: "Pick one card you have for trade and the cards you'd swap it for. Nobody can send you any other offer for it.",
+    body: [
+      "Open Manage Cards, press Trades and go to Exclusive. Press New exclusive trade, choose one of your trade cards, the language you want, and up to 50 cards of the same rarity you'd take for it.",
+      "While it's listed, that card no longer shows up in other players' Find trades. Players who have one of your chosen cards for trade see it under Exclusive trades you can answer, and each of them can only have one offer waiting on it.",
+      "Offers you were already waiting on for that card are declined when you list it, unless they're for one of your chosen cards. Offers you sent giving that card away are cancelled.",
+      "If you only have one copy, accepting an offer declines the rest. Ending the exclusive trade declines the offers still waiting on it, and the card goes back to normal trading.",
+    ],
+    screenshot: '/updates/exclusive-trades.png',
+    tags: ['new'],
+  },
+  {
+    id: 'exclusive-trades-dev',
+    date: '2026-10-08',
+    audience: 'dev',
+    title: 'Exclusive trades: tables, RPCs and ExclusiveTrades component',
+    summary: 'New exclusive_trade / exclusive_trade_want tables, five functions, and an Exclusive view in Trades.',
+    body: [
+      'Migration 20261008000000_exclusive_trades.sql adds exclusive_trade (one per cards_available_for_trade row, on delete cascade, with want_language) and exclusive_trade_want (card ids). Both are publicly readable; writes only go through the security-definer functions.',
+      'New RPCs: save_exclusive_trade(p_trade_card, p_want_language, p_want_cards) creates or replaces a listing (same tradable rarity, 1-50 cards) and declines/cancels pending offers it no longer allows; remove_exclusive_trade; find_exclusive_trades(p_account) lists the listings the account can answer; send_exclusive_offer(p_from, p_exclusive, p_give_card) allows one pending offer per account per listing; tradable_rarities() for the UI.',
+      'trade_offer gets exclusive_trade_id (on delete set null), returned by get_trade_offers (recreated because the return type changed). find_trade_partners and create_trade_offer skip cards held for an exclusive trade on both sides. respond_trade_offer declines the remaining pending offers on a listing once accepted offers use up every copy. A before-delete trigger declines pending offers when a listing goes away, including when mark_trade_done removes the last copy.',
+      'Front end: src/components/managecards/ExclusiveTrades.tsx (editor with a searchable MultiSelect over the cached card list, own listings, listings to answer); Trades.tsx loads the extra data and has a third Exclusive tab. Tested with a three-player SQL script and a two-player Playwright run against local Supabase.',
+    ],
+    tags: ['database', 'trades'],
+  },
+  {
     id: 'trades',
     date: '2026-10-07',
     audience: 'user',

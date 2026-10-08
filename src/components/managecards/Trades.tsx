@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, Badge, Button, CopyButton, Divider, Group, Loader, Paper, SegmentedControl, Select, Stack, Text, Title } from '@mantine/core';
-import { IconArrowsExchange } from '@tabler/icons-react';
+import { IconArrowsExchange, IconLock } from '@tabler/icons-react';
 import { supabase } from '../../supabaseClient';
 import { useLocalizationStore } from '../../store/useLocalizationStore';
 import type { Translations } from '../../i18n';
 import type { PokemonCard } from '../../types/PokemonCard';
 import { CardPicture } from '../CardPicture';
 import { CardMeta } from '../CardMeta';
+import { ExclusiveTrades, type MyListing, type MyTradeRow, type OpenListing } from './ExclusiveTrades';
 
 // Rows returned by the trade functions (supabase/migrations/*_trades.sql)
 type PartnerCard = {
@@ -17,7 +18,7 @@ type PartnerCard = {
   wanted_from_me: { card: PokemonCard; language: string }[];
 };
 
-type TradeOffer = {
+export type TradeOffer = {
   id: number;
   direction: 'incoming' | 'outgoing';
   status: 'pending' | 'accepted' | 'declined' | 'cancelled' | 'completed';
@@ -30,11 +31,13 @@ type TradeOffer = {
   their_language: string;
   i_marked_done: boolean;
   partner_marked_done: boolean;
+  // set when the offer was made through an exclusive trade
+  exclusive_trade_id: number | null;
 };
 
 type MyTradeCard = { card: PokemonCard; language: string };
 
-const VIEW = { find: 'find', offers: 'offers' } as const;
+const VIEW = { find: 'find', exclusive: 'exclusive', offers: 'offers' } as const;
 
 // Exception messages raised by the trade functions -> text shown to the player
 function errorText(t: Translations, message: string | undefined) {
@@ -45,6 +48,14 @@ function errorText(t: Translations, message: string | undefined) {
     'You have 50 offers waiting for an answer. Cancel some before sending more': t.tradesErrorTooMany,
     'This offer has already been answered': t.tradesErrorAnswered,
     'This offer can no longer be cancelled': t.tradesErrorCantCancel,
+    'You already sent an offer for this exclusive trade': t.exclusiveErrorAlreadySent,
+    'This exclusive trade has ended': t.exclusiveErrorEnded,
+    'That card is in one of your exclusive trades': t.exclusiveErrorYourCardExclusive,
+    'That card only trades through its exclusive trade': t.exclusiveErrorTheirCardExclusive,
+    'That card is not one they asked for': t.exclusiveErrorNotAsked,
+    'The cards you want must be the same rarity as your card': t.exclusiveErrorRarity,
+    'Cards of this rarity cannot be traded': t.exclusiveErrorNotTradable,
+    'Pick between 1 and 50 cards': t.exclusiveErrorCount,
   };
   return (message && known[message]) || t.tradesActionFailed;
 }
@@ -57,7 +68,10 @@ export function Trades({ tcgAccountId, onOffersChanged }: { tcgAccountId: string
   const [view, setView] = useState<string>(VIEW.find);
   const [partners, setPartners] = useState<PartnerCard[]>([]);
   const [offers, setOffers] = useState<TradeOffer[]>([]);
-  const [myTradeCards, setMyTradeCards] = useState<MyTradeCard[]>([]);
+  const [myTradeRows, setMyTradeRows] = useState<MyTradeRow[]>([]);
+  const [listings, setListings] = useState<MyListing[]>([]);
+  const [openListings, setOpenListings] = useState<OpenListing[]>([]);
+  const [tradableRarities, setTradableRarities] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -65,19 +79,30 @@ export function Trades({ tcgAccountId, onOffersChanged }: { tcgAccountId: string
   const [busy, setBusy] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const [p, o, mine] = await Promise.all([
+    const [p, o, mine, ex, open, rarities] = await Promise.all([
       supabase.rpc('find_trade_partners', { p_account: tcgAccountId }),
       supabase.rpc('get_trade_offers', { p_account: tcgAccountId }),
-      supabase.from('cards_available_for_trade').select('language, card(*)').eq('tcg_account_id', tcgAccountId),
+      supabase.from('cards_available_for_trade').select('id, language, quantity, card(*)').eq('tcg_account_id', tcgAccountId),
+      supabase
+        .from('exclusive_trade')
+        .select('id, want_language, trade:cards_available_for_trade!inner(id, language, quantity, card(*)), wants:exclusive_trade_want(card(*))')
+        .eq('trade.tcg_account_id', tcgAccountId)
+        .order('created_at', { ascending: false }),
+      supabase.rpc('find_exclusive_trades', { p_account: tcgAccountId }),
+      supabase.rpc('tradable_rarities'),
     ]);
-    if (p.error || o.error || mine.error) {
-      console.warn(p.error ?? o.error ?? mine.error);
+    const failed = p.error ?? o.error ?? mine.error ?? ex.error ?? open.error ?? rarities.error;
+    if (failed) {
+      console.warn(failed);
       setLoadFailed(true);
     } else {
       setLoadFailed(false);
       setPartners(p.data as PartnerCard[]);
       setOffers(o.data as TradeOffer[]);
-      setMyTradeCards(mine.data as unknown as MyTradeCard[]);
+      setMyTradeRows(mine.data as unknown as MyTradeRow[]);
+      setListings(ex.data as unknown as MyListing[]);
+      setOpenListings(open.data as OpenListing[]);
+      setTradableRarities(new Set(rarities.data as string[]));
     }
     setLoading(false);
   }, [tcgAccountId]);
@@ -87,6 +112,7 @@ export function Trades({ tcgAccountId, onOffersChanged }: { tcgAccountId: string
     load();
   }, [load]);
 
+  // Calls a trade function, shows its error if any, and reloads. Resolves to whether it worked.
   async function run(key: string, call: PromiseLike<{ error: { message: string } | null }>) {
     setBusy(key);
     setActionError(null);
@@ -98,7 +124,14 @@ export function Trades({ tcgAccountId, onOffersChanged }: { tcgAccountId: string
     await load();
     onOffersChanged?.();
     setBusy(null);
+    return !error;
   }
+
+  // Cards held for an exclusive trade only trade there
+  const myTradeCards: MyTradeCard[] = useMemo(() => {
+    const listed = new Set(listings.map((l) => l.trade.id));
+    return myTradeRows.filter((m) => !listed.has(m.id));
+  }, [myTradeRows, listings]);
 
   const incomingPending = offers.filter((o) => o.direction === 'incoming' && o.status === 'pending');
   const accepted = offers.filter((o) => o.status === 'accepted');
@@ -141,6 +174,7 @@ export function Trades({ tcgAccountId, onOffersChanged }: { tcgAccountId: string
         onChange={setView}
         data={[
           { value: VIEW.find, label: <span data-click-id="Trades/view:find">{t.tradesFind} ({partners.length})</span> },
+          { value: VIEW.exclusive, label: <span data-click-id="Trades/view:exclusive">{t.tradesExclusive}{openListings.length > 0 && ` (${openListings.length})`}</span> },
           { value: VIEW.offers, label: <span data-click-id="Trades/view:offers">{t.tradesOffers}{openCount > 0 && ` (${openCount})`}</span> },
         ]}
       />
@@ -186,6 +220,19 @@ export function Trades({ tcgAccountId, onOffersChanged }: { tcgAccountId: string
             </Paper>
           ))}
         </>
+      )}
+
+      {view === VIEW.exclusive && (
+        <ExclusiveTrades
+          tcgAccountId={tcgAccountId}
+          myTradeCards={myTradeRows}
+          listings={listings}
+          openListings={openListings}
+          offers={offers}
+          tradableRarities={tradableRarities}
+          busy={busy}
+          run={run}
+        />
       )}
 
       {view === VIEW.offers && (
@@ -328,7 +375,12 @@ function OfferSection({ title, offers, render }: { title: string; offers: TradeO
       {offers.map((o) => (
         <Paper key={o.id} withBorder radius="md" p="sm" data-click-context={`offer ${o.id} with ${o.partner_name}`}>
           <Group justify="space-between" mb="xs">
-            <Text size="sm" fw={600}>{t.tradesWith(o.partner_name)}</Text>
+            <Group gap={6}>
+              <Text size="sm" fw={600}>{t.tradesWith(o.partner_name)}</Text>
+              {o.exclusive_trade_id != null && (
+                <Badge size="sm" variant="light" color="grape" leftSection={<IconLock size={10} />}>{t.exclusiveBadge}</Badge>
+              )}
+            </Group>
             <Badge variant="light" color={o.status === 'completed' ? 'teal' : o.status === 'accepted' ? 'blue' : o.status === 'pending' ? 'yellow' : 'gray'}>
               {t.tradesStatus[o.status] ?? o.status}
             </Badge>
