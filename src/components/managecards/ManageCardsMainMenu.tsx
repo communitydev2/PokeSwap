@@ -160,6 +160,10 @@ export function ManageCardsMainMenu({callComponent,exclusiveCardSelected}:{callC
   // Offers waiting for this account's answer, shown on the Trades button
   const [incomingOffers,setIncomingOffers] = useState(0)
   const [offersReload,setOffersReload] = useState(0)
+  // Bumped each time the notification bell opens an account's offers, to reopen Trades there
+  const [tradesOpenSeq,setTradesOpenSeq] = useState(0)
+  const [tradesInitialView,setTradesInitialView] = useState<'find'|'offers'>('find')
+  const tradesRequest = useStateStoreWrapper.tradesRequest
   const [myCardsCategory,setMyCardsCategory] = useState<typeof CARD_CATEGORY[keyof typeof CARD_CATEGORY]>(CARD_CATEGORY.wishlist)
   const [activeVarables,setActiveVariables] = useState()
 
@@ -368,7 +372,8 @@ function cardCategoryOnChange(e) {
           setHasTcgAccounts(data.length>0);
           setTcgAccounts(data);
           setComboData_accountUsernames(data.map((v)=> ({ value: v.tcg_account_id, label: `${v.tcg_id_username} | ${v.tcg_id}` })))
-          setSelectedTcgAccount(data[0]?.tcg_account_id ?? null)
+          // keep the chosen account (e.g. one opened from a notification) if it's still there
+          setSelectedTcgAccount((current) => data.some((a) => a.tcg_account_id == current) ? current : data[0]?.tcg_account_id ?? null)
 
 
           // setUsername(data[0])
@@ -390,6 +395,16 @@ function cardCategoryOnChange(e) {
       .then(({ count }) => setIncomingOffers(count ?? 0))
   }, [selectedTcgAccount, offersReload, view, callComponent])
 
+  // The notification bell asked for an account's offers: open Trades on it once the accounts are loaded
+  useEffect(() => {
+    if (!tradesRequest || callComponent!=MENU_MODE.mainMenu || !tcgAccounts) return
+    if (tcgAccounts.some((a) => a.tcg_account_id == tradesRequest.tcgAccountId)) setSelectedTcgAccount(tradesRequest.tcgAccountId)
+    setTradesInitialView('offers')
+    setTradesOpenSeq(tradesRequest.seq)
+    setView('trades')
+    useStateStoreWrapper.setTradesRequest(null)
+  }, [tradesRequest, tcgAccounts, callComponent])
+
   // Saved cards or trades of the selected account (replace the rest of the menu while open)
   if (view != 'menu' && callComponent==MENU_MODE.mainMenu) {
     return (
@@ -402,7 +417,7 @@ function cardCategoryOnChange(e) {
         </Group>
         {tcgAccountSelect}
         {selectedTcgAccount && view == 'myCards' && <MyCards key={selectedTcgAccount} tcgAccountId={selectedTcgAccount} initialCategory={myCardsCategory} />}
-        {selectedTcgAccount && view == 'trades' && <Trades key={selectedTcgAccount} tcgAccountId={selectedTcgAccount} onOffersChanged={() => setOffersReload((n) => n + 1)} />}
+        {selectedTcgAccount && view == 'trades' && <Trades key={`${selectedTcgAccount}:${tradesOpenSeq}`} tcgAccountId={selectedTcgAccount} initialView={tradesInitialView} onOffersChanged={() => setOffersReload((n) => n + 1)} />}
       </Stack>
     )
   }
@@ -425,7 +440,7 @@ function cardCategoryOnChange(e) {
 
   <Button data-click-id="ManageCardsMainMenu/add-cards" onClick={handleMainMenuAddCardsButton}>Add Cards</Button>
   <Button data-click-id="ManageCardsMainMenu/my-cards" variant="default" onClick={() => setView('myCards')}>{useLocStore.t.myCards}</Button>
-  <Button data-click-id="ManageCardsMainMenu/trades" variant="default" onClick={() => setView('trades')}
+  <Button data-click-id="ManageCardsMainMenu/trades" variant="default" onClick={() => { setTradesInitialView('find'); setView('trades') }}
     rightSection={incomingOffers > 0 ? <Badge size="sm" circle>{incomingOffers}</Badge> : undefined}>
     {useLocStore.t.trades}
   </Button>

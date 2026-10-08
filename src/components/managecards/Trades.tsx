@@ -63,9 +63,13 @@ function errorText(t: Translations, message: string | undefined) {
 const cardKey = (cardId: string, language: string) => `${cardId}|${language}`;
 
 // Finding trade partners and handling offers for one Pocket account
-export function Trades({ tcgAccountId, onOffersChanged }: { tcgAccountId: string; onOffersChanged?: () => void }) {
+export function Trades({ tcgAccountId, initialView = VIEW.find, onOffersChanged }: {
+  tcgAccountId: string;
+  initialView?: (typeof VIEW)[keyof typeof VIEW];
+  onOffersChanged?: () => void;
+}) {
   const t = useLocalizationStore((state) => state.t);
-  const [view, setView] = useState<string>(VIEW.find);
+  const [view, setView] = useState<string>(initialView);
   const [partners, setPartners] = useState<PartnerCard[]>([]);
   const [offers, setOffers] = useState<TradeOffer[]>([]);
   const [myTradeRows, setMyTradeRows] = useState<MyTradeRow[]>([]);

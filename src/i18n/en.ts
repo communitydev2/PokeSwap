@@ -136,6 +136,28 @@ export const en = {
   exclusiveErrorNotTradable: "The game doesn't let you trade cards of this rarity.",
   exclusiveErrorCount: 'Pick between 1 and 50 cards.',
 
+  // Notification bell
+  notifications: 'Notifications',
+  notificationsOpen: (unread: number) => (unread ? `Notifications, ${unread} unread` : 'Notifications'),
+  notificationsMarkAllRead: 'Mark all as read',
+  notificationsEmpty: "No notifications yet. Trade offers and answers to yours show up here.",
+  // keyed by notification kind (internal ids from the database)
+  notificationMessage: {
+    offer_received: (partner: string, mine: string, theirs: string) => `${partner} offered their ${theirs} for your ${mine}.`,
+    offer_accepted: (partner: string, mine: string, theirs: string) => `${partner} accepted your ${mine} for their ${theirs}. Time to trade in the game!`,
+    offer_declined: (partner: string, _mine: string, theirs: string) => `${partner} declined your offer for their ${theirs}.`,
+    offer_cancelled: (partner: string, mine: string, theirs: string) => `${partner} cancelled the trade of your ${mine} for their ${theirs}.`,
+    partner_done: (partner: string, mine: string, theirs: string) => `${partner} marked the trade of your ${mine} for their ${theirs} as done.`,
+  } as Record<string, (partner: string, mine: string, theirs: string) => string>,
+  timeAgo: (date: Date) => {
+    const seconds = Math.round((date.getTime() - Date.now()) / 1000);
+    const format = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+    if (seconds > -60) return 'just now';
+    if (seconds > -3600) return format.format(Math.round(seconds / 60), 'minute');
+    if (seconds > -86400) return format.format(Math.round(seconds / 3600), 'hour');
+    return format.format(Math.round(seconds / 86400), 'day');
+  },
+
   // Search
   rarityLabel: "Select Pokemon Card's Rarity",
   searchByName: 'Search Pokemon Card By Name',

@@ -17,6 +17,7 @@ export const useStateStore =create<UseStateStoreType>((set) => ({
     stateBooleanArray: [
         false, // 0 - isExclusiveTradeModalOn
     ],
+    tradesRequest: null,
 
 
 
@@ -29,6 +30,7 @@ export const useStateStore =create<UseStateStoreType>((set) => ({
     setAddingCardsSector: (addingCardsSector:string) => set(()=> ({addingCardsSector}) ),
     setColorPalette : (colorpalette: string[]) => set(()=> ({colorpalette})),
     setStateBooleanArray : (stateBooleanArray : boolean[]) => set(()=> ({stateBooleanArray})),
+    setTradesRequest : (tradesRequest) => set(()=> ({tradesRequest})),
 
 
 

@@ -39,6 +39,7 @@ import { useStateStore } from '../store/useStateStore';
 import { supabase } from '../supabaseClient';
 import { useSavedAccountsStore } from '../store/savedAccountsStore';
 import { useLocalizationStore } from '../store/useLocalizationStore';
+import { NotificationBell } from './NotificationBell';
 
 
 
@@ -218,7 +219,10 @@ export function Header() {
             </Link>
           </Group>
 
-            <ColorSchemeToggle />
+            <Group gap="xs">
+              {isSignedIn && <NotificationBell />}
+              <ColorSchemeToggle />
+            </Group>
 
             {session ? (
               <Group visibleFrom="sm">

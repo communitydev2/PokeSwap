@@ -17,6 +17,34 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'trade-notifications',
+    date: '2026-10-08',
+    audience: 'user',
+    title: 'Notification bell for trades',
+    summary: 'A bell at the top of the page tells you about trade offers and answers on each of your Pocket accounts.',
+    body: [
+      "When you're signed in, a bell sits next to the light/dark switch. A red number shows how many notifications you haven't read yet.",
+      'You get one when someone sends you an offer, when your offer is accepted or declined, when the other player cancels an accepted trade, and when they mark a trade as done.',
+      'Notifications are grouped by Pocket account. Click one to go straight to that account\'s offers. Use "Mark all as read" to clear them.',
+      "The bell updates by itself while the page is open. Offers you accept or decline are marked as read for you, and an offer that's withdrawn before you answer disappears.",
+    ],
+    screenshot: '/updates/trade-notifications.png',
+    tags: ['new'],
+  },
+  {
+    id: 'trade-notifications-dev',
+    date: '2026-10-08',
+    audience: 'dev',
+    title: 'Notification table, trade_offer trigger and NotificationBell',
+    summary: 'Trade notifications are written by a trigger on trade_offer and pushed to the header bell over Supabase Realtime.',
+    body: [
+      'Migration 20261008000100_notifications.sql adds notification (user_id, tcg_account_id, kind, trade_offer_id, partner_name, my_card_id, their_card_id, exclusive, read_at). Players can select their rows and update only read_at (column grant); everything else is written by the security-definer trigger trade_offer_notify via notify_trade().',
+      'Kinds: offer_received, offer_accepted, offer_declined (auto-declines from exclusive trades included), offer_cancelled (the side that did not cancel an accepted trade), partner_done. When a pending offer leaves pending, its offer_received row is marked read, or deleted if the sender withdrew it.',
+      'The table is added to the supabase_realtime publication. src/components/NotificationBell.tsx subscribes to postgres_changes filtered by user_id and also refreshes on focus and every 60 s. Clicking a notification sets useStateStore.tradesRequest; ManageCardsMainMenu then selects that account and opens Trades on the Offers view. The account list reload now keeps the chosen account instead of resetting to the first one.',
+    ],
+    tags: ['database', 'trades'],
+  },
+  {
     id: 'exclusive-trades',
     date: '2026-10-08',
     audience: 'user',

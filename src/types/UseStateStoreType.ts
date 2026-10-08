@@ -9,6 +9,8 @@ export interface UseStateStoreType {
     addingCardsSector : string | null, // this variable is receiving and storing the switch umm option in the managed cards main menu Between adding to Wish List and adding to cards for Trade
     colorpalette : string[] | null,
     stateBooleanArray : boolean[] | null,
+    // Set (e.g. by the notification bell) to open Manage Cards on a Pocket account's trade offers
+    tradesRequest : { tcgAccountId: string; seq: number } | null,
 
 
 
@@ -21,6 +23,7 @@ export interface UseStateStoreType {
      setAddingCardsSector: (addingCardsSector : string) => void;
      setColorPalette: (colorpalette : string[]) => void;
      setStateBooleanArray: (stateBooleanArray : boolean[]) => void;
+     setTradesRequest: (tradesRequest : { tcgAccountId: string; seq: number } | null) => void;
 
 
 }
