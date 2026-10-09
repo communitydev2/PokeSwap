@@ -17,6 +17,19 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'dev-server-on-phone',
+    date: '2026-10-09',
+    audience: 'dev',
+    title: 'Dev server works from a phone with local Supabase',
+    summary: 'In dev, a 127.0.0.1/localhost Supabase URL now follows the address the page was opened from, so other devices reach the PC\'s database.',
+    body: [
+      "With .env.development.local pointing at http://127.0.0.1:54321, a phone opening the dev server at the PC's address looked for Supabase on the phone itself, so nothing loaded. src/supabaseClient.ts now swaps a 127.0.0.1/localhost host for window.location.hostname, in dev only (import.meta.env.DEV); production builds and the live project URL are unchanged.",
+      'supabase/config.toml allows sign-in redirects to http://**:3000 and http://**:3005 (local Supabase only), since emailRedirectTo is window.location.origin. Run supabase stop / supabase start to pick it up.',
+      "On the phone, open http://<PC's network address>:3000 (the Network line Vite prints). If it doesn't load at all, Windows Firewall is blocking it: the PC's network is set to Public, so either switch it to Private or allow Node.js through the firewall. Sign in with the 6-digit code from Mailpit (http://<PC address>:54324); the link in the email still points at 127.0.0.1.",
+    ],
+    tags: ['dev', 'tooling'],
+  },
+  {
     id: 'trade-notifications',
     date: '2026-10-08',
     audience: 'user',
