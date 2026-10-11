@@ -18,7 +18,6 @@ export const en = {
   addCardsToLibrary: 'Add Cards to My Library',
   cardsSelected: 'Cards Selected',
   changeCard: 'Change Card',
-  cardsAdded: 'Your Cards Have been added',
   manageWhereSection: 'Where are these cards going?',
   manageFindSection: 'Find cards',
   selectCardsToAdd: 'Select cards to add',

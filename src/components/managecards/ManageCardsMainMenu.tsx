@@ -565,7 +565,7 @@ function cardCategoryOnChange(e) {
       </>
     )}
     <Group justify="flex-end">
-      <Menu_ConfirmCards props={[useLocStore.t.cardsAdded,LIST_TYPE.confirmAdd,useLocStore.t.addCardsToLibrary]} onConfirm={saveSelectedCards} floating/>
+      <Menu_ConfirmCards props={[useLocStore.t.addCardsToLibrary,LIST_TYPE.confirmAdd,useLocStore.t.addCardsToLibrary]} onConfirm={saveSelectedCards} floating/>
     </Group>
     <Title order={4}>{useLocStore.t.selectCardsToAdd}</Title>
     <PokeList listType={'listAddCards'}/>

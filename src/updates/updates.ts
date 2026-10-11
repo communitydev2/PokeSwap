@@ -17,6 +17,18 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'confirm-window-title',
+    date: '2026-10-11',
+    audience: 'user',
+    title: 'Confirm window no longer says your cards were already added',
+    summary: 'The confirm window now says "Add Cards to My Library" while you review your selected cards.',
+    body: [
+      'After you selected cards and opened the window to check them, its title said they had already been added before you had confirmed. It now says "Add Cards to My Library" until you press Confirm.',
+    ],
+    screenshot: '/updates/confirm-window-title.png',
+    tags: ['fix'],
+  },
+  {
     id: 'floating-add-button',
     date: '2026-10-11',
     audience: 'user',
