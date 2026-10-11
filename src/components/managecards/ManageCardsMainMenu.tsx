@@ -2,8 +2,8 @@ import { CARD_CATEGORY, LIST_TYPE, MENU_MODE } from '../../constants'
 import { Popover, Text, Button,List,Select,Group, Space,Title, ComboboxItem,UnstyledButton,Alert,Badge
 
  } from '@mantine/core';
-import { Affix, Stack, Modal, Paper, SimpleGrid } from '@mantine/core';
-import { useState,useEffect ,type ChangeEvent} from 'react';
+import { Affix, Stack, Modal, Paper, SimpleGrid, ActionIcon, Indicator, Drawer } from '@mantine/core';
+import { useState,useEffect ,type ChangeEvent, type ReactNode} from 'react';
 import { supabase } from '../../supabaseClient';
 import { useAuthStore } from '../../store/userStore';
 import { ManageTCGAccountsMenu } from './ManageTCGAccountsMenu';
@@ -11,8 +11,9 @@ import { useStateStore } from '../../store/useStateStore';
 import { UseLocalizationStoreType } from '../../types/UseLocalizationStoreType';
 import { useLocalizationStore } from '../../store/useLocalizationStore';
 import { usePokemonCardStore } from '../../store/pokemonCardsStore';
+import { create } from 'zustand';
 import { useDisclosure } from '@mantine/hooks';
-import { IconPlus } from '@tabler/icons-react';
+import { IconPlus, IconList } from '@tabler/icons-react';
 import SearchBar from '../reusableComponents/SearchBar';
 import { PokeList } from '../pokeList/PokeList';
 import { PokeCard } from '../pokeList/PokeCard';
@@ -74,6 +75,75 @@ function ComponentTitle({props}){
 //  2 - open modal button text
 
 
+// Keep the drawer open when floating buttons or add-cards branches change.
+const useSelectedDrawer = create<{ opened: boolean; setOpened: (o: boolean) => void }>((set) => ({
+  opened: false,
+  setOpened: (opened) => set({ opened }),
+}));
+
+function SelectedListButton() {
+  const different = usePokemonCardStore((s) => s.listCardsSelected.length);
+  const setOpened = useSelectedDrawer((s) => s.setOpened);
+  const t = useLocalizationStore((s) => s.t);
+
+  return (
+    <Indicator label={different} size={18} color="red" inline offset={4}>
+      <ActionIcon
+        size={50}
+        radius="xl"
+        variant="default"
+        style={{ pointerEvents: 'auto', boxShadow: 'var(--mantine-shadow-lg)' }}
+        aria-label={t.viewSelectedCards}
+        data-click-id="ManageCardsMainMenu/floating-view-selected"
+        onClick={() => setOpened(true)}
+      >
+        <IconList size={22} />
+      </ActionIcon>
+    </Indicator>
+  );
+}
+
+function SelectedListDrawer() {
+  const opened = useSelectedDrawer((s) => s.opened);
+  const setOpened = useSelectedDrawer((s) => s.setOpened);
+  const cards = usePokemonCardStore((s) => s.listCardsSelected);
+  const t = useLocalizationStore((s) => s.t);
+  const different = cards.length;
+  const total = cards.reduce((sum, card) => sum + (card.quantity ?? 0), 0);
+
+  return (
+    <Drawer
+      opened={opened}
+      onClose={() => setOpened(false)}
+      position="bottom"
+      size="85%"
+      radius="md"
+      title={t.cardsSelected}
+      closeButtonProps={{ ...{ 'data-click-id': 'ManageCardsMainMenu/selected-drawer-close' }, 'aria-label': t.close }}
+      zIndex={300}
+    >
+      {different > 0 && <Text size="sm" c="dimmed" mb="md">{t.selectedCardsSummary(different, total)}</Text>}
+      {different > 0 ? <PokeList listType={'listSelectedSection'}/> : <Text>{t.noCardsSelected}</Text>}
+    </Drawer>
+  );
+}
+
+function FloatingBar({ children }: { children: ReactNode }) {
+  const different = usePokemonCardStore((s) => s.listCardsSelected.length);
+
+  return (
+    <Affix
+      position={{ bottom: 'calc(var(--mantine-spacing-md) + env(safe-area-inset-bottom))', left: 0, right: 0 }}
+      zIndex={150}
+    >
+      <Group justify="center" px="md" gap="sm" wrap="nowrap" style={{ pointerEvents: 'none' }}>
+        {different > 0 && <SelectedListButton />}
+        {children}
+      </Group>
+    </Affix>
+  );
+}
+
 // Keep pending cards available to add even before any cards are selected.
 function FloatingAddPendingButton() {
   const pendingCards = usePokemonCardStore((s) => s.pendingCards);
@@ -87,24 +157,19 @@ function FloatingAddPendingButton() {
   if (different === 0) return null;
 
   return (
-    <Affix
-      position={{ bottom: 'calc(var(--mantine-spacing-md) + env(safe-area-inset-bottom))', left: 0, right: 0 }}
-      zIndex={150}
-    >
-      <Group justify="center" px="md" style={{ pointerEvents: 'none' }}>
-        <Button
-          data-click-id="ManageCardsMainMenu/floating-add-pending"
-          color="blue"
-          style={{ pointerEvents: 'auto', boxShadow: 'var(--mantine-shadow-lg)' }}
-          size="lg"
-          radius="xl"
-          leftSection={<IconPlus size={18} />}
-          onClick={() => addPendingToSelected(manageCardsSelectedLanguage)}
-        >
-          {t.addPendingToSelectedFloating(different, total)}
-        </Button>
-      </Group>
-    </Affix>
+    <FloatingBar>
+      <Button
+        data-click-id="ManageCardsMainMenu/floating-add-pending"
+        color="blue"
+        style={{ pointerEvents: 'auto', boxShadow: 'var(--mantine-shadow-lg)' }}
+        size="lg"
+        radius="xl"
+        leftSection={<IconPlus size={18} />}
+        onClick={() => addPendingToSelected(manageCardsSelectedLanguage)}
+      >
+        {t.addPendingToSelectedFloating(different, total)}
+      </Button>
+    </FloatingBar>
   );
 }
 
@@ -174,24 +239,19 @@ async function submitCardsToSupabase(){
         {props[2]}
       </Button>
       {floating && props[1] == LIST_TYPE.confirmAdd && cards.length > 0 && !opened && pendingList.length === 0 && (
-        <Affix
-          position={{ bottom: 'calc(var(--mantine-spacing-md) + env(safe-area-inset-bottom))', left: 0, right: 0 }}
-          zIndex={150}
-        >
-          <Group justify="center" px="md" style={{ pointerEvents: 'none' }}>
-            <Button
-              data-click-id="ManageCardsMainMenu/floating-add-selected"
-              color="blue"
-              style={{ pointerEvents: 'auto', boxShadow: 'var(--mantine-shadow-lg)' }}
-              size="lg"
-              radius="xl"
-              leftSection={<IconPlus size={18} />}
-              onClick={open}
-            >
-              {t.addSelectedCardsFloating(different, total)}
-            </Button>
-          </Group>
-        </Affix>
+        <FloatingBar>
+          <Button
+            data-click-id="ManageCardsMainMenu/floating-add-selected"
+            color="blue"
+            style={{ pointerEvents: 'auto', boxShadow: 'var(--mantine-shadow-lg)' }}
+            size="lg"
+            radius="xl"
+            leftSection={<IconPlus size={18} />}
+            onClick={open}
+          >
+            {t.addSelectedCardsFloating(different, total)}
+          </Button>
+        </FloatingBar>
       )}
     </>
   );
@@ -527,6 +587,7 @@ function cardCategoryOnChange(e) {
     <Title order={4}>{useLocStore.t.selectCardsToAdd}</Title>
     <PokeList listType={'listAddCards'}/>
     <FloatingAddPendingButton />
+    <SelectedListDrawer />
   </Stack>
 // When pressing the add cards button
 ) 
@@ -583,6 +644,7 @@ function cardCategoryOnChange(e) {
     <Title order={4}>{useLocStore.t.selectCardsToAdd}</Title>
     <PokeList listType={'listAddCards'}/>
     <FloatingAddPendingButton />
+    <SelectedListDrawer />
   </Stack>
 // When pressing the add cards button
 ) 
@@ -608,6 +670,7 @@ function cardCategoryOnChange(e) {
     <Title order={4}>{useLocStore.t.selectCardsToAdd}</Title>
     <PokeList listType={'listAddCards'}/>
     <FloatingAddPendingButton />
+    <SelectedListDrawer />
   </Stack>
 // When pressing the add cards button
 ) 

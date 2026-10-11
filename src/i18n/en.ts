@@ -17,6 +17,8 @@ export const en = {
   addCardsExclusiveTradeTitle: 'Add Cards Menu Exclusive Trade Version',
   addCardsToLibrary: 'Add Cards to My Library',
   cardsSelected: 'Cards Selected',
+  viewSelectedCards: 'See selected cards',
+  close: 'Close',
   changeCard: 'Change Card',
   manageWhereSection: 'Where are these cards going?',
   manageFindSection: 'Find cards',

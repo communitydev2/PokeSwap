@@ -17,6 +17,18 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'see-selected-from-bottom',
+    date: '2026-10-11',
+    audience: 'user',
+    title: 'See your selected cards from the bottom of the screen',
+    summary: 'Open and check your selected cards from the bottom of the screen without scrolling back up.',
+    body: [
+      "Next to the button at the bottom, there's now a list button showing how many different cards you've selected. Tap it to open your selection from the bottom of the screen, check it, and remove cards without scrolling back up.",
+    ],
+    screenshot: '/updates/see-selected-from-bottom.png',
+    tags: ['new'],
+  },
+  {
     id: 'add-several-cards-at-once',
     date: '2026-10-11',
     audience: 'user',
