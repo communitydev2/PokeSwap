@@ -38,7 +38,7 @@ export function PokeCard(
   const listTypeAdd = LIST_TYPE.add
   const listTypeSelected = LIST_TYPE.selected
   const listTypeExclusiveTrade = LIST_TYPE.exclusiveTrade
-  const thisCardInSelectedCardsList = pokeListType == listTypeAdd ? undefined : usePokeCard.listCardsSelected.find(card => currentCard.card_id == card.card_id)
+  const thisCardInSelectedCardsList = pokeListType == listTypeAdd ? undefined : usePokeCard.listCardsSelected.find(card => currentCard.card_id === card.card_id && (card.language ?? null) === (currentCard.language ?? null))
 
     const [localQuantity, setQuantity] = useState(thisCardInSelectedCardsList?.quantity ?? 0)
     
@@ -110,18 +110,19 @@ export function PokeCard(
   }
   const isSelectedList = pokeListType == listTypeSelected
   const showStepper = pokeListType != listTypeExclusiveTrade && pokeListType != LIST_TYPE.confirmAdd
-  const selectedEntry = isSelectedList ? usePokeCard.listCardsSelected.find(card => currentCard.card_id == card.card_id) : undefined
+  const selectedEntry = isSelectedList ? currentCard : undefined
   const cannotAdd = isAddList && quantity < 1
 
   function handleAddOrRemove() {
     if (isAddList) {
-      // does card added already exist in list cards selected
-      const isCardAlreadyAdded = usePokeCard.listCardsSelected.find(card => currentCard.card_id == card.card_id)
       const cardToBeAdded = {
         ...currentCard,
         language: pendingCard?.language ?? useStateWrapper.manageCardsSelectedLanguage,
         quantity : quantity,
       }
+      const isCardAlreadyAdded = usePokeCard.listCardsSelected.find(card =>
+        card.card_id === currentCard.card_id && (card.language ?? null) === (cardToBeAdded.language ?? null)
+      )
       if (typeof isCardAlreadyAdded === "undefined") {
         // adds card if it doesn't exist
         usePokeCard.setListCardsSelected([...usePokeCard.listCardsSelected, cardToBeAdded])
@@ -129,14 +130,14 @@ export function PokeCard(
         // card already selected: add to its quantity
         usePokeCard.setListCardsSelected(
           usePokeCard.listCardsSelected.map((card) =>
-            card.card_id === currentCard.card_id ? { ...card, quantity: (card.quantity ?? 0) + quantity } : card
+            card.card_id === currentCard.card_id && (card.language ?? null) === (cardToBeAdded.language ?? null) ? { ...card, quantity: (card.quantity ?? 0) + quantity } : card
           )
         )
       }
       usePokeCard.removePendingCard(currentCard.card_id);
     } else if (isSelectedList) {
       usePokeCard.setListCardsSelected(
-        usePokeCard.listCardsSelected.filter((card) => !(isCardSelected && card.card_id === currentCard.card_id))
+        usePokeCard.listCardsSelected.filter((card) => !(isCardSelected && card.card_id === currentCard.card_id && (card.language ?? null) === (currentCard.language ?? null)))
       )
     }
   }
@@ -179,7 +180,7 @@ export function PokeCard(
         {/* Always reserve the button's space so tapping a card doesn't move anything. */}
         {(isAddList || isSelectedList) && (
           <Button
-            data-click-id={`PokeCard/add-or-remove-card:${pokeListType}:${currentCard.card_id}`}
+            data-click-id={`PokeCard/add-or-remove-card:${pokeListType}:${currentCard.card_id}:${currentCard.language ?? null}`}
             radius="md"
             color={isAddList ? 'blue' : 'red'}
             variant={isAddList ? 'filled' : 'light'}

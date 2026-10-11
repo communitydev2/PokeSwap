@@ -39,9 +39,10 @@ export const usePokemonCardStore = create<PokemonDBStoreType>((set) => ({
     set((state) => {
       const listCardsSelected = [...state.listCardsSelected];
       for (const card of Object.values(state.pendingCards)) {
-        const index = listCardsSelected.findIndex((selected) => selected.card_id === card.card_id);
+        const language = card.language ?? defaultLanguage;
+        const index = listCardsSelected.findIndex((selected) => selected.card_id === card.card_id && (selected.language ?? null) === (language ?? null));
         if (index === -1) {
-          listCardsSelected.push({ ...card, language: card.language ?? defaultLanguage });
+          listCardsSelected.push({ ...card, language });
         } else {
           const existing = listCardsSelected[index];
           listCardsSelected[index] = { ...existing, quantity: (existing.quantity ?? 0) + (card.quantity ?? 0) };

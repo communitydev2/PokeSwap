@@ -17,6 +17,20 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'selection-fixes',
+    date: '2026-10-11',
+    audience: 'user',
+    title: 'Smoother adding of cards',
+    summary: 'Adding cards keeps your search and page in place, with separate entries for each language.',
+    body: [
+      'The "Cards Selected" section above the list is gone. Your selection is in the list button at the bottom of the screen.',
+      'Adding cards no longer clears your search, sends you back to the first page, or moves the cards under your finger.',
+      'The same card in two languages is now kept as two separate entries instead of being merged.',
+    ],
+    screenshot: '/updates/selection-fixes.png',
+    tags: ['fix'],
+  },
+  {
     id: 'see-selected-from-bottom',
     date: '2026-10-11',
     audience: 'user',

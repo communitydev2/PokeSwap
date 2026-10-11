@@ -174,7 +174,7 @@ function FloatingAddPendingButton() {
 }
 
 // onConfirm saves the selected cards and returns an error message, or null on success
-function Menu_ConfirmCards({props, onConfirm, floating}:{props:any[], onConfirm?:() => Promise<string|null>, floating?:boolean}) {
+function Menu_ConfirmCards({props, onConfirm, floating, hideTrigger}:{props:any[], onConfirm?:() => Promise<string|null>, floating?:boolean, hideTrigger?:boolean}) {
 const [opened, { open, close }] = useDisclosure(false);
 const t = useLocalizationStore((state) => state.t);
 const cards = usePokemonCardStore((s) => s.listCardsSelected);
@@ -233,11 +233,11 @@ async function submitCardsToSupabase(){
 
       </Modal>
 
-      <Button data-click-id={`ManageCardsMainMenu/modal-button:${props[1]}`} variant="default" onClick={open}>
+      {!hideTrigger && <Button data-click-id={`ManageCardsMainMenu/modal-button:${props[1]}`} variant="default" onClick={open}>
         {/* 20 for listSelectedSection*/}
         
         {props[2]}
-      </Button>
+      </Button>}
       {floating && props[1] == LIST_TYPE.confirmAdd && cards.length > 0 && !opened && pendingList.length === 0 && (
         <FloatingBar>
           <Button
@@ -575,15 +575,7 @@ function cardCategoryOnChange(e) {
 {useStateStoreWrapper.showAddCardsMenu  != true && callComponent!=MENU_MODE.exclusiveTrade  && (
 <Stack gap="lg" maw={760} mx="auto" pb={usePokeCardStore.listCardsSelected.length > 0 || Object.keys(usePokeCardStore.pendingCards).length > 0 ? 96 : undefined}>
     {addCardsControls}
-    {usePokeCardStore.listCardsSelected.length > 0 && (
-      <>
-        <Title order={4}>{useLocStore.t.cardsSelected}</Title>
-        <PokeList listType={'listSelectedSection'}/>
-      </>
-    )}
-    <Group justify="flex-end">
-      <Menu_ConfirmCards props={[useLocStore.t.addCardsToLibrary,LIST_TYPE.confirmAdd,useLocStore.t.addCardsToLibrary]} onConfirm={saveSelectedCards} floating/>
-    </Group>
+    <Menu_ConfirmCards props={[useLocStore.t.addCardsToLibrary,LIST_TYPE.confirmAdd,useLocStore.t.addCardsToLibrary]} onConfirm={saveSelectedCards} floating hideTrigger/>
     <Title order={4}>{useLocStore.t.selectCardsToAdd}</Title>
     <PokeList listType={'listAddCards'}/>
     <FloatingAddPendingButton />
@@ -629,53 +621,17 @@ function cardCategoryOnChange(e) {
 
 )}
 
-{/* Following from Manage Cards in Figma,   */}
-{/* I am  adding cards AND this is the Main Menu AND listCardSelects is EMPTY */}
-{/* ManageCards Main Menu Inside Add Cards Button) */}
-{useStateStoreWrapper.showAddCardsMenu  == true && callComponent!=MENU_MODE.exclusiveTrade && usePokeCardStore.listCardsSelected.length <1  && (
+{/* Keep the add-cards screen mounted as the selection changes. */}
+{useStateStoreWrapper.showAddCardsMenu == true && callComponent!=MENU_MODE.exclusiveTrade && (
 <Stack gap="lg" maw={760} mx="auto" pb={usePokeCardStore.listCardsSelected.length > 0 || Object.keys(usePokeCardStore.pendingCards).length > 0 ? 96 : undefined}>
     {addCardsControls}
-    {usePokeCardStore.listCardsSelected.length > 0 && (
-      <>
-        <Title order={4}>{useLocStore.t.cardsSelected}</Title>
-        <PokeList listType={'listSelectedSection'}/>
-      </>
-    )}
+    <Menu_ConfirmCards props={[useLocStore.t.addCardsToLibrary,LIST_TYPE.confirmAdd,useLocStore.t.addCardsToLibrary]} onConfirm={saveSelectedCards} floating hideTrigger/>
     <Title order={4}>{useLocStore.t.selectCardsToAdd}</Title>
     <PokeList listType={'listAddCards'}/>
     <FloatingAddPendingButton />
     <SelectedListDrawer />
   </Stack>
-// When pressing the add cards button
-) 
-
-}
-
-
-{/* Following from Manage Cards in Figma,   */}
-{/* I am  adding cards AND this is the Main Menu AND listCardSelects is NOT EMPTY */}
-{/* ManageCards Main Menu Inside Add Cards Button) */}
-{useStateStoreWrapper.showAddCardsMenu  == true && callComponent!=MENU_MODE.exclusiveTrade && usePokeCardStore.listCardsSelected.length >0  && (
-<Stack gap="lg" maw={760} mx="auto" pb={usePokeCardStore.listCardsSelected.length > 0 || Object.keys(usePokeCardStore.pendingCards).length > 0 ? 96 : undefined}>
-    {addCardsControls}
-    {usePokeCardStore.listCardsSelected.length > 0 && (
-      <>
-        <Title order={4}>{useLocStore.t.cardsSelected}</Title>
-        <PokeList listType={'listSelectedSection'}/>
-      </>
-    )}
-    <Group justify="flex-end">
-      <Menu_ConfirmCards props={[useLocStore.t.addCardsToLibrary,LIST_TYPE.confirmAdd,useLocStore.t.addCardsToLibrary]} onConfirm={saveSelectedCards} floating/>
-    </Group>
-    <Title order={4}>{useLocStore.t.selectCardsToAdd}</Title>
-    <PokeList listType={'listAddCards'}/>
-    <FloatingAddPendingButton />
-    <SelectedListDrawer />
-  </Stack>
-// When pressing the add cards button
-) 
-
-}
+)}
 
    
   

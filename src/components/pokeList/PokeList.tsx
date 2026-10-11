@@ -26,24 +26,20 @@ export function PokeList({listType}:{listType:string}) {
 
  
 
-  // every time the search query gets updated these user fact will determine what is the active list
-  useEffect(()=> {
-    // if the list is to add the cards then it's going to set the active list to either the search query or the Pokémon cards
-    if (listType==LIST_TYPE.add){
-      usePokeCard.searchQuery.length >0 ? setActiveList(usePokeCard.searchQuery) : setActiveList(usePokeCard.pokemonCards);
-      
-    }else{
-      // if the list is off list selected section then it will display the the list of the cards that are selected
-      
-      setActiveList(usePokeCard.listCardsSelected)
-    }
-    // console.log(`${listType} ${activeList}`)
+  // Search and catalogue changes reset only the add list.
+  useEffect(() => {
+    if (listType != LIST_TYPE.add) return
+    setActiveList(usePokeCard.searchQuery.length > 0 ? usePokeCard.searchQuery : usePokeCard.pokemonCards)
+    setCurrentPageNumber(1)
+  }, [listType, usePokeCard.searchQuery, usePokeCard.pokemonCards])
 
-// must reset the current page to one as now the search query has changed 
-setCurrentPageNumber(1)
-
-
-  },[usePokeCard.searchQuery,usePokeCard.listCardsSelected])
+  // Keep the selected list on its current page unless that page no longer exists.
+  useEffect(() => {
+    if (listType == LIST_TYPE.add) return
+    setActiveList(usePokeCard.listCardsSelected)
+    const lastPage = Math.max(1, Math.ceil(usePokeCard.listCardsSelected.length / pagesize))
+    setCurrentPageNumber((page) => Math.min(page, lastPage))
+  }, [listType, usePokeCard.listCardsSelected])
 
 
   // every time uh the page is changed it does the maths
@@ -66,7 +62,7 @@ if (activeList.length > 10){
 }
 
 
-},[currentPageNumber,activeList,usePokeCard.listCardsSelected])
+},[currentPageNumber,activeList])
 
   const pageCount = Math.ceil(activeList.length / pagesize)
 
@@ -85,7 +81,7 @@ if (activeList.length > 10){
       
 
           
-      (currentPageItems).map((card,i) => {
+      (currentPageItems).map((card) => {
 
         if(card == null)return
         
@@ -95,11 +91,11 @@ if (activeList.length > 10){
         const isConfirmList = listType == LIST_TYPE.confirmAdd
 
         return isConfirmList ? (
-          <li key={i} style={{ listStyleType: 'none' }}>
+          <li key={`${card.card_id}:${card.language ?? null}`} style={{ listStyleType: 'none' }}>
             <PokeCard currentCard={card} isCardSelected={false} pokeListType={listType}/>
           </li>
         ) : (
-          <li key={i} style={{ listStyleType: 'none' }}>
+          <li key={`${card.card_id}:${card.language ?? null}`} style={{ listStyleType: 'none' }}>
             {/* Tap a card to select it; the selected card is outlined and shows its main button */}
             <div data-click-id="PokeList/card"
               onClick={() => setSelectedCard(card)}
