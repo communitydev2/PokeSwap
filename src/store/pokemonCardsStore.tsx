@@ -21,6 +21,34 @@ export const usePokemonCardStore = create<PokemonDBStoreType>((set) => ({
   supabase_rarity: [],
   supabase_expansion: [],
   listCardsSelected : [],
+  pendingCards: {},
+  setPendingCard: (card, quantity, language) =>
+    set((state) => {
+      const pendingCards = { ...state.pendingCards };
+      if (quantity <= 0) delete pendingCards[card.card_id];
+      else pendingCards[card.card_id] = { ...card, quantity, language };
+      return { pendingCards };
+    }),
+  removePendingCard: (cardId) =>
+    set((state) => {
+      const pendingCards = { ...state.pendingCards };
+      delete pendingCards[cardId];
+      return { pendingCards };
+    }),
+  addPendingToSelected: (defaultLanguage) =>
+    set((state) => {
+      const listCardsSelected = [...state.listCardsSelected];
+      for (const card of Object.values(state.pendingCards)) {
+        const index = listCardsSelected.findIndex((selected) => selected.card_id === card.card_id);
+        if (index === -1) {
+          listCardsSelected.push({ ...card, language: card.language ?? defaultLanguage });
+        } else {
+          const existing = listCardsSelected[index];
+          listCardsSelected[index] = { ...existing, quantity: (existing.quantity ?? 0) + (card.quantity ?? 0) };
+        }
+      }
+      return { listCardsSelected, pendingCards: {} };
+    }),
 
   setPokemonCards: (pokemonCards: PokemonCard[]) =>
     set(() => ({ pokemonCards })),

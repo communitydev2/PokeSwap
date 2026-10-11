@@ -74,11 +74,47 @@ function ComponentTitle({props}){
 //  2 - open modal button text
 
 
+// Keep pending cards available to add even before any cards are selected.
+function FloatingAddPendingButton() {
+  const pendingCards = usePokemonCardStore((s) => s.pendingCards);
+  const addPendingToSelected = usePokemonCardStore((s) => s.addPendingToSelected);
+  const manageCardsSelectedLanguage = useStateStore((s) => s.manageCardsSelectedLanguage);
+  const t = useLocalizationStore((state) => state.t);
+  const pendingList = Object.values(pendingCards);
+  const different = pendingList.length;
+  const total = pendingList.reduce((sum, card) => sum + (card.quantity ?? 0), 0);
+
+  if (different === 0) return null;
+
+  return (
+    <Affix
+      position={{ bottom: 'calc(var(--mantine-spacing-md) + env(safe-area-inset-bottom))', left: 0, right: 0 }}
+      zIndex={150}
+    >
+      <Group justify="center" px="md" style={{ pointerEvents: 'none' }}>
+        <Button
+          data-click-id="ManageCardsMainMenu/floating-add-pending"
+          color="blue"
+          style={{ pointerEvents: 'auto', boxShadow: 'var(--mantine-shadow-lg)' }}
+          size="lg"
+          radius="xl"
+          leftSection={<IconPlus size={18} />}
+          onClick={() => addPendingToSelected(manageCardsSelectedLanguage)}
+        >
+          {t.addPendingToSelectedFloating(different, total)}
+        </Button>
+      </Group>
+    </Affix>
+  );
+}
+
 // onConfirm saves the selected cards and returns an error message, or null on success
 function Menu_ConfirmCards({props, onConfirm, floating}:{props:any[], onConfirm?:() => Promise<string|null>, floating?:boolean}) {
 const [opened, { open, close }] = useDisclosure(false);
 const t = useLocalizationStore((state) => state.t);
 const cards = usePokemonCardStore((s) => s.listCardsSelected);
+const pendingCards = usePokemonCardStore((s) => s.pendingCards);
+const pendingList = Object.values(pendingCards);
 const different = cards.length;
 const total = cards.reduce((sum, card) => sum + (card.quantity ?? 0), 0);
 const [saving, setSaving] = useState(false);
@@ -137,7 +173,7 @@ async function submitCardsToSupabase(){
         
         {props[2]}
       </Button>
-      {floating && props[1] == LIST_TYPE.confirmAdd && cards.length > 0 && !opened && (
+      {floating && props[1] == LIST_TYPE.confirmAdd && cards.length > 0 && !opened && pendingList.length === 0 && (
         <Affix
           position={{ bottom: 'calc(var(--mantine-spacing-md) + env(safe-area-inset-bottom))', left: 0, right: 0 }}
           zIndex={150}
@@ -477,7 +513,7 @@ function cardCategoryOnChange(e) {
 {/* Following from Manage Cards in Figma,   */}
 {/* I am not adding cards AND this is the Main Menu */}
 {useStateStoreWrapper.showAddCardsMenu  != true && callComponent!=MENU_MODE.exclusiveTrade  && (
-<Stack gap="lg" maw={760} mx="auto" pb={usePokeCardStore.listCardsSelected.length > 0 ? 96 : undefined}>
+<Stack gap="lg" maw={760} mx="auto" pb={usePokeCardStore.listCardsSelected.length > 0 || Object.keys(usePokeCardStore.pendingCards).length > 0 ? 96 : undefined}>
     {addCardsControls}
     {usePokeCardStore.listCardsSelected.length > 0 && (
       <>
@@ -490,6 +526,7 @@ function cardCategoryOnChange(e) {
     </Group>
     <Title order={4}>{useLocStore.t.selectCardsToAdd}</Title>
     <PokeList listType={'listAddCards'}/>
+    <FloatingAddPendingButton />
   </Stack>
 // When pressing the add cards button
 ) 
@@ -535,7 +572,7 @@ function cardCategoryOnChange(e) {
 {/* I am  adding cards AND this is the Main Menu AND listCardSelects is EMPTY */}
 {/* ManageCards Main Menu Inside Add Cards Button) */}
 {useStateStoreWrapper.showAddCardsMenu  == true && callComponent!=MENU_MODE.exclusiveTrade && usePokeCardStore.listCardsSelected.length <1  && (
-<Stack gap="lg" maw={760} mx="auto" pb={usePokeCardStore.listCardsSelected.length > 0 ? 96 : undefined}>
+<Stack gap="lg" maw={760} mx="auto" pb={usePokeCardStore.listCardsSelected.length > 0 || Object.keys(usePokeCardStore.pendingCards).length > 0 ? 96 : undefined}>
     {addCardsControls}
     {usePokeCardStore.listCardsSelected.length > 0 && (
       <>
@@ -545,6 +582,7 @@ function cardCategoryOnChange(e) {
     )}
     <Title order={4}>{useLocStore.t.selectCardsToAdd}</Title>
     <PokeList listType={'listAddCards'}/>
+    <FloatingAddPendingButton />
   </Stack>
 // When pressing the add cards button
 ) 
@@ -556,7 +594,7 @@ function cardCategoryOnChange(e) {
 {/* I am  adding cards AND this is the Main Menu AND listCardSelects is NOT EMPTY */}
 {/* ManageCards Main Menu Inside Add Cards Button) */}
 {useStateStoreWrapper.showAddCardsMenu  == true && callComponent!=MENU_MODE.exclusiveTrade && usePokeCardStore.listCardsSelected.length >0  && (
-<Stack gap="lg" maw={760} mx="auto" pb={usePokeCardStore.listCardsSelected.length > 0 ? 96 : undefined}>
+<Stack gap="lg" maw={760} mx="auto" pb={usePokeCardStore.listCardsSelected.length > 0 || Object.keys(usePokeCardStore.pendingCards).length > 0 ? 96 : undefined}>
     {addCardsControls}
     {usePokeCardStore.listCardsSelected.length > 0 && (
       <>
@@ -569,6 +607,7 @@ function cardCategoryOnChange(e) {
     </Group>
     <Title order={4}>{useLocStore.t.selectCardsToAdd}</Title>
     <PokeList listType={'listAddCards'}/>
+    <FloatingAddPendingButton />
   </Stack>
 // When pressing the add cards button
 ) 

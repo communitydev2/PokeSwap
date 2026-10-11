@@ -34,6 +34,11 @@ export type PokemonDBStoreType ={
     supabase_rarity: SupabaseRarityType[];
     supabase_expansion: SupabaseExpansionType[];
     listCardsSelected : PokemonCard[];
+    // Add-list cards with a quantity set, keyed by card_id, awaiting selection.
+    pendingCards: Record<string, PokemonCard>;
+    setPendingCard: (card: PokemonCard, quantity: number, language?: string | null) => void;
+    removePendingCard: (cardId: string) => void;
+    addPendingToSelected: (defaultLanguage: string | null) => void;
     
     setPokemonCards: (pokemonCards:PokemonCard[]) => void;
     setPokemonCardsSearchQuery : (searchQuery:PokemonCard[]) => void;

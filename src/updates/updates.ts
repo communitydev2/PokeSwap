@@ -17,6 +17,19 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'add-several-cards-at-once',
+    date: '2026-10-11',
+    audience: 'user',
+    title: 'Add several cards to your selection at once',
+    summary: 'Set quantities on several cards and add them all to your selected cards with one tap.',
+    body: [
+      'Set the quantity on as many cards as you like. They stay set while you search or change page. Then tap the button at the bottom to add them all to your selected cards in one go.',
+      'Once they are added, the same spot shows the button to review and save them. You can still add a single card with its own button.',
+    ],
+    screenshot: '/updates/add-several-cards-at-once.png',
+    tags: ['new'],
+  },
+  {
     id: 'confirm-window-title',
     date: '2026-10-11',
     audience: 'user',

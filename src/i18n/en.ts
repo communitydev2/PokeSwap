@@ -28,6 +28,8 @@ export const en = {
     `${different} ${different === 1 ? 'card' : 'different cards'} · ${total} in total`,
   addSelectedCardsFloating: (different: number, total: number) =>
     different > 1 ? `Add ${total} cards (${different} different)` : `Add ${total} ${total === 1 ? 'card' : 'cards'}`,
+  addPendingToSelectedFloating: (_different: number, total: number) =>
+    `Add ${total} ${total === 1 ? 'card' : 'cards'} to selected`,
   cardsSavedToWishlist: (total: number, account: string) =>
     `${total} ${total === 1 ? 'card was' : 'cards were'} added to the wishlist of ${account}.`,
   cardsSavedForTrade: (total: number, account: string) =>
