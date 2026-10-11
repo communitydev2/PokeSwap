@@ -5,6 +5,7 @@ import { ActionIcon, Badge, Stack, Modal } from '@mantine/core';
 import { IconMinus, IconPlus, IconTrash } from '@tabler/icons-react';
 import { useLocalizationStore } from '../../store/useLocalizationStore'
 import { usePokemonCardStore } from '../../store/pokemonCardsStore'
+import { useAddedToastStore } from '../../store/addedToastStore'
 import { useAuthStore } from '../../store/userStore'
 import { useStateStore } from '../../store/useStateStore'
 import { CardPicture } from '../CardPicture'
@@ -135,6 +136,7 @@ export function PokeCard(
         )
       }
       usePokeCard.removePendingCard(currentCard.card_id);
+      useAddedToastStore.getState().show(useLocStore.t.cardsAddedToSelection(quantity));
     } else if (isSelectedList) {
       usePokeCard.setListCardsSelected(
         usePokeCard.listCardsSelected.filter((card) => !(isCardSelected && card.card_id === currentCard.card_id && (card.language ?? null) === (currentCard.language ?? null)))

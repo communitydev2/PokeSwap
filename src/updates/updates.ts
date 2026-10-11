@@ -17,6 +17,18 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'added-confirmation',
+    date: '2026-10-11',
+    audience: 'user',
+    title: 'See when cards are added to your selection',
+    summary: 'A short message shows how many cards you added, and a green Confirm button lets you review and save them.',
+    body: [
+      'After adding cards to your selection, a short message pops up above the button to confirm how many were added. The button turns into a green Confirm button so you can review and save them.',
+    ],
+    screenshot: '/updates/added-confirmation.png',
+    tags: ['new'],
+  },
+  {
     id: 'selection-fixes',
     date: '2026-10-11',
     audience: 'user',

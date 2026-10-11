@@ -2,8 +2,8 @@ import { CARD_CATEGORY, LIST_TYPE, MENU_MODE } from '../../constants'
 import { Popover, Text, Button,List,Select,Group, Space,Title, ComboboxItem,UnstyledButton,Alert,Badge
 
  } from '@mantine/core';
-import { Affix, Stack, Modal, Paper, SimpleGrid, ActionIcon, Indicator, Drawer } from '@mantine/core';
-import { useState,useEffect ,type ChangeEvent, type ReactNode} from 'react';
+import { Affix, Stack, Modal, Paper, SimpleGrid, ActionIcon, Indicator, Drawer, Transition } from '@mantine/core';
+import { useState,useEffect,useRef ,type ChangeEvent, type ReactNode} from 'react';
 import { supabase } from '../../supabaseClient';
 import { useAuthStore } from '../../store/userStore';
 import { ManageTCGAccountsMenu } from './ManageTCGAccountsMenu';
@@ -12,8 +12,9 @@ import { UseLocalizationStoreType } from '../../types/UseLocalizationStoreType';
 import { useLocalizationStore } from '../../store/useLocalizationStore';
 import { usePokemonCardStore } from '../../store/pokemonCardsStore';
 import { create } from 'zustand';
+import { useAddedToastStore } from '../../store/addedToastStore';
 import { useDisclosure } from '@mantine/hooks';
-import { IconPlus, IconList } from '@tabler/icons-react';
+import { IconPlus, IconList, IconCheck, IconCircleCheck } from '@tabler/icons-react';
 import SearchBar from '../reusableComponents/SearchBar';
 import { PokeList } from '../pokeList/PokeList';
 import { PokeCard } from '../pokeList/PokeCard';
@@ -144,10 +145,46 @@ function FloatingBar({ children }: { children: ReactNode }) {
   );
 }
 
+function AddedToast() {
+  const message = useAddedToastStore((s) => s.message);
+  const seq = useAddedToastStore((s) => s.seq);
+  const lastSeenSeq = useRef(seq);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (seq === lastSeenSeq.current) return;
+    lastSeenSeq.current = seq;
+    setVisible(true);
+    const timeout = setTimeout(() => setVisible(false), 2200);
+    return () => clearTimeout(timeout);
+  }, [seq]);
+
+  return (
+    <Affix
+      position={{ bottom: 'calc(var(--mantine-spacing-md) + 50px + var(--mantine-spacing-sm) + env(safe-area-inset-bottom))', left: 0, right: 0 }}
+      zIndex={151}
+    >
+      <Group justify="center" px="md" style={{ pointerEvents: 'none' }}>
+        <Transition mounted={visible} transition="slide-up" duration={220} exitDuration={300} timingFunction="ease">
+          {(styles) => (
+            <Paper radius="xl" px="md" py={6} shadow="md" withBorder role="status" aria-live="polite" style={styles}>
+              <Group gap={6} wrap="nowrap">
+                <IconCircleCheck size={18} color="var(--mantine-color-green-6)" />
+                <Text size="sm" fw={500}>{message}</Text>
+              </Group>
+            </Paper>
+          )}
+        </Transition>
+      </Group>
+    </Affix>
+  );
+}
+
 // Keep pending cards available to add even before any cards are selected.
 function FloatingAddPendingButton() {
   const pendingCards = usePokemonCardStore((s) => s.pendingCards);
   const addPendingToSelected = usePokemonCardStore((s) => s.addPendingToSelected);
+  const show = useAddedToastStore((s) => s.show);
   const manageCardsSelectedLanguage = useStateStore((s) => s.manageCardsSelectedLanguage);
   const t = useLocalizationStore((state) => state.t);
   const pendingList = Object.values(pendingCards);
@@ -165,7 +202,11 @@ function FloatingAddPendingButton() {
         size="lg"
         radius="xl"
         leftSection={<IconPlus size={18} />}
-        onClick={() => addPendingToSelected(manageCardsSelectedLanguage)}
+        onClick={() => {
+          const total = pendingList.reduce((sum, card) => sum + (card.quantity ?? 0), 0);
+          addPendingToSelected(manageCardsSelectedLanguage);
+          show(t.cardsAddedToSelection(total));
+        }}
       >
         {t.addPendingToSelectedFloating(different, total)}
       </Button>
@@ -242,11 +283,11 @@ async function submitCardsToSupabase(){
         <FloatingBar>
           <Button
             data-click-id="ManageCardsMainMenu/floating-add-selected"
-            color="blue"
+            color="green"
             style={{ pointerEvents: 'auto', boxShadow: 'var(--mantine-shadow-lg)' }}
             size="lg"
             radius="xl"
-            leftSection={<IconPlus size={18} />}
+            leftSection={<IconCheck size={18} />}
             onClick={open}
           >
             {t.addSelectedCardsFloating(different, total)}
@@ -579,6 +620,7 @@ function cardCategoryOnChange(e) {
     <Title order={4}>{useLocStore.t.selectCardsToAdd}</Title>
     <PokeList listType={'listAddCards'}/>
     <FloatingAddPendingButton />
+    <AddedToast />
     <SelectedListDrawer />
   </Stack>
 // When pressing the add cards button
@@ -629,6 +671,7 @@ function cardCategoryOnChange(e) {
     <Title order={4}>{useLocStore.t.selectCardsToAdd}</Title>
     <PokeList listType={'listAddCards'}/>
     <FloatingAddPendingButton />
+    <AddedToast />
     <SelectedListDrawer />
   </Stack>
 )}

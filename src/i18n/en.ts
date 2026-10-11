@@ -28,8 +28,10 @@ export const en = {
   noCardsSelected: 'No cards selected yet.',
   selectedCardsSummary: (different: number, total: number) =>
     `${different} ${different === 1 ? 'card' : 'different cards'} · ${total} in total`,
-  addSelectedCardsFloating: (different: number, total: number) =>
-    different > 1 ? `Add ${total} cards (${different} different)` : `Add ${total} ${total === 1 ? 'card' : 'cards'}`,
+  addSelectedCardsFloating: (_different: number, total: number) =>
+    `Confirm ${total} ${total === 1 ? 'card' : 'cards'}`,
+  cardsAddedToSelection: (total: number) =>
+    `${total} ${total === 1 ? 'card' : 'cards'} added to your selection`,
   addPendingToSelectedFloating: (_different: number, total: number) =>
     `Add ${total} ${total === 1 ? 'card' : 'cards'} to selected`,
   cardsSavedToWishlist: (total: number, account: string) =>
