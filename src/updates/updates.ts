@@ -17,6 +17,19 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'card-buttons-stay-put',
+    date: '2026-10-11',
+    audience: 'user',
+    title: 'Buttons no longer jump when you tap a card',
+    summary: 'When adding cards to your wishlist or for trade, tapping a card now keeps the quantity and language controls in place.',
+    body: [
+      'When adding cards to your wishlist or for trade, tapping a card used to shift the cards below it, moving the quantity and language controls under your finger.',
+      'Now every card keeps its size, and only the tapped card shows its Add button.',
+    ],
+    screenshot: '/updates/card-buttons-stay-put.png',
+    tags: ['fix'],
+  },
+  {
     id: 'sign-in-connection-message',
     date: '2026-10-11',
     audience: 'user',

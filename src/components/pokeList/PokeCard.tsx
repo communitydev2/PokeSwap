@@ -180,7 +180,8 @@ export function PokeCard(
         {/* Adding cards for trade: pick the card's language */}
         {showLanguageSelect && languageSelectionDropdown}
 
-        {isCardSelected && (isAddList || isSelectedList) && (
+        {/* Always reserve the button's space so tapping a card doesn't move anything. */}
+        {(isAddList || isSelectedList) && (
           <Button
             data-click-id="PokeCard/add-or-remove-card"
             radius="md"
@@ -193,7 +194,9 @@ export function PokeCard(
               e.stopPropagation()
               handleAddOrRemove()
             }}
-            style={{ alignSelf: 'flex-start' }}
+            style={{ alignSelf: 'flex-start', visibility: !isCardSelected ? 'hidden' : undefined }}
+            aria-hidden={!isCardSelected ? true : undefined}
+            tabIndex={!isCardSelected ? -1 : undefined}
           >
             {isAddList ? useLocStore.t.addToSelected : useLocStore.t.removeFromSelected}
           </Button>
