@@ -188,6 +188,7 @@ export const en = {
   signInWithCode: 'Sign in with code',
   signInCodeInvalid: 'That code is wrong or has expired. Use the code from the newest email, or send a new one.',
   signInSendFailed: "Couldn't send the email. Please check the address and try again.",
+  signInNetworkFailed: "Couldn't reach the server. Check your connection and try again.",
   signInResend: 'Send a new email',
   signInUseDifferentEmail: 'Use a different email',
   signInHaveCode: 'I already have a code',

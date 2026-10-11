@@ -83,7 +83,11 @@ export function Auth() {
     if (error) {
       console.warn(error)
       // Rate-limit messages ("you can only request this after N seconds") are worth showing as-is
-      setLoginMessage({ ok: false, text: error.status === 429 ? error.message : t.signInSendFailed })
+      const networkFailed = error.name === 'AuthRetryableFetchError' || error.status === 0
+      setLoginMessage({
+        ok: false,
+        text: error.status === 429 ? error.message : networkFailed ? t.signInNetworkFailed : t.signInSendFailed,
+      })
       return
     }
     setCodeSentTo(email.trim())
@@ -98,7 +102,8 @@ export function Auth() {
     setVerifying(false)
     if (error) {
       console.warn(error)
-      setLoginMessage({ ok: false, text: t.signInCodeInvalid })
+      const networkFailed = error.name === 'AuthRetryableFetchError' || error.status === 0
+      setLoginMessage({ ok: false, text: networkFailed ? t.signInNetworkFailed : t.signInCodeInvalid })
     }
     // On success the session is picked up in __root.tsx and the page moves on
   }

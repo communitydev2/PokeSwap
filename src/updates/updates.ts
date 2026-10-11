@@ -17,6 +17,31 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'sign-in-connection-message',
+    date: '2026-10-11',
+    audience: 'user',
+    title: "Clearer message when sign-in can't connect",
+    summary: 'Sign-in now tells you when the site could not be reached so you can check your connection and try again.',
+    body: [
+      "If your connection drops while asking for a sign-in email or entering the code, the message now says the site couldn't be reached instead of asking you to check your email address or code.",
+    ],
+    tags: ['fix'],
+  },
+  {
+    id: 'supabase-dev-proxy',
+    date: '2026-10-11',
+    audience: 'dev',
+    title: 'Local Supabase goes through the Vite dev server',
+    summary: 'Local Supabase requests now use the page origin through a Vite proxy, so HTTPS access through Tailscale works.',
+    body: [
+      'Opening the app through HTTPS Tailscale on port 4443 previously sent Supabase requests to http://<Tailscale hostname>:54321, which browsers blocked as Mixed Content. vite.config.ts now proxies /supabase-local to http://127.0.0.1:54321 with changeOrigin and ws enabled for Realtime, stripping the prefix before forwarding.',
+      "In dev, devSupabaseUrl now returns window.location.origin + /supabase-local for 127.0.0.1/localhost Supabase URLs; production and non-local URLs stay unchanged. Requests use the page's origin and protocol, so port 54321 no longer needs to be reachable from other devices or opened through the firewall.",
+      'supabase/config.toml now allows https://**:4443 sign-in redirects. Run supabase stop then supabase start to apply the change. On the phone, use the 6-digit code; the email link still points at 127.0.0.1.',
+      "Local sign-in emails now use supabase/templates/magic_link.html and supabase/templates/confirmation.html, which include {{ .Token }} so the 6-digit code appears in the email. The CLI default only included a 127.0.0.1 link. Restart local Supabase to pick up the templates.",
+    ],
+    tags: ['dev', 'tooling', 'fix'],
+  },
+  {
     id: 'dev-server-on-phone',
     date: '2026-10-09',
     audience: 'dev',

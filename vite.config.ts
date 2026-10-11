@@ -25,6 +25,16 @@ export default defineConfig({
   server: {
     host: true,
     port: 3000,
+    // Keep Supabase on the page's origin and protocol so HTTPS via Tailscale works
+    // without other devices needing access to port 54321.
+    proxy: {
+      '/supabase-local': {
+        target: 'http://127.0.0.1:54321',
+        changeOrigin: true,
+        ws: true,
+        rewrite: (p) => p.replace(/^\/supabase-local/, ''),
+      },
+    },
     watch: {
       usePolling: true,
       interval: 200,
