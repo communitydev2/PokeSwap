@@ -17,6 +17,19 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'floating-add-button',
+    date: '2026-10-11',
+    audience: 'user',
+    title: 'Add your selected cards from anywhere in the list',
+    summary: 'A button at the bottom of the screen lets you review and add your selected cards without scrolling back up.',
+    body: [
+      "Once you've picked cards, a button stays at the bottom of the screen showing how many you've selected.",
+      'Tap it to review your selection and add all your cards at once, without scrolling back up.',
+    ],
+    screenshot: '/updates/floating-add-button.png',
+    tags: ['new'],
+  },
+  {
     id: 'card-buttons-stay-put',
     date: '2026-10-11',
     audience: 'user',

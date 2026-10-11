@@ -27,6 +27,8 @@ export const en = {
   noCardsSelected: 'No cards selected yet.',
   selectedCardsSummary: (different: number, total: number) =>
     `${different} ${different === 1 ? 'card' : 'different cards'} · ${total} in total`,
+  addSelectedCardsFloating: (different: number, total: number) =>
+    different > 1 ? `Add ${total} cards (${different} different)` : `Add ${total} ${total === 1 ? 'card' : 'cards'}`,
   cardsSavedToWishlist: (total: number, account: string) =>
     `${total} ${total === 1 ? 'card was' : 'cards were'} added to the wishlist of ${account}.`,
   cardsSavedForTrade: (total: number, account: string) =>

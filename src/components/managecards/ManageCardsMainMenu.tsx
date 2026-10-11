@@ -2,7 +2,7 @@ import { CARD_CATEGORY, LIST_TYPE, MENU_MODE } from '../../constants'
 import { Popover, Text, Button,List,Select,Group, Space,Title, ComboboxItem,UnstyledButton,Alert,Badge
 
  } from '@mantine/core';
-import { Stack, Modal, Paper, SimpleGrid } from '@mantine/core';
+import { Affix, Stack, Modal, Paper, SimpleGrid } from '@mantine/core';
 import { useState,useEffect ,type ChangeEvent} from 'react';
 import { supabase } from '../../supabaseClient';
 import { useAuthStore } from '../../store/userStore';
@@ -12,6 +12,7 @@ import { UseLocalizationStoreType } from '../../types/UseLocalizationStoreType';
 import { useLocalizationStore } from '../../store/useLocalizationStore';
 import { usePokemonCardStore } from '../../store/pokemonCardsStore';
 import { useDisclosure } from '@mantine/hooks';
+import { IconPlus } from '@tabler/icons-react';
 import SearchBar from '../reusableComponents/SearchBar';
 import { PokeList } from '../pokeList/PokeList';
 import { PokeCard } from '../pokeList/PokeCard';
@@ -74,9 +75,12 @@ function ComponentTitle({props}){
 
 
 // onConfirm saves the selected cards and returns an error message, or null on success
-function Menu_ConfirmCards({props, onConfirm}:{props:any[], onConfirm?:() => Promise<string|null>}) {
+function Menu_ConfirmCards({props, onConfirm, floating}:{props:any[], onConfirm?:() => Promise<string|null>, floating?:boolean}) {
 const [opened, { open, close }] = useDisclosure(false);
 const t = useLocalizationStore((state) => state.t);
+const cards = usePokemonCardStore((s) => s.listCardsSelected);
+const different = cards.length;
+const total = cards.reduce((sum, card) => sum + (card.quantity ?? 0), 0);
 const [saving, setSaving] = useState(false);
 const [saveError, setSaveError] = useState<string|null>(null);
 
@@ -133,6 +137,26 @@ async function submitCardsToSupabase(){
         
         {props[2]}
       </Button>
+      {floating && props[1] == LIST_TYPE.confirmAdd && cards.length > 0 && !opened && (
+        <Affix
+          position={{ bottom: 'calc(var(--mantine-spacing-md) + env(safe-area-inset-bottom))', left: 0, right: 0 }}
+          zIndex={150}
+        >
+          <Group justify="center" px="md" style={{ pointerEvents: 'none' }}>
+            <Button
+              data-click-id="ManageCardsMainMenu/floating-add-selected"
+              color="blue"
+              style={{ pointerEvents: 'auto', boxShadow: 'var(--mantine-shadow-lg)' }}
+              size="lg"
+              radius="xl"
+              leftSection={<IconPlus size={18} />}
+              onClick={open}
+            >
+              {t.addSelectedCardsFloating(different, total)}
+            </Button>
+          </Group>
+        </Affix>
+      )}
     </>
   );
 }
@@ -453,7 +477,7 @@ function cardCategoryOnChange(e) {
 {/* Following from Manage Cards in Figma,   */}
 {/* I am not adding cards AND this is the Main Menu */}
 {useStateStoreWrapper.showAddCardsMenu  != true && callComponent!=MENU_MODE.exclusiveTrade  && (
-<Stack gap="lg" maw={760} mx="auto">
+<Stack gap="lg" maw={760} mx="auto" pb={usePokeCardStore.listCardsSelected.length > 0 ? 96 : undefined}>
     {addCardsControls}
     {usePokeCardStore.listCardsSelected.length > 0 && (
       <>
@@ -462,7 +486,7 @@ function cardCategoryOnChange(e) {
       </>
     )}
     <Group justify="flex-end">
-      <Menu_ConfirmCards props={[useLocStore.t.addCardsToLibrary,LIST_TYPE.confirmAdd,useLocStore.t.addCardsToLibrary]} onConfirm={saveSelectedCards}/>
+      <Menu_ConfirmCards props={[useLocStore.t.addCardsToLibrary,LIST_TYPE.confirmAdd,useLocStore.t.addCardsToLibrary]} onConfirm={saveSelectedCards} floating/>
     </Group>
     <Title order={4}>{useLocStore.t.selectCardsToAdd}</Title>
     <PokeList listType={'listAddCards'}/>
@@ -511,7 +535,7 @@ function cardCategoryOnChange(e) {
 {/* I am  adding cards AND this is the Main Menu AND listCardSelects is EMPTY */}
 {/* ManageCards Main Menu Inside Add Cards Button) */}
 {useStateStoreWrapper.showAddCardsMenu  == true && callComponent!=MENU_MODE.exclusiveTrade && usePokeCardStore.listCardsSelected.length <1  && (
-<Stack gap="lg" maw={760} mx="auto">
+<Stack gap="lg" maw={760} mx="auto" pb={usePokeCardStore.listCardsSelected.length > 0 ? 96 : undefined}>
     {addCardsControls}
     {usePokeCardStore.listCardsSelected.length > 0 && (
       <>
@@ -532,7 +556,7 @@ function cardCategoryOnChange(e) {
 {/* I am  adding cards AND this is the Main Menu AND listCardSelects is NOT EMPTY */}
 {/* ManageCards Main Menu Inside Add Cards Button) */}
 {useStateStoreWrapper.showAddCardsMenu  == true && callComponent!=MENU_MODE.exclusiveTrade && usePokeCardStore.listCardsSelected.length >0  && (
-<Stack gap="lg" maw={760} mx="auto">
+<Stack gap="lg" maw={760} mx="auto" pb={usePokeCardStore.listCardsSelected.length > 0 ? 96 : undefined}>
     {addCardsControls}
     {usePokeCardStore.listCardsSelected.length > 0 && (
       <>
@@ -541,7 +565,7 @@ function cardCategoryOnChange(e) {
       </>
     )}
     <Group justify="flex-end">
-      <Menu_ConfirmCards props={[useLocStore.t.cardsAdded,LIST_TYPE.confirmAdd,useLocStore.t.addCardsToLibrary]} onConfirm={saveSelectedCards}/>
+      <Menu_ConfirmCards props={[useLocStore.t.cardsAdded,LIST_TYPE.confirmAdd,useLocStore.t.addCardsToLibrary]} onConfirm={saveSelectedCards} floating/>
     </Group>
     <Title order={4}>{useLocStore.t.selectCardsToAdd}</Title>
     <PokeList listType={'listAddCards'}/>
