@@ -37,6 +37,9 @@ export const en = {
   marketCardsPartnerEmpty: 'This player has no available cards of the same rarity for trade.',
   marketOfferSent: 'Offer sent - track it in Manage Cards > Trades',
   // Home market: exclusive trades
+  marketExclusiveOnYourList: 'On your trade list',
+  marketExclusiveShowAllWanted: (count: number) => `Show all ${count} cards`,
+  marketExclusiveShowFewerWanted: 'Show fewer',
   marketExclusiveSearch: 'Search exclusive trades',
   marketExclusiveCount: (count: number) => `${count} exclusive trades`,
   marketExclusiveOffer: 'Make an offer',

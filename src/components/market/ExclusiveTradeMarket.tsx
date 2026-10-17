@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Badge, Button, Group, Paper, SimpleGrid, Stack, Text, TextInput } from '@mantine/core';
+import { Alert, Badge, Button, Group, Paper, Stack, Text, TextInput } from '@mantine/core';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import { supabase } from '../../supabaseClient';
 import { useAuthStore } from '../../store/userStore';
@@ -38,7 +38,45 @@ export function ExclusiveTradeMarket({ focusId }: { focusId?: number | null }) {
   const [pinned, setPinned] = useState<MarketExclusiveListing | null>(null);
   const [highlight, setHighlight] = useState(false);
   const [offer, setOffer] = useState<MarketExclusiveListing | null>(null);
+  const [availableCards, setAvailableCards] = useState<Set<string>>(new Set());
+  const [expandedListings, setExpandedListings] = useState<Set<number>>(new Set());
+  const viewerId = session?.user.id;
   const pinnedRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setAvailableCards(new Set());
+    if (!viewerId || !accounts.length) return;
+
+    async function loadTradeList() {
+      try {
+        const { data: cards, error: cardsError } = await supabase
+          .from('cards_available_for_trade')
+          .select('id, card_id, language')
+          .in('tcg_account_id', accounts.map((account) => account.tcg_account_id));
+        if (cancelled) return;
+        if (cardsError) throw cardsError;
+        if (!cards?.length) return;
+
+        const { data: heldCards, error: heldError } = await supabase
+          .from('exclusive_trade')
+          .select('trade_card_id')
+          .in('trade_card_id', cards.map((card) => card.id));
+        if (cancelled) return;
+        if (heldError) throw heldError;
+        const heldIds = new Set((heldCards ?? []).map((card) => card.trade_card_id));
+        setAvailableCards(new Set(
+          cards.filter((card) => !heldIds.has(card.id)).map((card) => `${card.card_id}|${card.language}`),
+        ));
+      } catch (error) {
+        if (!cancelled) console.warn('Could not load exclusive market trade list', error);
+      }
+    }
+    void loadTradeList();
+    return () => {
+      cancelled = true;
+    };
+  }, [viewerId, accounts]);
 
   useEffect(() => {
     setFocus(focusId ?? null);
@@ -207,13 +245,46 @@ export function ExclusiveTradeMarket({ focusId }: { focusId?: number | null }) {
                 </Group>
               </div>
               <Text size="sm">{t.exclusiveForOneOf(l.want_cards.length, l.want_language.toUpperCase())}</Text>
-              <SimpleGrid cols={{ base: 4, xs: 6, sm: 8 }} spacing={6}>
-                {l.want_cards.map((c) => (
-                  <div key={c.card_id} title={`${c.card_name} · ${c.card_local_id}`}>
-                    <CardPicture cardImage={c.card_image} alt={c.card_name} width="100%" radius={3} />
-                  </div>
-                ))}
-              </SimpleGrid>
+              <Stack gap={6}>
+                {[...l.want_cards]
+                  .sort((a, b) => Number(availableCards.has(`${b.card_id}|${l.want_language}`))
+                    - Number(availableCards.has(`${a.card_id}|${l.want_language}`)))
+                  .slice(0, expandedListings.has(l.exclusive_trade_id) ? undefined : 5)
+                  .map((c) => (
+                    <Group key={c.card_id} wrap="nowrap" gap="xs">
+                      <div style={{ flexShrink: 0 }}>
+                        <CardPicture cardImage={c.card_image} alt={c.card_name} width={44} radius={3} />
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <Text size="sm" fw={600} style={{ overflowWrap: 'anywhere' }}>{c.card_name}</Text>
+                        <CardMeta card={c} size="xs" />
+                        {!l.is_mine && availableCards.has(`${c.card_id}|${l.want_language}`) && (
+                          <Badge size="xs" color="green" variant="light">
+                            {t.marketExclusiveOnYourList}
+                          </Badge>
+                        )}
+                      </div>
+                    </Group>
+                  ))}
+              </Stack>
+              {l.want_cards.length > 5 && (
+                <Button
+                  data-click-id={`ExclusiveTradeMarket/toggle-wanted:${l.exclusive_trade_id}`}
+                  variant="subtle"
+                  size="xs"
+                  aria-expanded={expandedListings.has(l.exclusive_trade_id)}
+                  onClick={() => setExpandedListings((current) => {
+                    const next = new Set(current);
+                    if (next.has(l.exclusive_trade_id)) next.delete(l.exclusive_trade_id);
+                    else next.add(l.exclusive_trade_id);
+                    return next;
+                  })}
+                >
+                  {expandedListings.has(l.exclusive_trade_id)
+                    ? t.marketExclusiveShowFewerWanted
+                    : t.marketExclusiveShowAllWanted(l.want_cards.length)}
+                </Button>
+              )}
               {!l.is_mine &&
                 (!session ? (
                   <Text size="xs" c="dimmed">

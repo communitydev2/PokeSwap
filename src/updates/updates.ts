@@ -17,6 +17,20 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'exclusive-wanted-details',
+    date: '2026-10-17',
+    audience: 'user',
+    title: 'See exactly which cards an exclusive trade wants',
+    summary: 'Exclusive trades in the card market now list each wanted card with its name, rarity, set and number.',
+    body: [
+      'Each card a player asks for in an exclusive trade now has its own row with its picture, name, rarity, set and card number, so you no longer need to hover over small pictures.',
+      'When you are signed in, cards you already have on your trade list in the right language are marked "On your trade list" and shown first, so you can see at a glance which trades you can answer.',
+      'Long lists show the first five cards, with a button to see the rest.',
+    ],
+    tags: ['improvement'],
+    screenshot: '/updates/exclusive-wanted-details.png',
+  },
+  {
     id: 'card-market',
     date: '2026-10-17',
     audience: 'user',
