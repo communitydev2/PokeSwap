@@ -66,10 +66,10 @@ export function Header() {
     useStateStoreHandle.setShowManageCardsMainMenu(true);
   }
 
-  // The sign-in form (and username setup) is on the home page
+  // Sign-in and username setup have their own page.
   function handleLogIn() {
     closeDrawer();
-    navigate({ to: '/' });
+    navigate({ to: '/login' });
   }
 
   // Signs out of this account on this device and forgets it from the switcher
@@ -114,7 +114,7 @@ export function Header() {
     closeDrawer();
     useStateStoreHandle.setShowManageCardsMainMenu(false);
     savedAccounts.setAddingAccount(true);
-    navigate({ to: '/' });
+    navigate({ to: '/login' });
   }
 
   return (
@@ -190,11 +190,11 @@ export function Header() {
                 </Menu.Dropdown>
               </Menu>
             </Group>
-          ) : (
+          ) : authStore.authReady ? (
             <Group visibleFrom="sm">
               <Button data-click-id="Header/log-in" onClick={handleLogIn}>{t.headerLogIn}</Button>
             </Group>
-          )}
+          ) : null}
 
           <Burger data-click-id="Header/burger" opened={drawerOpened} onClick={toggleDrawer} hiddenFrom="sm" />
         </Group>
@@ -251,11 +251,11 @@ export function Header() {
               <Button data-click-id="Header/drawer-add-account" disabled={busy} variant="subtle" c="var(--mantine-color-text)" onClick={handleAddAccount}>{t.headerAddAccount}</Button>
               <Button data-click-id="Header/drawer-log-out" disabled={busy} variant="subtle" color="red" onClick={handleLogOut}>{t.headerLogOut}</Button>
             </Stack>
-          ) : (
+          ) : authStore.authReady ? (
             <Group justify="center" grow pb="xl" px="md">
               <Button data-click-id="Header/drawer-log-in" onClick={handleLogIn}>{t.headerLogIn}</Button>
             </Group>
-          )}
+          ) : null}
         </ScrollArea>
       </Drawer>
     </>

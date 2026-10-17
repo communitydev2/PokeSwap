@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useNavigate } from '@tanstack/react-router'
 import { supabase } from '../supabaseClient'
 import { useStateStore } from '../store/useStateStore'
 import { Auth } from './Auth'
@@ -17,7 +18,8 @@ import type { PokemonCard } from '../types/PokemonCard'
 
 
 
-export default function LandingPage() {
+export default function LandingPage({ signInOnly = false }: { signInOnly?: boolean }) {
+    const navigate = useNavigate()
     const showManageCardsMainMenu = useStateStore((s) => s.showManageCardsMainMenu)
     const session = useAuthStore((state) => state.session)
     const profileLoading = useAuthStore((state) => state.profileLoading)
@@ -27,11 +29,20 @@ export default function LandingPage() {
     const profileError = useAuthStore((state) => state.profileError)
     const t = useLocalizationStore((state) => state.t)
     const authStore = useAuthStore();
+    useEffect(() => {
+      if (signInOnly && authStore.authReady && session && authStore.user?.username && !profileLoading && !addingAccount) {
+        void navigate({ to: '/', replace: true })
+      }
+      if (!signInOnly && authStore.authReady && session && !authStore.user?.username && !profileLoading && !profileError) {
+        void navigate({ to: '/login', replace: true })
+      }
+    }, [signInOnly, authStore.authReady, session, authStore.user?.username, profileLoading, profileError, addingAccount, navigate])
     const usePokeCardStore = usePokemonCardStore();
 
     
 //  I'm going to the rarity and expansion variables in pokemondbstore
   useEffect(()=>{
+    if (signInOnly) return
     async function fetchRarityExpansionValues(){
       let {data: rarity, error: errorRarity} = await supabase
       .from('rarity')
@@ -47,7 +58,7 @@ export default function LandingPage() {
       else usePokeCardStore.setSupabase_expansion(set ?? [])
     }
     fetchRarityExpansionValues()
-  },[])
+  },[signInOnly])
     
 
 
@@ -57,6 +68,7 @@ export default function LandingPage() {
 
 // setting PokemonCards at launch
     useEffect(()=>{
+    if (signInOnly) return
 async function getCards(){
   // The catalogue has more than Supabase's 1000-rows-per-request limit, so load it in pages
   try {
@@ -67,7 +79,7 @@ async function getCards(){
   }
 }
 getCards()
-  },[])
+  },[signInOnly])
 
 
   return (
@@ -83,8 +95,10 @@ getCards()
           </Alert>
 
       )}
-      {!session || addingAccount ? (
-        <Auth />
+      {!authStore.authReady ? (
+        signInOnly ? <Center py="xl"><Loader /></Center> : null
+      ) : !session || addingAccount ? (
+        signInOnly ? <Auth /> : null
       ) : profileLoading ? (
         <Center py="xl"><Loader /></Center>
       ) : profileError ? (
@@ -92,11 +106,11 @@ getCards()
           <Button data-click-id="LandingPage/retry-profile" onClick={() => window.location.reload()}>{t.qaRetry}</Button>
         </Alert>
       ) : !authStore.user?.username ? (
-        <ChangeUsername key={session.user.id} mode="set" />
+        signInOnly ? <ChangeUsername key={session.user.id} mode="set" /> : null
       ) : (
-        <Account key={session.user.id} session={session} />
+        !signInOnly && <Account key={session.user.id} session={session} />
       )}
-      {(!session || !showManageCardsMainMenu) && <HomeMarket />}
+      {!signInOnly && (!session || !showManageCardsMainMenu) && <HomeMarket />}
       </Stack>
     </Container>
   )

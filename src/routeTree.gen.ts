@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UpdatesRouteImport } from './routes/updates'
 import { Route as SupportRouteImport } from './routes/support'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as FriendsRouteImport } from './routes/friends'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
@@ -24,6 +25,11 @@ const UpdatesRoute = UpdatesRouteImport.update({
 const SupportRoute = SupportRouteImport.update({
   id: '/support',
   path: '/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FriendsRoute = FriendsRouteImport.update({
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/friends': typeof FriendsRoute
+  '/login': typeof LoginRoute
   '/support': typeof SupportRoute
   '/updates': typeof UpdatesRoute
 }
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/friends': typeof FriendsRoute
+  '/login': typeof LoginRoute
   '/support': typeof SupportRoute
   '/updates': typeof UpdatesRoute
 }
@@ -69,20 +77,36 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/friends': typeof FriendsRoute
+  '/login': typeof LoginRoute
   '/support': typeof SupportRoute
   '/updates': typeof UpdatesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/admin' | '/friends' | '/support' | '/updates'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/admin'
+    | '/friends'
+    | '/login'
+    | '/support'
+    | '/updates'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/admin' | '/friends' | '/support' | '/updates'
+  to:
+    | '/'
+    | '/about'
+    | '/admin'
+    | '/friends'
+    | '/login'
+    | '/support'
+    | '/updates'
   id:
     | '__root__'
     | '/'
     | '/about'
     | '/admin'
     | '/friends'
+    | '/login'
     | '/support'
     | '/updates'
   fileRoutesById: FileRoutesById
@@ -92,6 +116,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRoute
   FriendsRoute: typeof FriendsRoute
+  LoginRoute: typeof LoginRoute
   SupportRoute: typeof SupportRoute
   UpdatesRoute: typeof UpdatesRoute
 }
@@ -110,6 +135,13 @@ declare module '@tanstack/react-router' {
       path: '/support'
       fullPath: '/support'
       preLoaderRoute: typeof SupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/friends': {
@@ -148,6 +180,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AdminRoute: AdminRoute,
   FriendsRoute: FriendsRoute,
+  LoginRoute: LoginRoute,
   SupportRoute: SupportRoute,
   UpdatesRoute: UpdatesRoute,
 }

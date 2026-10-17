@@ -17,6 +17,19 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'dedicated-sign-in-page',
+    date: '2026-10-17',
+    audience: 'user',
+    title: 'A dedicated sign-in page',
+    summary: 'Log in opens a page focused on signing in, while the home page shows the card market.',
+    body: [
+      'Your current sign-in is remembered on this device. The Log in button stays hidden while your saved sign-in is being restored and whenever you are signed in.',
+      'Use Log in to open the sign-in page. After signing in and choosing your username, you return to the home page.',
+    ],
+    screenshot: '/updates/dedicated-sign-in-page.png',
+    tags: ['improvement'],
+  },
+  {
     id: 'preserve-card-market-filters',
     date: '2026-10-17',
     audience: 'user',
