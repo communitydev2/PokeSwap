@@ -50,3 +50,9 @@ Most menus are opened through Zustand store flags (e.g. `setShowManageCardsMainM
 - When the user pastes a click journey (from `copy(clickPath())`), grep `src/` for each id to find the exact element and handler.
 - Steps marked `(untagged)` are clicks on elements without an id; give them one if they are interactive.
 - **Every new clickable element (button, link, input, select, clickable div...) must get a unique `data-click-id`.** Use a template string for repeated items, e.g. ``data-click-id={`Comp/item:${id}`}``. Add `data-click-context` on a container to label clicks inside it (e.g. which card).
+
+## Admin hub (`/admin`)
+- Only accounts in `public.admin_users` whose session passed two-factor sign-in (authenticator app, Supabase Auth MFA, `aal2`) can use it. The database enforces this: every `admin_*` function starts with `if not public.is_admin() then raise exception 'Not allowed' using errcode = '42501'`; the page only decides what to show. Add an admin with `supabase/admin-setup.sql`.
+- New admin features follow the same pattern: a `security definer` function with `set search_path = ''`, revoked from `public, anon`, granted to `authenticated`, checking `is_admin()` first, and writing a readable row to `public.admin_log` for every change.
+- The admin code lives in `src/components/admin/` and is lazy-loaded by `src/routes/admin.tsx`, so regular visitors never download it.
+- A permanent ban is `banned_until = now() + 100 years`, never `'infinity'` (Supabase Auth can't read it and every sign-in for that user fails).

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ColorSchemeToggle } from './ColorSchemeToggle/ColorSchemeToggle';
 
 import { Link, useNavigate } from '@tanstack/react-router';
@@ -24,6 +24,8 @@ import { useSavedAccountsStore } from '../store/savedAccountsStore';
 import { useLocalizationStore } from '../store/useLocalizationStore';
 import { NotificationBell } from './NotificationBell';
 
+const adminListingCache = new Map<string, Promise<boolean>>();
+
 export function Header() {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
   const authStore = useAuthStore();
@@ -35,6 +37,21 @@ export function Header() {
   const savedAccounts = useSavedAccountsStore();
   const t = useLocalizationStore((state) => state.t);
   const session = authStore.session;
+  const [listedUserId, setListedUserId] = useState<string | null>(null);
+  const userId = session?.user.id;
+  useEffect(() => {
+    let active = true;
+    setListedUserId(null);
+    if (!userId) return;
+    let request = adminListingCache.get(userId);
+    if (!request) {
+      request = Promise.resolve(supabase.rpc('admin_am_i_listed')).then(({data, error}) => !error && data === true).catch(() => false);
+      adminListingCache.set(userId, request);
+    }
+    void request.then(listed => { if (active) setListedUserId(listed ? userId : null); });
+    return () => { active = false; };
+  }, [userId]);
+  const showAdmin = !!userId && listedUserId === userId;
   // Signed in = has a session and has finished sign-up (chosen a username)
   const isSignedIn = Boolean(session && authStore.user?.username);
   const displayName = authStore.user?.username || session?.user.email || t.headerFallbackName;
@@ -163,6 +180,7 @@ export function Header() {
                   <Menu.Item data-click-id="Header/add-account" onClick={handleAddAccount}>
                     {t.headerAddAccount}
                   </Menu.Item>
+                  {showAdmin && <Menu.Item component={Link} to="/admin" data-click-id="Header/admin">{t.adminTitle}</Menu.Item>}
                   <Menu.Divider />
                   <Menu.Item data-click-id="Header/log-out" color="red" onClick={handleLogOut}>
                     {t.headerLogOut}
@@ -226,6 +244,7 @@ export function Header() {
                   {t.headerSwitchTo(account.username || account.email)}
                 </Button>
               ))}
+              {showAdmin && <Button component={Link} to="/admin" data-click-id="Header/drawer-admin" variant="light" onClick={closeDrawer}>{t.adminTitle}</Button>}
               <Button data-click-id="Header/drawer-add-account" disabled={busy} variant="subtle" c="var(--mantine-color-text)" onClick={handleAddAccount}>{t.headerAddAccount}</Button>
               <Button data-click-id="Header/drawer-log-out" disabled={busy} variant="subtle" color="red" onClick={handleLogOut}>{t.headerLogOut}</Button>
             </Stack>

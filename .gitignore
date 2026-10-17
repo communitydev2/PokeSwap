@@ -135,3 +135,6 @@ dist
 
 *storybook.log
 storybook-static
+
+# TanStack Router plugin temp files
+.tanstack/

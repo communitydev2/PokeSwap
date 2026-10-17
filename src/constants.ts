@@ -26,3 +26,5 @@ export const ANY_OPTION = 'Any';
 
 // Tabs in the home page market
 export const MARKET_TAB = { cards: 'cards', exclusive: 'exclusive' } as const;
+
+export const ADMIN_TAB = { overview: 'overview', signIns: 'sign-ins', users: 'users', trades: 'trades', moderation: 'moderation', cardSync: 'card-sync', activity: 'activity' } as const;

@@ -112,7 +112,7 @@ export function Auth() {
     if (error) {
       console.warn(error)
       const networkFailed = error.name === 'AuthRetryableFetchError' || error.status === 0
-      setLoginMessage({ ok: false, text: networkFailed ? t.signInNetworkFailed : t.signInCodeInvalid })
+      setLoginMessage({ ok: false, text: (error.code === 'user_banned' || (!error.code && error.status === 403 && /user is banned/i.test(error.message))) ? t.qaAccountSuspended : networkFailed ? t.signInNetworkFailed : t.signInCodeInvalid })
     }
     // On success the session is picked up in __root.tsx and the page moves on
   }

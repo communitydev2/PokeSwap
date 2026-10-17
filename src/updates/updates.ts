@@ -17,6 +17,32 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'suspended-accounts',
+    date: '2026-10-17',
+    audience: 'user',
+    title: 'Clear message for suspended accounts',
+    summary: 'If an account has been suspended, signing in now says so instead of reporting a wrong code.',
+    body: [
+      'Accounts that break the rules can be suspended. Before, typing your sign-in code into a suspended account said the code was wrong. Now it tells you the account has been suspended and that you can contact us through the Support page if you think it is a mistake.',
+    ],
+    tags: ['fix'],
+  },
+  {
+    id: 'admin-hub-dev',
+    date: '2026-10-17',
+    audience: 'dev',
+    title: 'Admin hub at /admin with two-factor sign-in',
+    summary: 'Sign-in history, site stats and moderation tools for admins, enforced by the database and behind an authenticator-app second factor.',
+    body: [
+      'Access: an account listed in public.admin_users (add one with supabase/admin-setup.sql) signs in with the normal email code, then sets up / enters a TOTP code from an authenticator app (Supabase Auth MFA, enabled in supabase/config.toml; on by default on hosted projects). Every admin_* database function checks public.is_admin() = listed and aal2, so a normal user or an admin who skipped the second step gets 42501 even calling the API directly. Verified in the browser: signed out, normal user, admin at aal1 (refused), wrong code, right code.',
+      'Tabs: Overview (users, sign-ins, active users, bans, Pocket accounts, cards, offers by status, last card sync, daily sign-ups/sign-ins chart), Sign-ins (auth audit log with search and filters), Users (rename, ban 7/30 days or permanently, unban, sign out everywhere), Trades (cancel a pending/accepted offer - both players are notified; end an exclusive trade), Moderation (banned words), Card sync (past runs; run now via pg_net with the Vault secrets from card-sync.sql plus a project_url secret), Activity (every admin change, as readable sentences, from public.admin_log).',
+      'The admin code is a separate 35 KB chunk loaded only on /admin. Permanent bans use now() + 100 years: Supabase Auth cannot read banned_until = infinity and every sign-in for that user fails.',
+      'Migrations: 20261018000000_admin.sql and 20261018000100_clean_banned_words.sql (the imported banned-word list had stray quote marks on the first/last word of each language, 24 entries that were just a quote, and duplicates; 2,691 -> 2,613 words, and quoted words now actually match).',
+    ],
+    tags: ['dev', 'admin', 'security'],
+    screenshot: '/updates/admin-hub.png',
+  },
+  {
     id: 'links-open-directly',
     date: '2026-10-17',
     audience: 'user',
