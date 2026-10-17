@@ -17,6 +17,18 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'searchable-rarity-dropdown',
+    date: '2026-10-17',
+    audience: 'user',
+    title: 'Type to filter rarities',
+    summary: 'The Rarity dropdown now lets you type to filter its options, just like Set.',
+    body: [
+      'Type part of a rarity name, such as Crown or Diamond, to find it faster. This works in both the card market and when managing your cards.',
+    ],
+    screenshot: '/updates/searchable-rarity-dropdown.png',
+    tags: ['improvement'],
+  },
+  {
     id: 'multilingual-pokemon-search',
     date: '2026-10-17',
     audience: 'user',

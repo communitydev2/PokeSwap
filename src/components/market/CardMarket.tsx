@@ -144,6 +144,7 @@ export function CardMarket({ onOpenExclusive }: { onOpenExclusive: (exclusiveTra
           label={t.rarityLabel}
           data={rarityOptions(rarities, rarityFallback)}
           value={rarity}
+          searchable
           onChange={(v) => setRarity(v ?? ANY_OPTION)}
           allowDeselect={false}
           renderOption={({ option }) => (

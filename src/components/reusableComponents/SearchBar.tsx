@@ -113,6 +113,7 @@ export default function SearchBar() {
           <Select data-click-id="SearchBar/rarity-select"
             label={useLocStore.t.rarityLabel}
             data={rarityOptions(usePokeCardStore.supabase_rarity, usePokeCardStore.rarities)}
+            searchable
             allowDeselect={false}
             {...form.getInputProps('rarity')}
           />
