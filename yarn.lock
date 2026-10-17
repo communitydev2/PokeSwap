@@ -855,18 +855,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mantinex/mantine-logo@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "@mantinex/mantine-logo@npm:2.0.0"
-  peerDependencies:
-    "@mantine/core": ">=7.0.0"
-    "@mantine/hooks": ">=7.0.0"
-    react: ^18.x || ^19.x
-    react-dom: ^18.x || ^19.x
-  checksum: 10c0/7a8ae0812dfbd8b793941171450c937fa39b28c032567078c3a5b79b6f1e10f359bd150fd11edd5fb024fb0db4013767ec57c6aa7cbf71e81b7eb563f26c21ca
-  languageName: node
-  linkType: hard
-
 "@mdx-js/react@npm:^3.0.0":
   version: 3.1.1
   resolution: "@mdx-js/react@npm:3.1.1"
@@ -4968,7 +4956,6 @@ __metadata:
     "@mantine/core": "npm:8.3.13"
     "@mantine/form": "npm:^8.3.18"
     "@mantine/hooks": "npm:8.3.13"
-    "@mantinex/mantine-logo": "npm:^2.0.0"
     "@snoconedev/mantine-ui": "npm:^2.0.0"
     "@storybook/addon-a11y": "npm:^10.2.0"
     "@storybook/addon-docs": "npm:^10.2.0"

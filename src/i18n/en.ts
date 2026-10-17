@@ -2,6 +2,21 @@
 // translate the values (keep the keys), and register it in ./index.ts.
 export const en = {
   // Header
+  appName: 'Poke app',
+  homeNav: 'Home',
+  updatesNav: 'Updates',
+  headerFallbackName: 'there',
+  headerManageCards: 'Manage Cards',
+  headerSetUsername: 'Set username',
+  headerGreeting: (name: string) => `Hi ${name}`,
+  headerSignedInAs: (email: string) => `Signed in as ${email}`,
+  headerSwitchAccount: 'Switch account',
+  headerAddAccount: 'Add another account',
+  headerLogOut: 'Log out',
+  headerLogIn: 'Log in',
+  headerNavigation: 'Navigation',
+  headerSwitchTo: (name: string) => `Switch to ${name}`,
+  headerAccountSignedOut: 'That account was signed out. Please sign in to it again.',
   switchToLight: 'Switch to light mode',
   switchToDark: 'Switch to dark mode',
 

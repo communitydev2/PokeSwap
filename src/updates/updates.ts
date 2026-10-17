@@ -17,6 +17,19 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'header-cleanup',
+    date: '2026-10-17',
+    audience: 'user',
+    title: 'A simpler navigation menu',
+    summary: 'The menu now shows working links, and Home and the app name take you to the home page.',
+    body: [
+      'The placeholder Features, Learn and Academy links that did nothing have been removed from the menu.',
+      'Choose Home or the Poke app name to return to the home page. On phones, choosing Home also closes the menu.',
+    ],
+    tags: ['improvement'],
+    screenshot: '/updates/header-cleanup.png',
+  },
+  {
     id: 'added-confirmation',
     date: '2026-10-11',
     audience: 'user',
