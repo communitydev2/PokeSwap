@@ -17,6 +17,30 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'links-open-directly',
+    date: '2026-10-17',
+    audience: 'user',
+    title: 'Links to pages work again',
+    summary: 'Opening or refreshing a link like the Updates or Support page no longer shows "Page not found".',
+    body: [
+      'Before, only the home page could be opened directly: refreshing the Updates, Support or About page, or opening a link to one of them, showed an error page from the host. Every page now opens normally.',
+    ],
+    tags: ['fix'],
+  },
+  {
+    id: 'netlify-build-fix-dev',
+    date: '2026-10-17',
+    audience: 'dev',
+    title: 'Fix Netlify builds failing since 4 October',
+    summary: 'yarn.lock was out of date, so Netlify\'s immutable Yarn 4 install refused to run and nothing after February was deployed.',
+    body: [
+      'The project declares packageManager yarn@4.12.0, and Netlify (site oaktrade, Node 22) installs with Yarn 4 in CI mode, which is immutable. Dependencies had been added with npm only (package-lock.json), so yarn.lock lacked the ESLint packages and an updated @tanstack/router-core resolution: every master deploy since 2026-10-04 failed with YN0028 "The lockfile would have been modified". The live site was still the 2026-02-13 build (80fdf30).',
+      'yarn.lock is regenerated with yarn 4.12.0; a clean clone now passes CI=true yarn install --immutable and yarn run build. CLAUDE.md/AGENTS.md now say to run yarn install and commit yarn.lock after any dependency change.',
+      'public/_redirects (/* /index.html 200) is copied into dist so Netlify serves the SPA for every route; /updates, /support and /about returned 404 on direct load before.',
+    ],
+    tags: ['dev', 'deploy'],
+  },
+  {
     id: 'agents-md-sync',
     date: '2026-10-17',
     audience: 'dev',

@@ -1,0 +1,2 @@
+# Single-page app: let the router handle every path (otherwise /updates etc. 404 on refresh)
+/*    /index.html   200

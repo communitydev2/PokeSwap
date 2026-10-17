@@ -27,6 +27,8 @@ The app is meant to support several languages.
 ## Branches
 - Work happens on `dev`; commits are pushed to `origin/dev`.
 - `master` is the release branch (it may auto-deploy to the live site). Only merge `dev` into `master` when the user asks for a release.
+- Netlify (site `oaktrade`, https://oaktrade.netlify.app) builds `master` with Yarn 4, which refuses to install when `yarn.lock` is out of date. After adding, removing or upgrading a dependency, run `yarn install` and commit `yarn.lock` too (npm only updates `package-lock.json`).
+- `public/_redirects` sends every path to `index.html` so links like `/updates` work on Netlify; keep it.
 
 ## Log every update on the Updates page
 Every change that affects the site or how it is run gets an article on the `/updates` page, in the same commit.
