@@ -17,6 +17,19 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'card-zoom',
+    date: '2026-10-17',
+    audience: 'user',
+    title: 'Tap a card to zoom in',
+    summary: 'Tap or click any card picture to see it large and sharp.',
+    body: [
+      'Card pictures across the site are small so lists stay easy to scroll. Now you can tap or click any of them to open the card in high resolution.',
+      'Tap the card again, use the close button or press Escape to go back. Zooming in never changes what you had selected.',
+    ],
+    tags: ['improvement'],
+    screenshot: '/updates/card-zoom.png',
+  },
+  {
     id: 'exclusive-wanted-details',
     date: '2026-10-17',
     audience: 'user',

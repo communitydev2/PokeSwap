@@ -140,7 +140,7 @@ export function NotificationBell() {
                   <UnstyledButton key={n.id} data-click-id={`NotificationBell/item:${n.id}`} onClick={() => openNotification(n)}
                     px="md" py="xs" style={{ background: n.read_at ? undefined : 'var(--mantine-color-blue-light)' }}>
                     <Group wrap="nowrap" gap="sm" align="flex-start">
-                      <CardPicture cardImage={n.their_card?.card_image} alt={n.their_card?.card_name ?? ''} width={32} radius={3} />
+                      <CardPicture cardImage={n.their_card?.card_image} alt={n.their_card?.card_name ?? ''} width={32} radius={3} zoom={false} />
                       <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
                         <Text size="sm" fw={n.read_at ? 400 : 600}>
                           {(t.notificationMessage[n.kind] ?? t.notificationMessage.offer_received)(
