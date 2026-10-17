@@ -12,7 +12,7 @@ import {
   Anchor,
   Button,
   Checkbox,
-  Container,
+  Box,
   Group,
   Paper,
   PasswordInput,
@@ -108,10 +108,11 @@ export function Auth() {
     // On success the session is picked up in __root.tsx and the page moves on
   }
   return (
-    <Container size={420} my={40}>
-      <Title ta="center" className={classes.title}>
-       Poke app
+    <Box maw={420} w="100%" mx="auto">
+      <Title order={2} ta="center" className={classes.title}>
+        {t.authTitle}
       </Title>
+      <Text size="sm" c="dimmed" ta="center" mt="xs">{t.authSubtitle}</Text>
 
       {/* <Text className={classes.subtitle}>
         Do not have an account yet? <Anchor data-click-id="Auth/create-account">Create account</Anchor>
@@ -127,7 +128,7 @@ export function Auth() {
       )}
 
       {switchable.length > 0 && (
-        <Paper withBorder shadow="sm" p={22} mt={30} radius="md">
+        <Paper withBorder shadow="sm" p="md" mt="lg" radius="md">
           <Text fw={500} mb="sm">
             Accounts on this device
           </Text>
@@ -160,7 +161,7 @@ export function Auth() {
         </Paper>
       )}
 
-      <Paper withBorder shadow="sm" p={22} mt={30} radius="md">
+      <Paper withBorder shadow="sm" p="md" mt="lg" radius="md">
         {!codeSentTo ? (
           <>
             <TextInput data-click-id="Auth/email-input" label="Email" placeholder="ash@pallettown.pika" required radius="md" value={email} onChange={(e)=>setEmail(e.target.value)}/>
@@ -280,6 +281,6 @@ export function Auth() {
           </Stack>
         )}
       </Paper>
-    </Container>
+    </Box>
   );
 }

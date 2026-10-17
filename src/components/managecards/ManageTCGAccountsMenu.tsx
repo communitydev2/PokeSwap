@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { ActionIcon, Button, Container, Group, Paper, Stack, Text, TextInput, Title } from '@mantine/core';
-import classes from '../../assets/ManageTCGAccountsMenu.module.css';
+import { ActionIcon, Button, Group, Paper, Stack, Text, TextInput, Title } from '@mantine/core';
 import { supabase } from '../../supabaseClient';
 import { useAuthStore } from '../../store/userStore';
 
@@ -77,11 +76,11 @@ export function ManageTCGAccountsMenu({ onCreated }: { onCreated?: () => void })
   }
 
   return (
-    <Container size={460} my={30}>
-      <Title className={classes.title} ta="center">
+    <Stack gap="md" w="100%" my="xl">
+      <Title order={2}>
         Add your Pokémon TCG Pocket accounts
       </Title>
-      <Text c="dimmed" size="sm" ta="center" mt="xs" mb="lg">
+      <Text c="dimmed" size="sm">
         Add at least one account to start managing your cards.
       </Text>
 
@@ -94,6 +93,7 @@ export function ManageTCGAccountsMenu({ onCreated }: { onCreated?: () => void })
                 <ActionIcon
                   data-click-id={`ManageTCGAccountsMenu/remove-account:${i}`}
                   variant="subtle"
+                  size={36}
                   color="gray"
                   aria-label={`Remove account ${i + 1}`}
                   onClick={() => removeRow(row.key)}
@@ -145,6 +145,6 @@ export function ManageTCGAccountsMenu({ onCreated }: { onCreated?: () => void })
           {message.text}
         </Text>
       )}
-    </Container>
+    </Stack>
   );
 }

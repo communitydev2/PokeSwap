@@ -7,6 +7,16 @@ export const en = {
   marketTabCards: 'Cards',
   marketTabExclusive: 'Exclusive trades',
 
+  // Layout: shell
+  authTitle: 'Sign in or create an account',
+  authSubtitle: 'We email you a sign-in link and code - no password needed.',
+  aboutTitle: 'About Poke app',
+  aboutBody1: 'Poke app helps Pokémon TCG Pocket players find trades: keep a wishlist and a trade list, see who has the cards you want, and send trade offers.',
+  aboutBody2: 'Card data is updated every month. The site is free and funded by player contributions.',
+  updatesIntro: 'Everything new on the site, latest first.',
+  updateScreenshotAlt: (title: string) => `Screenshot: ${title}`,
+  updateDevBadge: 'dev',
+
   // Home market: cards
   marketSignInToSeePlayers: 'Log in to see player names',
   marketSignInToOffer: 'Log in to send offers',
@@ -14,7 +24,7 @@ export const en = {
   marketCardsAll: 'All cards',
   marketCardsHas: 'Someone has it',
   marketCardsWants: 'Someone wants it',
-  marketCardsTotal: (n: number) => `${n} cards`,
+  marketCardsTotal: (n: number) => (n === 1 ? "1 card" : `${n} cards`),
   marketCardsHaveCount: (n: number) => `${n} have it`,
   marketCardsWantCount: (n: number) => `${n} want it`,
   marketCardsLoading: 'Loading cards…',
@@ -41,7 +51,7 @@ export const en = {
   marketExclusiveShowAllWanted: (count: number) => `Show all ${count} cards`,
   marketExclusiveShowFewerWanted: 'Show fewer',
   marketExclusiveSearch: 'Search exclusive trades',
-  marketExclusiveCount: (count: number) => `${count} exclusive trades`,
+  marketExclusiveCount: (count: number) => (count === 1 ? "1 exclusive trade" : `${count} exclusive trades`),
   marketExclusiveOffer: 'Make an offer',
   marketExclusiveLoading: 'Loading exclusive trades…',
   marketExclusiveLoadFailed: "Couldn't load exclusive trades. Please try again.",
@@ -87,7 +97,7 @@ export const en = {
   addToTradeCards: 'Add to Cards You Have For Trade',
   whereAddingCards: 'Where are you adding these cards to',
   pickLanguage: "Pick the language you're looking for",
-  manageCardsMainMenuTitle: 'Manage Cards Main Menu',
+  manageCardsMainMenuTitle: 'Manage cards',
   addCardsExclusiveTradeTitle: 'Add Cards Menu Exclusive Trade Version',
   addCardsToLibrary: 'Add Cards to My Library',
   cardsSelected: 'Cards Selected',
@@ -240,9 +250,9 @@ export const en = {
   },
 
   // Search
-  rarityLabel: "Select Pokemon Card's Rarity",
-  searchByName: 'Search Pokemon Card By Name',
-  setLabel: "Select Pokemon Card's Set",
+  rarityLabel: 'Rarity',
+  searchByName: 'Search by name',
+  setLabel: 'Set',
   searchPlaceholder: 'e.g. Pikachu ex',
   search: 'Search',
   clearSearch: 'Clear',

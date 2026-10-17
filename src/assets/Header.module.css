@@ -1,4 +1,8 @@
 .header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--mantine-color-body);
   height: 60px;
   padding-left: var(--mantine-spacing-md);
   padding-right: var(--mantine-spacing-md);
@@ -31,4 +35,19 @@
   font-size: var(--mantine-font-size-lg);
   text-decoration: none;
   color: inherit;
+}
+
+.inner {
+  position: relative;
+}
+
+.nav {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+
+  @media (max-width: 1100px) {
+    position: static;
+    transform: none;
+  }
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Container, Tabs, Text, Title } from '@mantine/core';
+import { Box, Tabs, Text, Title } from '@mantine/core';
 import { MARKET_TAB } from '../../constants';
 import { useLocalizationStore } from '../../store/useLocalizationStore';
 import { CardMarket } from './CardMarket';
@@ -11,7 +11,7 @@ export function HomeMarket() {
   const [focusExclusiveId, setFocusExclusiveId] = useState<number | null>(null);
 
   return (
-    <Container size={760}>
+    <Box w="100%">
       <Title order={2}>{t.marketTitle}</Title>
       <Text size="sm" c="dimmed" mt="xs" mb="md">
         {t.marketIntro}
@@ -41,6 +41,6 @@ export function HomeMarket() {
           <ExclusiveTradeMarket focusId={focusExclusiveId} />
         </Tabs.Panel>
       </Tabs>
-    </Container>
+    </Box>
   );
 }

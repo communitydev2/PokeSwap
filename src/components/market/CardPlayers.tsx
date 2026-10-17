@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Alert, Badge, Button, Group, Loader, Stack, Text, Title } from '@mantine/core';
+import { Alert, Badge, Button, Divider, Group, Loader, Stack, Text, Title } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 import { supabase } from '../../supabaseClient';
 import { useLocalizationStore } from '../../store/useLocalizationStore';
 import { useAuthStore } from '../../store/userStore';
@@ -23,6 +24,7 @@ export function CardPlayers({
   card: PokemonCard;
   onOpenExclusive: (exclusiveTradeId: number) => void;
 }) {
+  const phone = useMediaQuery('(max-width: 30em)');
   const t = useLocalizationStore((s) => s.t);
   const session = useAuthStore((s) => s.session);
   const { accounts, loading: accountsLoading } = useMyTcgAccounts();
@@ -67,9 +69,10 @@ export function CardPlayers({
   const tradable = card.rarity_id !== null && rarities.includes(card.rarity_id);
   return (
     <Stack mt="md" gap="md">
+      <Divider />
       {(['has', 'wants'] as const).map((side) => (
         <Stack key={side} gap="xs">
-          <Title order={5}>{side === 'has' ? t.marketCardsHaveTitle : t.marketCardsWantTitle}</Title>
+          <Title order={4}>{side === 'has' ? t.marketCardsHaveTitle : t.marketCardsWantTitle}</Title>
           {!rows.some((r) => r.side === side) && (
             <Text size="sm" c="dimmed">
               {t.marketCardsNoPlayers}
@@ -80,16 +83,16 @@ export function CardPlayers({
             .map((row) => {
               const key = `${side}:${row.tcg_account_id}:${row.language}`;
               return (
-                <Group key={key} justify="space-between">
-                  <Group gap="xs">
+                <Group key={key} justify="space-between" wrap="wrap" align="flex-start" gap="xs">
+                  <Group gap="xs" style={{ minWidth: 0, width: phone ? '100%' : undefined }}>
                     <Text size="sm">{row.player_name ?? t.marketSignInToSeePlayers}</Text>
-                    <Badge size="sm" color="gray">
+                    <Badge size="sm" variant="light" color="gray">
                       {row.language.toUpperCase()}
                     </Badge>
                     {row.quantity > 1 && <Text size="sm">x{row.quantity}</Text>}
-                    {row.is_mine && <Badge size="sm">{t.marketYours}</Badge>}
+                    {row.is_mine && <Badge size="sm" variant="light" color="teal">{t.marketYours}</Badge>}
                     {row.exclusive_trade_id !== null && (
-                      <Badge size="sm" color="grape">
+                      <Badge size="sm" variant="light" color="grape">
                         {t.marketCardsExclusive}
                       </Badge>
                     )}
@@ -112,6 +115,8 @@ export function CardPlayers({
                     ) : (
                       <Button
                         size="xs"
+                        variant="light"
+                        mih={36}
                         data-click-id={`CardPlayers/action:${card.card_id}:${key}`}
                         onClick={() =>
                           side === 'has' && row.exclusive_trade_id !== null

@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Badge, Card, Container, Group, Image, Stack, Text, Title } from '@mantine/core'
+import { Badge, Paper, Container, Group, Image, Stack, Text, Title } from '@mantine/core'
 import { useEffect, useState } from 'react'
 import { visibleUpdates, type Update } from '../updates/updates'
 import { fetchAddedSets } from '../utils/newSets'
@@ -39,25 +39,25 @@ function Updates() {
   }, [t])
 
   return (
-    <Container size="sm" pb="xl">
-      <Title order={1} mb="xs">
-        Updates
+    <Container size={760} px="md">
+      <Title order={2} mb="xs">
+        {t.updatesNav}
       </Title>
       <Text c="dimmed" mb="xl">
-        Everything new on the site, latest first.
+        {t.updatesIntro}
       </Text>
 
       <Stack gap="xl">
         {articles.map((update) => (
-          <Card key={update.id} id={update.id} withBorder radius="md" padding="lg" component="article">
+          <Paper key={update.id} id={update.id} withBorder radius="md" p="md" component="article">
             {update.screenshot && (
-              <Card.Section mb="md">
-                <Image src={update.screenshot} alt={`Screenshot: ${update.title}`} />
-              </Card.Section>
+              <Stack mb="md">
+                <Image src={update.screenshot} alt={t.updateScreenshotAlt(update.title)} radius="md" w="100%" />
+              </Stack>
             )}
 
-            <Group justify="space-between" mb="xs" wrap="nowrap" align="flex-start">
-              <Title order={3}>{update.title}</Title>
+            <Group justify="space-between" mb="xs" wrap="wrap" align="flex-start">
+              <Title order={4}>{update.title}</Title>
               <Text size="sm" c="dimmed" style={{ whiteSpace: 'nowrap' }}>
                 {formatDate(update.date)}
               </Text>
@@ -66,8 +66,8 @@ function Updates() {
             {(update.tags || update.audience === 'dev') && (
               <Group gap="xs" mb="sm">
                 {update.audience === 'dev' && (
-                  <Badge variant="filled" color="gray" size="sm">
-                    dev
+                  <Badge variant="light" color="gray" size="sm">
+                    {t.updateDevBadge}
                   </Badge>
                 )}
                 {update.tags?.map((tag) => (
@@ -86,7 +86,7 @@ function Updates() {
                 {paragraph}
               </Text>
             ))}
-          </Card>
+          </Paper>
         ))}
       </Stack>
     </Container>

@@ -44,7 +44,7 @@ export function NewSetBanner() {
   // Several sets at once (e.g. catching up after a while): one combined banner
   if (visible.length > 2) {
     return (
-      <Container size="md" mt="md">
+      <Container size={760} px="md" mt="md">
         <Alert
           data-click-id="NewSetBanner/combined"
           color="grape"
@@ -60,7 +60,7 @@ export function NewSetBanner() {
   }
 
   return (
-    <Container size="md" mt="md">
+    <Container size={760} px="md" mt="md">
       {visible.map((set) => (
         <Alert
           key={set.set_code}

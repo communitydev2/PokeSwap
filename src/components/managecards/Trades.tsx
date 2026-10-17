@@ -1,3 +1,4 @@
+import { SimpleGrid } from '@mantine/core';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, Badge, Button, CopyButton, Divider, Group, Loader, Paper, SegmentedControl, Select, Stack, Text, Title } from '@mantine/core';
 import { IconArrowsExchange, IconLock } from '@tabler/icons-react';
@@ -153,6 +154,8 @@ export function Trades({ tcgAccountId, initialView = VIEW.find, onOffersChanged 
     <Stack gap="md">
       <SegmentedControl
         fullWidth
+        size="sm"
+        styles={{ label: { whiteSpace: 'normal' } }}
         value={view}
         onChange={setView}
         data={[
@@ -222,12 +225,12 @@ export function Trades({ tcgAccountId, initialView = VIEW.find, onOffersChanged 
         <>
           {offers.length === 0 && <Text c="dimmed" ta="center" py="xl">{t.tradesNoOffers}</Text>}
           <OfferSection title={t.tradesWaitingForYou} offers={incomingPending} render={(o) => (
-            <Group gap="xs" justify="flex-end">
-              <Button data-click-id="Trades/decline" variant="default" size="xs" loading={busy === `decline:${o.id}`} disabled={busy !== null}
+            <Group gap="xs" justify="flex-end" grow>
+              <Button data-click-id="Trades/decline" variant="default" size="sm" loading={busy === `decline:${o.id}`} disabled={busy !== null}
                 onClick={() => run(`decline:${o.id}`, supabase.rpc('respond_trade_offer', { p_offer: o.id, p_accept: false }))}>
                 {t.tradesDecline}
               </Button>
-              <Button data-click-id="Trades/accept" size="xs" loading={busy === `accept:${o.id}`} disabled={busy !== null}
+              <Button data-click-id="Trades/accept" size="sm" loading={busy === `accept:${o.id}`} disabled={busy !== null}
                 onClick={() => run(`accept:${o.id}`, supabase.rpc('respond_trade_offer', { p_offer: o.id, p_accept: true }))}>
                 {t.tradesAccept}
               </Button>
@@ -251,14 +254,14 @@ export function Trades({ tcgAccountId, initialView = VIEW.find, onOffersChanged 
               <Text size="xs" c="dimmed">{o.i_marked_done ? t.tradesWaitingForPartner(o.partner_name) : t.tradesHowTo}</Text>
               {!o.i_marked_done && o.partner_marked_done && <Text size="xs" c="teal">{t.tradesPartnerDone(o.partner_name)}</Text>}
               {!o.i_marked_done && (
-                <Group gap="xs" justify="flex-end">
+                <Group gap="xs" justify="flex-end" grow>
                   {!o.partner_marked_done && (
-                    <Button data-click-id="Trades/cancel-trade" variant="default" size="xs" loading={busy === `cancel:${o.id}`} disabled={busy !== null}
+                    <Button data-click-id="Trades/cancel-trade" variant="default" size="sm" loading={busy === `cancel:${o.id}`} disabled={busy !== null}
                       onClick={() => run(`cancel:${o.id}`, supabase.rpc('cancel_trade_offer', { p_offer: o.id }))}>
                       {t.tradesCancelTrade}
                     </Button>
                   )}
-                  <Button data-click-id="Trades/mark-done" size="xs" color="teal" title={t.tradesMarkDoneHelp}
+                  <Button data-click-id="Trades/mark-done" size="sm" color="teal" title={t.tradesMarkDoneHelp}
                     loading={busy === `done:${o.id}`} disabled={busy !== null}
                     onClick={() => run(`done:${o.id}`, supabase.rpc('mark_trade_done', { p_offer: o.id }))}>
                     {t.tradesMarkDone}
@@ -269,7 +272,7 @@ export function Trades({ tcgAccountId, initialView = VIEW.find, onOffersChanged 
           )} />
           <OfferSection title={t.tradesSent} offers={sentPending} render={(o) => (
             <Group justify="flex-end">
-              <Button data-click-id="Trades/cancel-offer" variant="default" size="xs" loading={busy === `cancel:${o.id}`} disabled={busy !== null}
+              <Button data-click-id="Trades/cancel-offer" variant="default" size="sm" loading={busy === `cancel:${o.id}`} disabled={busy !== null}
                 onClick={() => run(`cancel:${o.id}`, supabase.rpc('cancel_trade_offer', { p_offer: o.id }))}>
                 {t.tradesCancelOffer}
               </Button>
@@ -330,7 +333,7 @@ function PartnerRow({ row, divider, myTradeCards, openOfferKeys, busy, onOffer }
           ) : (
             <Group gap="xs" align="flex-end" wrap="wrap">
               <Select data-click-id="Trades/give-select" label={t.tradesYouGive} placeholder={t.tradesPickCard}
-                data={options} value={give} onChange={setGive} allowDeselect={false} size="sm" style={{ flex: 1, minWidth: 180 }} />
+                data={options} value={give} onChange={setGive} allowDeselect={false} size="sm" style={{ flex: 1, minWidth: 0, width: '100%', flexBasis: '100%' }} />
               {sent ? (
                 <Badge color="teal" variant="light" size="lg" radius="sm">{t.tradesOfferSent}</Badge>
               ) : (
@@ -354,7 +357,7 @@ function OfferSection({ title, offers, render }: { title: string; offers: TradeO
   if (!offers.length) return null;
   return (
     <Stack gap="xs">
-      <Title order={5}>{title} ({offers.length})</Title>
+      <Title order={4}>{title} ({offers.length})</Title>
       {offers.map((o) => (
         <Paper key={o.id} withBorder radius="md" p="sm" data-click-context={`offer ${o.id} with ${o.partner_name}`}>
           <Group justify="space-between" mb="xs">
@@ -368,11 +371,11 @@ function OfferSection({ title, offers, render }: { title: string; offers: TradeO
               {t.tradesStatus[o.status] ?? o.status}
             </Badge>
           </Group>
-          <Group wrap="nowrap" gap="sm" align="center" mb={render ? 'sm' : 0}>
+          <SimpleGrid cols={{ base: 1, xs: 3 }} spacing="sm" mb={render ? 'sm' : 0}>
             <OfferCard label={t.tradesYouGive} card={o.my_card} language={o.my_language} />
             <IconArrowsExchange size={20} style={{ flexShrink: 0, opacity: 0.6 }} />
             <OfferCard label={t.tradesYouGet} card={o.their_card} language={o.their_language} />
-          </Group>
+          </SimpleGrid>
           {render?.(o)}
         </Paper>
       ))}

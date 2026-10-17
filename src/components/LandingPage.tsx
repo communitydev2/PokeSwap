@@ -1,12 +1,13 @@
 import { useEffect,useEffectEvent,useState } from 'react'
 import { supabase } from '../supabaseClient'
+import { useStateStore } from '../store/useStateStore'
 import { Auth } from './Auth'
 import { HomeMarket } from './market/HomeMarket'
 import {Account} from './Account'
 import { useAuthStore } from '../store/userStore'
 import { ChangeUsername } from './ChangeUsername/ChangeUsername'
 import { useSavedAccountsStore } from '../store/savedAccountsStore'
-import { Alert, Box, Center, Container, Loader } from '@mantine/core'
+import { Alert, Center, Container, Loader, Stack } from '@mantine/core'
 import { PokeList } from './pokeList/PokeList'
 import { usePokemonCardStore } from '../store/pokemonCardsStore'
 import { fetchAllRows } from '../utils/fetchAllRows'
@@ -17,6 +18,7 @@ import type { PokemonCard } from '../types/PokemonCard'
 
 
 export default function LandingPage() {
+    const showManageCardsMainMenu = useStateStore((s) => s.showManageCardsMainMenu)
     const session = useAuthStore((state) => state.session)
     const profileLoading = useAuthStore((state) => state.profileLoading)
     const addingAccount = useSavedAccountsStore((state) => state.addingAccount)
@@ -66,16 +68,17 @@ getCards()
 
 
   return (
-    <div className="container" style={{ padding: '50px 0 100px 0' }}>
+    <Container size={760} px="md">
+      <Stack gap="xl">
       {/* {<PokeList/>} */}
       {/* Come back this when you want to debug username */}
       {/* {!session ? <Auth /> :  <Username/> } */}
       {notice && (
-        <Container size={420}>
-          <Alert data-click-id="LandingPage/notice" color="yellow" withCloseButton onClose={() => setNotice(null)} mb="md">
+
+          <Alert data-click-id="LandingPage/notice" color="yellow" withCloseButton onClose={() => setNotice(null)}>
             {notice}
           </Alert>
-        </Container>
+
       )}
       {!session || addingAccount ? (
         <Auth />
@@ -86,9 +89,8 @@ getCards()
       ) : (
         <Account key={session.user.id} session={session} />
       )}
-      <Box mt={48}>
-        <HomeMarket />
-      </Box>
-    </div>
+      {(!session || !showManageCardsMainMenu) && <HomeMarket />}
+      </Stack>
+    </Container>
   )
 }

@@ -30,7 +30,7 @@ export function SupportersList({ usernames, onOptInChanged }: { usernames: strin
   }
 
   return (
-    <Paper withBorder radius="md" p="lg">
+    <Paper withBorder radius="md" p="md">
       <Title order={4} mb="sm">
         {t.supportThankYouList}
       </Title>

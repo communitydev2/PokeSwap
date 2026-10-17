@@ -108,7 +108,7 @@ export function NotificationBell() {
   if (!userId) return null;
 
   return (
-    <Popover opened={opened} onChange={setOpened} position="bottom-end" width={360} shadow="md" withinPortal>
+    <Popover opened={opened} onChange={setOpened} position="bottom-end" width="min(360px, calc(100vw - 24px))" shadow="md" withinPortal>
       <Popover.Target>
         <Indicator label={unread > 99 ? '99+' : unread} size={18} color="red" disabled={unread === 0} offset={4}>
           <ActionIcon data-click-id="NotificationBell/open" variant="default" size="lg" radius="md"
@@ -117,7 +117,7 @@ export function NotificationBell() {
           </ActionIcon>
         </Indicator>
       </Popover.Target>
-      <Popover.Dropdown p={0} maw="calc(100vw - 32px)">
+      <Popover.Dropdown p={0} maw="calc(100vw - 24px)">
         <Group justify="space-between" px="md" py="sm">
           <Text fw={600}>{t.notifications}</Text>
           {unread > 0 && (

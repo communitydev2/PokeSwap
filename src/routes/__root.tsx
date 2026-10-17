@@ -3,7 +3,7 @@ import { TanStackRouterDevtoolsInProd } from '@tanstack/react-router-devtools'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { Header } from '../components/Header'
 import { NewSetBanner } from '../components/NewSetBanner'
-import { MantineProvider} from "@mantine/core";
+import { Box, MantineProvider} from "@mantine/core";
 import { theme } from '../theme';
 import { useEffect } from 'react';
 import type { Session } from '@supabase/supabase-js';
@@ -105,7 +105,9 @@ const RootLayout =() => {
   <MantineProvider theme={ theme } defaultColorScheme="dark">
    <Header/>
    <NewSetBanner/>
-    <Outlet />
+    <Box component="main" pt="lg" pb={80}>
+      <Outlet />
+    </Box>
      </MantineProvider>
     <TanStackRouterDevtools />
   </>

@@ -98,7 +98,7 @@ export default function SearchBar() {
           leftSection={<IconSearch size={16} />}
           {...form.getInputProps('searchInput')}
         />
-        <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
+        <SimpleGrid cols={{ base: 1, xs: 2 }} spacing="sm">
           <Select data-click-id="SearchBar/rarity-select"
             label={useLocStore.t.rarityLabel}
             data={rarityOptions(usePokeCardStore.supabase_rarity, usePokeCardStore.rarities)}
@@ -114,8 +114,8 @@ export default function SearchBar() {
           />
         </SimpleGrid>
         <Group justify="flex-end" gap="sm">
-          <Button data-click-id="SearchBar/clear" variant="default" onClick={handleClear}>{useLocStore.t.clearSearch}</Button>
-          <Button data-click-id="SearchBar/submit" type="submit" leftSection={<IconSearch size={16} />}>{useLocStore.t.search}</Button>
+          <Button flex={{ base: 1, xs: '0 0 auto' }} data-click-id="SearchBar/clear" variant="default" onClick={handleClear}>{useLocStore.t.clearSearch}</Button>
+          <Button flex={{ base: 1, xs: '0 0 auto' }} data-click-id="SearchBar/submit" type="submit" leftSection={<IconSearch size={16} />}>{useLocStore.t.search}</Button>
         </Group>
       </Stack>
     </form>

@@ -71,7 +71,7 @@ if (activeList.length > 10){
     <>
     
    
-      <ul style={{ listStyle: 'none', padding: 0, margin: '0 auto', maxWidth: 760, display: 'flex', flexDirection: 'column', gap: 'var(--mantine-spacing-sm)' }}>
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%', display: 'flex', flexDirection: 'column', gap: 'var(--mantine-spacing-sm)' }}>
       {
         // only usestates get recognized here , not zustand
         // so this has to be called so that currentPageItems can be set
@@ -120,7 +120,7 @@ if (activeList.length > 10){
       </ul>
       
       {pageCount > 1 && (
-        <Group justify="space-between" mt="md" maw={760} mx="auto">
+        <Group justify="space-between" mt="md" w="100%">
           <Button data-click-id="PokeList/previous-page" variant="default" leftSection={<IconChevronLeft size={16} />} disabled={currentPageNumber <= 1}
             onClick={() => setCurrentPageNumber(Math.max(1, currentPageNumber - 1))}>
             {t.previousPage}

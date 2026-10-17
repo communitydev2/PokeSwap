@@ -11,6 +11,7 @@ import {
   Text,
   UnstyledButton,
 } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 import { supabase } from '../../supabaseClient';
 import { useAuthStore } from '../../store/userStore';
 import { useLocalizationStore } from '../../store/useLocalizationStore';
@@ -29,6 +30,7 @@ export function ExclusiveOfferModal({
   onClose: () => void;
   listing: MarketExclusiveListing;
 }) {
+  const phone = useMediaQuery('(max-width: 36em)');
   const t = useLocalizationStore((s) => s.t);
   const session = useAuthStore((s) => s.session);
   const { accounts, loading: accountsLoading } = useMyTcgAccounts();
@@ -129,6 +131,8 @@ export function ExclusiveOfferModal({
 
   return (
     <Modal
+      fullScreen={phone}
+      styles={{ body: { display: 'flex', flexDirection: 'column', minHeight: phone ? 'calc(100dvh - 64px)' : undefined } }}
       opened={opened}
       onClose={sending ? () => {} : onClose}
       title={t.marketExclusiveOffer}
@@ -139,7 +143,7 @@ export function ExclusiveOfferModal({
         disabled: sending,
       }}
     >
-      <Stack gap="sm">
+      <Stack gap="sm" style={{ flex: 1, minWidth: 0 }}>
         {sent ? (
           <Alert color="green">{t.marketOfferSent}</Alert>
         ) : (
@@ -179,7 +183,7 @@ export function ExclusiveOfferModal({
                   width={56}
                   radius={4}
                 />
-                <div>
+                <div style={{ minWidth: 0 }}>
                   <Text size="xs" c="dimmed">
                     {t.marketExclusiveYouGet}
                   </Text>
@@ -227,12 +231,13 @@ export function ExclusiveOfferModal({
                     padding: 8,
                     borderRadius: 8,
                     opacity: canGive ? 1 : 0.45,
+                    background: picked === card.card_id && canGive ? 'var(--mantine-color-blue-light)' : undefined,
                     border: `1px solid ${picked === card.card_id && canGive ? 'var(--mantine-color-blue-filled)' : 'var(--mantine-color-default-border)'}`,
                   }}
                 >
                   <Group wrap="nowrap">
                     <CardPicture cardImage={card.card_image} alt={card.card_name} width={40} radius={3} />
-                    <div>
+                    <div style={{ minWidth: 0 }}>
                       <Text size="sm" fw={600}>
                         {card.card_name}
                       </Text>
@@ -255,7 +260,7 @@ export function ExclusiveOfferModal({
             {error && <Alert color="red">{error}</Alert>}
           </>
         )}
-        <Group justify="flex-end">
+        <Group justify="flex-end" grow={phone} wrap="nowrap" mt="auto" pt="md" style={{ position: 'sticky', bottom: 0, background: 'var(--mantine-color-body)', zIndex: 1 }}>
           <Button
             data-click-id="ExclusiveOfferModal/close"
             variant="default"

@@ -24,8 +24,8 @@ export function FundingBar({
   const reached = raisedPence >= targetPence;
 
   return (
-    <Paper withBorder radius="md" p="lg">
-      <Group justify="space-between" align="baseline" mb={4} wrap="nowrap">
+    <Paper withBorder radius="md" p="md">
+      <Group justify="space-between" align="baseline" mb={4} wrap="wrap">
         <Title order={4}>{title}</Title>
         <Text fw={600} style={{ whiteSpace: 'nowrap' }}>
           {t.supportRaisedOf(formatPence(raisedPence), formatPence(targetPence))}

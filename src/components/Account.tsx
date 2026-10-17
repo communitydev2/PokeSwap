@@ -1,3 +1,4 @@
+import { Stack } from '@mantine/core'
 import { MENU_MODE } from '../constants'
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
@@ -69,13 +70,12 @@ useEffect(()=>{
 
   return (
 
-    <div>
-<h1>Signed In</h1>
+    <Stack gap="xl">
 <ChangeUsername />
 {useStateStoreHandle.showManageCardsMainMenu && (
   <ManageCardsMainMenu callComponent={MENU_MODE.mainMenu}/>
 )}
-    </div>
+    </Stack>
 
   )
 

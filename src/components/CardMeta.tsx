@@ -70,7 +70,7 @@ export function CardMeta({ card, size = 'sm' }: { card: CardLike; size?: 'xs' | 
 
   return (
     <Stack gap={2} mt={2}>
-    <Group gap={6} wrap="nowrap">
+    <Group gap={6} wrap="wrap">
       {rarityName && (
         <Tooltip label={rarityName} withArrow>
           <Badge
@@ -79,26 +79,27 @@ export function CardMeta({ card, size = 'sm' }: { card: CardLike; size?: 'xs' | 
             {...(rarity?.badge ?? { variant: 'light', color: 'gray' })}
             aria-label={rarityName}
             style={{ flexShrink: 0, letterSpacing: 1, textTransform: 'none' }}
+            styles={{ label: { display: 'inline-flex', alignItems: 'center', lineHeight: 1 } }}
           >
             {rarity?.symbols ?? rarityName}
           </Badge>
         </Tooltip>
       )}
       {parts.length > 0 && (
-        <Text size={size} c="dimmed" lineClamp={1}>
+        <Text size={size} c="dimmed" lh={1.25} style={{ minWidth: 0, overflowWrap: 'anywhere' }}>
           {parts.join(' · ')}
         </Text>
       )}
     </Group>
     {(isFoil || reprintLabel) && (
-      <Group gap={6} wrap="nowrap">
+      <Group gap={6} wrap="wrap">
         {isFoil && (
           <Badge size={size === 'xs' ? 'xs' : 'sm'} radius="sm" variant="gradient" gradient={{ from: 'cyan', to: 'indigo', deg: 90 }} style={{ flexShrink: 0 }}>
             {t.parallelFoil}
           </Badge>
         )}
         {reprintLabel && (
-          <Text size="xs" c="dimmed" lineClamp={1}>
+          <Text size="xs" c="dimmed" lh={1.25} style={{ minWidth: 0, overflowWrap: 'anywhere' }}>
             {reprintLabel}
           </Text>
         )}

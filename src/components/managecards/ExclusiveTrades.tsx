@@ -74,7 +74,7 @@ export function ExclusiveTrades({ tcgAccountId, myTradeCards, listings, openList
       <Group justify="space-between">
         <Title order={4}>{t.exclusiveYours}</Title>
         {!editing && (
-          <Button data-click-id="ExclusiveTrades/new" size="xs" leftSection={<IconLock size={14} />}
+          <Button data-click-id="ExclusiveTrades/new" size="sm" leftSection={<IconLock size={14} />}
             onClick={() => setEditing({ id: null, draft: { tradeCardId: null, wantLanguage: 'en', wants: [] } })}>
             {t.exclusiveNew}
           </Button>
@@ -114,7 +114,7 @@ export function ExclusiveTrades({ tcgAccountId, myTradeCards, listings, openList
                     <Text fw={600}>{l.trade.card.card_name}</Text>
                     <Badge variant="light" color="gray" radius="sm" size="sm">{l.trade.language.toUpperCase()}</Badge>
                   </Group>
-                  <CardMeta card={l.trade.card} size="xs" />
+                  <CardMeta card={l.trade.card} size="sm" />
                 </div>
                 <Text size="sm">{t.exclusiveForOneOf(l.wants.length, l.want_language.toUpperCase())}</Text>
                 <WantedThumbnails cards={l.wants.map((w) => w.card)} />
@@ -124,7 +124,7 @@ export function ExclusiveTrades({ tcgAccountId, myTradeCards, listings, openList
                 <Group gap="xs" justify="flex-end">
                   <EndListingButton disabled={busy !== null} loading={busy === `exclusive-remove:${l.id}`}
                     onConfirm={() => run(`exclusive-remove:${l.id}`, supabase.rpc('remove_exclusive_trade', { p_exclusive: l.id }))} />
-                  <Button data-click-id="ExclusiveTrades/edit" size="xs" variant="default" disabled={busy !== null || editing !== null}
+                  <Button data-click-id="ExclusiveTrades/edit" size="sm" variant="default" disabled={busy !== null || editing !== null}
                     onClick={() => setEditing({
                       id: l.id,
                       draft: { tradeCardId: String(l.trade.id), wantLanguage: l.want_language, wants: l.wants.map((w) => w.card.card_id) },
@@ -207,7 +207,7 @@ function ListingEditor({ draft: initial, cardChoices, saving, disabled, onSave, 
               <CardPicture cardImage={row.card.card_image} alt={row.card.card_name} width={56} radius={4} />
               <div>
                 <Text fw={600}>{row.card.card_name}</Text>
-                <Text size="xs" c="dimmed">{row.card.card_local_id} · {row.language.toUpperCase()}</Text>
+                <Text size="sm" c="dimmed">{row.card.card_local_id} · {row.language.toUpperCase()}</Text>
               </div>
             </Group>
           )
@@ -218,17 +218,17 @@ function ListingEditor({ draft: initial, cardChoices, saving, disabled, onSave, 
             <Select data-click-id="ExclusiveTrades/language-select" label={t.exclusiveWantLanguage} data={languages}
               value={draft.wantLanguage} allowDeselect={false}
               onChange={(value) => value && setDraft({ ...draft, wantLanguage: value })} />
-            <MultiSelect data-click-id="ExclusiveTrades/wants-select" label={t.exclusiveWants} description={t.exclusiveWantsHelp}
+            <MultiSelect styles={{ pill: { maxWidth: '100%' }, input: { overflow: 'hidden' } }} data-click-id="ExclusiveTrades/wants-select" label={t.exclusiveWants} description={t.exclusiveWantsHelp}
               placeholder={draft.wants.length ? undefined : t.exclusiveSearchCards} searchable hidePickedOptions maxValues={50} limit={100}
               data={wantOptions} value={draft.wants} onChange={(wants) => setDraft({ ...draft, wants })} />
             <WantedThumbnails cards={wantedCards} />
-            <Text size="xs" c="dimmed">{t.exclusiveSaveNote}</Text>
+            <Text size="sm" c="dimmed">{t.exclusiveSaveNote}</Text>
           </>
         )}
 
         <Group justify="flex-end" gap="xs">
-          <Button data-click-id="ExclusiveTrades/cancel-edit" variant="default" size="xs" onClick={onCancel} disabled={saving}>{t.cancel}</Button>
-          <Button data-click-id="ExclusiveTrades/save" size="xs" loading={saving}
+          <Button data-click-id="ExclusiveTrades/cancel-edit" variant="default" size="sm" onClick={onCancel} disabled={saving}>{t.cancel}</Button>
+          <Button data-click-id="ExclusiveTrades/save" size="sm" loading={saving}
             disabled={disabled || !row || draft.wants.length === 0} onClick={() => onSave(draft)}>
             {t.exclusiveSave}
           </Button>
@@ -257,7 +257,7 @@ function EndListingButton({ disabled, loading, onConfirm }: { disabled: boolean;
   return (
     <Popover opened={opened} onChange={setOpened} position="bottom-end" withArrow shadow="md">
       <Popover.Target>
-        <Button data-click-id="ExclusiveTrades/remove" size="xs" variant="subtle" color="red" disabled={disabled} loading={loading}
+        <Button data-click-id="ExclusiveTrades/remove" size="sm" variant="subtle" color="red" disabled={disabled} loading={loading}
           onClick={() => setOpened((o) => !o)}>
           {t.exclusiveRemove}
         </Button>
@@ -265,8 +265,8 @@ function EndListingButton({ disabled, loading, onConfirm }: { disabled: boolean;
       <Popover.Dropdown maw={260}>
         <Text size="sm" mb="sm">{t.exclusiveRemoveConfirm}</Text>
         <Group gap="xs" justify="flex-end">
-          <Button data-click-id="ExclusiveTrades/remove-cancel" size="xs" variant="default" onClick={() => setOpened(false)}>{t.cancel}</Button>
-          <Button data-click-id="ExclusiveTrades/remove-confirm" size="xs" color="red" onClick={() => { setOpened(false); onConfirm(); }}>
+          <Button data-click-id="ExclusiveTrades/remove-cancel" size="sm" variant="default" onClick={() => setOpened(false)}>{t.cancel}</Button>
+          <Button data-click-id="ExclusiveTrades/remove-confirm" size="sm" color="red" onClick={() => { setOpened(false); onConfirm(); }}>
             {t.exclusiveRemove}
           </Button>
         </Group>
@@ -300,17 +300,17 @@ function OpenListingRow({ listing: l, sentCardId, busy, onOffer }: {
         <CardPicture cardImage={l.card.card_image} alt={l.card.card_name} width={72} radius={4} />
         <Stack gap="xs" style={{ flex: 1, minWidth: 0 }}>
           <div>
-            <Text size="xs" c="dimmed">{t.tradesYouGet}</Text>
+            <Text size="sm" c="dimmed">{t.tradesYouGet}</Text>
             <Text fw={600}>{l.card.card_name}</Text>
             <Group gap={6}>
-              <CardMeta card={l.card} size="xs" />
+              <CardMeta card={l.card} size="sm" />
               <Badge variant="light" color="gray" radius="sm" size="sm">{l.language.toUpperCase()}</Badge>
             </Group>
           </div>
           <Group gap="xs" align="flex-end" wrap="wrap">
             <Select data-click-id="ExclusiveTrades/give-select" label={t.exclusiveTheyTake} size="sm" allowDeselect={false}
               data={l.i_can_give.map((c) => ({ value: c.card_id, label: `${c.card_name} · ${c.card_local_id} · ${l.want_language.toUpperCase()}` }))}
-              value={give} onChange={setGive} disabled={!!sentCardId} style={{ flex: 1, minWidth: 180 }} />
+              value={give} onChange={setGive} disabled={!!sentCardId} style={{ flex: 1, minWidth: 0, width: '100%', flexBasis: '100%' }} />
             {sentCardId ? (
               <Badge color="teal" variant="light" size="lg" radius="sm">{t.tradesOfferSent}</Badge>
             ) : (

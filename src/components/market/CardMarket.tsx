@@ -8,12 +8,14 @@ import {
   Paper,
   SegmentedControl,
   Select,
+  SimpleGrid,
   Stack,
   Text,
   TextInput,
   UnstyledButton,
 } from '@mantine/core';
-import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
+import { useMediaQuery } from '@mantine/hooks';
+import { IconChevronDown, IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import { ANY_OPTION } from '../../constants';
 import { supabase } from '../../supabaseClient';
 import { usePokemonCardStore } from '../../store/pokemonCardsStore';
@@ -26,6 +28,7 @@ import { CardPlayers } from './CardPlayers';
 
 type Count = { has: number; wants: number };
 export function CardMarket({ onOpenExclusive }: { onOpenExclusive: (exclusiveTradeId: number) => void }) {
+  const phone = useMediaQuery('(max-width: 30em)');
   const t = useLocalizationStore((s) => s.t);
   const catalogue = usePokemonCardStore((s) => s.pokemonCards);
   const rarities = usePokemonCardStore((s) => s.supabase_rarity);
@@ -118,7 +121,7 @@ export function CardMarket({ onOpenExclusive }: { onOpenExclusive: (exclusiveTra
         value={name}
         onChange={(e) => setName(e.currentTarget.value)}
       />
-      <Group grow align="flex-start">
+      <SimpleGrid cols={{ base: 1, xs: 2 }}>
         <Select
           data-click-id="CardMarket/rarity"
           label={t.rarityLabel}
@@ -142,8 +145,11 @@ export function CardMarket({ onOpenExclusive }: { onOpenExclusive: (exclusiveTra
             <span data-click-id={`CardMarket/set-option:${option.value}`}>{option.label}</span>
           )}
         />
-      </Group>
+      </SimpleGrid>
       <SegmentedControl
+        fullWidth
+        size="sm"
+        orientation={phone ? 'vertical' : 'horizontal'}
         data-click-id="CardMarket/filter"
         value={side}
         onChange={(v) => {
@@ -181,20 +187,21 @@ export function CardMarket({ onOpenExclusive }: { onOpenExclusive: (exclusiveTra
               >
                 <Group wrap="nowrap">
                   <CardPicture cardImage={card.card_image} alt={card.card_name} width={56} />
-                  <Stack gap={4}>
+                  <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
                     <Text fw={600}>{card.card_name}</Text>
                     <CardMeta card={card} />
                     <Group gap="xs">
                       {!!counts.get(card.card_id)?.has && (
-                        <Badge size="sm">{t.marketCardsHaveCount(counts.get(card.card_id)!.has)}</Badge>
+                        <Badge size="sm" variant="light" color="teal">{t.marketCardsHaveCount(counts.get(card.card_id)!.has)}</Badge>
                       )}
                       {!!counts.get(card.card_id)?.wants && (
-                        <Badge size="sm" color="grape">
+                        <Badge size="sm" variant="light" color="grape">
                           {t.marketCardsWantCount(counts.get(card.card_id)!.wants)}
                         </Badge>
                       )}
                     </Group>
                   </Stack>
+                  <IconChevronDown size={16} aria-hidden style={{ flexShrink: 0, color: 'var(--mantine-color-dimmed)', transform: expanded === card.card_id ? 'rotate(180deg)' : undefined, transition: 'transform 150ms ease' }} />
                 </Group>
               </UnstyledButton>
               {expanded === card.card_id && <CardPlayers card={card} onOpenExclusive={onOpenExclusive} />}

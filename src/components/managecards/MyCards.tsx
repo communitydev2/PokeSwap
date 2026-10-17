@@ -126,6 +126,8 @@ export function MyCards({ tcgAccountId, initialCategory = CARD_CATEGORY.wishlist
     <Stack gap="md">
       <SegmentedControl
         fullWidth
+        size="sm"
+        styles={{ label: { whiteSpace: 'normal' } }}
         value={category}
         onChange={(value) => setCategory(value as Category)}
         data={[
@@ -155,7 +157,7 @@ export function MyCards({ tcgAccountId, initialCategory = CARD_CATEGORY.wishlist
           <Text size="sm" c="dimmed">
             {t.selectedCardsSummary(cards.length, cards.reduce((sum, r) => sum + r.quantity, 0))}
           </Text>
-          <Stack gap="xs">
+          <Stack gap="sm">
             {pageCards.map((row) => {
               const saving = savingIds.has(row.id);
               return (
@@ -167,8 +169,8 @@ export function MyCards({ tcgAccountId, initialCategory = CARD_CATEGORY.wishlist
                         <Text fw={600} lineClamp={2}>{row.card.card_name}</Text>
                         <CardMeta card={row.card} size="xs" />
                       </div>
-                      <Group gap="xs" wrap="nowrap" justify="space-between">
-                        <Group gap="xs" wrap="nowrap">
+                      <Group gap="xs" wrap="wrap" justify="flex-end">
+                        <Group gap="xs" wrap="wrap">
                           <ActionIcon data-click-id="MyCards/quantity-minus" variant="default" radius="md" size="lg"
                             aria-label={t.decreaseQuantity} disabled={saving || row.quantity <= 1}
                             onClick={() => applyChange(row, { quantity: row.quantity - 1 })}>
@@ -191,7 +193,7 @@ export function MyCards({ tcgAccountId, initialCategory = CARD_CATEGORY.wishlist
             })}
           </Stack>
           {pageCount > 1 && (
-            <Group justify="center">
+            <Group justify="space-between">
               <Pagination data-click-id="MyCards/pagination" total={pageCount} value={page} onChange={setPage}
                 getControlProps={(control) => ({ 'data-click-id': `MyCards/page:${control}` })}
                 getItemProps={(p) => ({ 'data-click-id': `MyCards/page:${p}` })} />

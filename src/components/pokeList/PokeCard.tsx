@@ -146,7 +146,7 @@ export function PokeCard(
 
   return (
     <Group data-click-context={`card: ${currentCard.card_name}`} wrap="nowrap" align="flex-start" gap="md">
-      <CardPicture cardImage={currentCard.card_image} alt={currentCard.card_name} width="clamp(90px, 28vw, 120px)" />
+      <CardPicture cardImage={currentCard.card_image} alt={currentCard.card_name} width="clamp(72px, 22vw, 110px)" />
 
       <Stack gap="xs" style={{ flex: 1, minWidth: 0 }}>
         <div>
@@ -157,14 +157,14 @@ export function PokeCard(
         {/* Cards already selected: show what was chosen */}
         {isSelectedList && selectedEntry && (
           <Group gap="xs">
-            <Badge variant="filled" radius="sm">× {selectedEntry.quantity}</Badge>
+            <Badge variant="light" color="teal" radius="sm">× {selectedEntry.quantity}</Badge>
             {selectedEntry.language && <Badge variant="light" color="gray" radius="sm">{selectedEntry.language.toUpperCase()}</Badge>}
           </Group>
         )}
 
         {/* Quantity stepper (hidden in Exclusive Trade and the confirmation list) */}
         {showStepper && !isSelectedList && (
-          <Group gap="xs" wrap="nowrap">
+          <Group gap="xs" wrap="wrap">
             <Text size="sm" c="dimmed">{useLocStore.t.quantity}</Text>
             <ActionIcon data-click-id={`PokeCard/quantity-minus:${pokeListType}:${currentCard.card_id}`} variant="default" radius="md" size="lg" aria-label={useLocStore.t.decreaseQuantity} disabled={quantity < 1} onClick={decrementQuantity}>
               <IconMinus size={16} />
@@ -193,7 +193,9 @@ export function PokeCard(
               e.stopPropagation()
               handleAddOrRemove()
             }}
-            style={{ alignSelf: 'flex-start', visibility: !isCardSelected ? 'hidden' : undefined }}
+            styles={{ label: { whiteSpace: 'normal' } }}
+            h="auto" mih={36} py={6}
+            style={{ alignSelf: 'stretch', visibility: !isCardSelected ? 'hidden' : undefined }}
             aria-hidden={!isCardSelected ? true : undefined}
             tabIndex={!isCardSelected ? -1 : undefined}
           >

@@ -44,7 +44,7 @@ export function ChangeUsername({ mode = 'change' }: { mode?: 'set' | 'change' })
   }
 
   return (
-    <Paper withBorder radius="md" p="lg" maw={420} mx={mode === 'set' ? 'auto' : undefined}>
+    <Paper withBorder radius="md" p="md" w="100%">
       <Title order={mode === 'set' ? 3 : 4} mb="xs">
         {mode === 'set' ? 'Choose your username' : 'Your username'}
       </Title>
@@ -66,7 +66,7 @@ export function ChangeUsername({ mode = 'change' }: { mode?: 'set' | 'change' })
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !unchanged) handleSave();
           }}
-          style={{ flex: 1 }}
+          style={{ flex: 1, minWidth: 0 }}
         />
         <Button
           data-click-id={mode === 'set' ? 'ChangeUsername/set-save' : 'ChangeUsername/save'}

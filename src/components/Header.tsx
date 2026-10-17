@@ -4,7 +4,6 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { IconChevronDown } from '@tabler/icons-react';
 import {
   Badge,
-  Box,
   Burger,
   Button,
   Divider,
@@ -78,12 +77,12 @@ export function Header() {
   }
 
   return (
-    <Box pb={120}>
+    <>
       <header className={classes.header}>
-        <Group justify="space-between" h="100%">
+        <Group className={classes.inner} gap="xs" wrap="nowrap" align="center" h="100%">
           <Link to="/" data-click-id="Header/logo" className={classes.logo}>{t.appName}</Link>
 
-          <Group h="100%" gap={0} visibleFrom="sm">
+          <Group className={classes.nav} h="100%" gap={0} wrap="nowrap" visibleFrom="sm">
             <Link data-click-id="Header/home" to="/" className={classes.link}>
               {t.homeNav}
             </Link>
@@ -96,13 +95,13 @@ export function Header() {
             </Link>
           </Group>
 
-          <Group gap="xs">
+          <Group gap="xs" wrap="nowrap" align="center" ml="auto">
             {isSignedIn && <NotificationBell />}
             <ColorSchemeToggle />
           </Group>
 
           {session ? (
-            <Group visibleFrom="sm">
+            <Group visibleFrom="sm" gap="xs" wrap="nowrap" align="center">
               {isSignedIn ? (
                 <Button data-click-id="Header/manage-cards" variant="default" onClick={handleManageCardsMenu}>{t.headerManageCards}</Button>
               ) : (
@@ -112,7 +111,7 @@ export function Header() {
               )}
               <Menu position="bottom-end" width={260} shadow="md" withinPortal>
                 <Menu.Target>
-                  <Button data-click-id="Header/account-menu" variant="subtle" rightSection={<IconChevronDown size={16} />}>
+                  <Button data-click-id="Header/account-menu" variant="subtle" color="gray" c="var(--mantine-color-text)" maw={200} mt={0} style={{ whiteSpace: 'nowrap' }} styles={{ label: { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }} rightSection={<IconChevronDown size={16} />}>
                     {t.headerGreeting(displayName)}
                     {authStore.isSupporter && (
                       <Badge ml={6} size="xs" variant="filled" color="pink">
@@ -202,7 +201,7 @@ export function Header() {
                   {t.headerSwitchTo(account.username || account.email)}
                 </Button>
               ))}
-              <Button data-click-id="Header/drawer-add-account" variant="subtle" onClick={handleAddAccount}>{t.headerAddAccount}</Button>
+              <Button data-click-id="Header/drawer-add-account" variant="subtle" c="var(--mantine-color-text)" onClick={handleAddAccount}>{t.headerAddAccount}</Button>
               <Button data-click-id="Header/drawer-log-out" variant="subtle" color="red" onClick={handleLogOut}>{t.headerLogOut}</Button>
             </Stack>
           ) : (
@@ -212,7 +211,7 @@ export function Header() {
           )}
         </ScrollArea>
       </Drawer>
-    </Box>
+    </>
   );
 }
 

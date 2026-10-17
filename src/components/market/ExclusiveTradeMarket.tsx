@@ -156,7 +156,7 @@ export function ExclusiveTradeMarket({ focusId }: { focusId?: number | null }) {
   const pageCount = Math.max(1, Math.ceil(total / 20));
 
   return (
-    <Stack gap="sm" maw={760} mx="auto">
+    <Stack gap="sm" w="100%">
       {focus == null ? (
         <>
           <TextInput
@@ -232,6 +232,7 @@ export function ExclusiveTradeMarket({ focusId }: { focusId?: number | null }) {
               </Badge>
             )}
           </Group>
+          <Stack gap="sm">
           <Group wrap="nowrap" align="flex-start" gap="md">
             <CardPicture cardImage={l.card.card_image} alt={l.card.card_name} width={56} radius={4} />
             <Stack gap="xs" style={{ flex: 1, minWidth: 0 }}>
@@ -244,6 +245,8 @@ export function ExclusiveTradeMarket({ focusId }: { focusId?: number | null }) {
                   </Badge>
                 </Group>
               </div>
+            </Stack>
+          </Group>
               <Text size="sm">{t.exclusiveForOneOf(l.want_cards.length, l.want_language.toUpperCase())}</Text>
               <Stack gap={6}>
                 {[...l.want_cards]
@@ -302,15 +305,15 @@ export function ExclusiveTradeMarket({ focusId }: { focusId?: number | null }) {
                   <Group justify="flex-end">
                     <Button
                       data-click-id={`ExclusiveTradeMarket/offer:${l.exclusive_trade_id}`}
-                      size="xs"
+                      size="sm"
+                      w={{ base: '100%', xs: 'auto' }}
                       onClick={() => setOffer(l)}
                     >
                       {t.marketExclusiveOffer}
                     </Button>
                   </Group>
                 ))}
-            </Stack>
-          </Group>
+          </Stack>
         </Paper>
       ))}
       {focus == null && pageCount > 1 && (

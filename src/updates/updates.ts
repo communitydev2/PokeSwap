@@ -17,6 +17,20 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'layout-refresh',
+    date: '2026-10-17',
+    audience: 'user',
+    title: 'A cleaner look on phones and computers',
+    summary: 'Every page now lines up in one tidy column, with clearer buttons and links, and fits properly on phones.',
+    body: [
+      'Pages no longer start with a big empty gap under the menu, and everything (the sign-in form, Manage Cards, the card market, Updates and Support) now sits in one centred column with comfortable margins on phones.',
+      'Buttons and links are now in blue, so they are easy to spot; before, some links were so faint they looked switched off. Search filters, trade offers and card lists rearrange themselves to fit small screens.',
+      'There is also a proper About page, and the menu at the top stays visible as you scroll.',
+    ],
+    tags: ['improvement'],
+    screenshot: '/updates/layout-refresh.png',
+  },
+  {
     id: 'card-zoom',
     date: '2026-10-17',
     audience: 'user',

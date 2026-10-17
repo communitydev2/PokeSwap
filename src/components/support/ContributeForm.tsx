@@ -41,8 +41,8 @@ export function ContributeForm({ upgradeGoals }: { upgradeGoals: UpgradeGoalOpti
   }
 
   return (
-    <Paper withBorder radius="md" p="lg">
-      <Title order={3} mb="md">
+    <Paper withBorder radius="md" p="md">
+      <Title order={4} mb="md">
         {t.supportContributeTitle}
       </Title>
       <Stack gap="md">

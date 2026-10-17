@@ -61,8 +61,8 @@ function Support() {
   const upgrades = goals?.filter((goal) => goal.kind === 'upgrade') ?? []
 
   return (
-    <Container size="sm" pb="xl">
-      <Title order={1} mb="xs">
+    <Container size={760} px="md">
+      <Title order={2} mb="xs">
         {t.supportTitle}
       </Title>
       <Text c="dimmed" mb="xl">
@@ -82,7 +82,7 @@ function Support() {
           <Loader />
         </Center>
       ) : (
-        <Stack gap="lg">
+        <Stack gap="xl">
           {monthly && (
             <FundingBar
               title={`${monthly.title} · ${t.supportThisMonth}`}
@@ -115,7 +115,7 @@ function Support() {
 
           {upgrades.length > 0 && (
             <>
-              <Title order={3}>{t.supportUpgrades}</Title>
+              <Title order={4}>{t.supportUpgrades}</Title>
               {upgrades.map((goal) => (
                 <FundingBar
                   key={goal.id}

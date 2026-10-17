@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Alert, Badge, Button, Group, Loader, Modal, Select, Stack, Text, UnstyledButton } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 import { supabase } from '../../supabaseClient';
 import { useLocalizationStore } from '../../store/useLocalizationStore';
 import { useAuthStore } from '../../store/userStore';
@@ -44,6 +45,7 @@ async function availableCards(account: string, rarity: string | null): Promise<T
 }
 
 export function TradeOfferModal({ opened, onClose, mode, card, partnerAccount, partnerName, language }: Props) {
+  const phone = useMediaQuery('(max-width: 36em)');
   const t = useLocalizationStore((s) => s.t);
   const session = useAuthStore((s) => s.session);
   const { accounts, loading: accountsLoading } = useMyTcgAccounts();
@@ -131,7 +133,7 @@ export function TradeOfferModal({ opened, onClose, mode, card, partnerAccount, p
         <Text fw={600}>{label}</Text>
         <Group wrap="nowrap">
           <CardPicture cardImage={value.card.card_image} alt={value.card.card_name} width={56} />
-          <div>
+          <div style={{ minWidth: 0 }}>
             <Text>{value.card.card_name}</Text>
             <CardMeta card={value.card} size="xs" />
             <Badge size="sm" color="gray">
@@ -144,17 +146,20 @@ export function TradeOfferModal({ opened, onClose, mode, card, partnerAccount, p
   }
   return (
     <Modal
+      fullScreen={phone}
+      styles={{ body: { display: 'flex', flexDirection: 'column', minHeight: phone ? 'calc(100dvh - 64px)' : undefined } }}
       opened={opened}
       onClose={sending ? () => {} : onClose}
+      size="lg"
       title={t.marketCardsOfferTitle}
       closeButtonProps={{ ...{ 'data-click-id': 'TradeOfferModal/close-icon' }, 'aria-label': t.close }}
     >
-      <Stack>
+      <Stack gap="sm" style={{ flex: 1, minWidth: 0 }}>
         <Text size="sm">{partnerName ?? t.marketSignInToSeePlayers}</Text>
         {sent ? (
           <>
             <Alert color="green">{t.marketOfferSent}</Alert>
-            <Button data-click-id="TradeOfferModal/close-success" onClick={onClose}>
+            <Button mt="auto" data-click-id="TradeOfferModal/close-success" onClick={onClose}>
               {t.close}
             </Button>
           </>
@@ -217,11 +222,12 @@ export function TradeOfferModal({ opened, onClose, mode, card, partnerAccount, p
                                   ? 'var(--mantine-color-blue-filled)'
                                   : 'var(--mantine-color-default-border)'),
                               borderRadius: 8,
+                              background: selected === row.id ? 'var(--mantine-color-blue-light)' : undefined,
                             }}
                           >
                             <Group wrap="nowrap">
                               <CardPicture cardImage={row.card.card_image} alt={row.card.card_name} width={40} />
-                              <div>
+                              <div style={{ minWidth: 0 }}>
                                 <Text size="sm">{row.card.card_name}</Text>
                                 <CardMeta card={row.card} size="xs" />
                                 <Text size="xs">{row.language.toUpperCase()}</Text>
@@ -242,7 +248,7 @@ export function TradeOfferModal({ opened, onClose, mode, card, partnerAccount, p
               </>
             )}
             {error && <Alert color="red">{error}</Alert>}
-            <Group justify="flex-end">
+            <Group justify="flex-end" grow={phone} wrap="nowrap" mt="auto" pt="md" style={{ position: 'sticky', bottom: 0, background: 'var(--mantine-color-body)', zIndex: 1 }}>
               <Button data-click-id="TradeOfferModal/close" variant="default" disabled={sending} onClick={onClose}>
                 {t.close}
               </Button>

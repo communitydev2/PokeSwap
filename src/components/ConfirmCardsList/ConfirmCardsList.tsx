@@ -38,7 +38,7 @@ export function ConfirmCardsList() {
       <ScrollArea.Autosize mah="55vh" offsetScrollbars type="auto">
         <Stack gap="xs">
           {cards.map((card) => (
-            <Paper key={`${card.card_id}-${card.language ?? ''}`} withBorder radius="md" p="xs">
+            <Paper key={`${card.card_id}-${card.language ?? ''}`} withBorder radius="md" p="sm">
               <Group wrap="nowrap" gap="md">
                 <CardPicture cardImage={card.card_image} alt={card.card_name} width={56} radius={4} />
                 <Stack gap={6} style={{ minWidth: 0 }}>
@@ -49,7 +49,7 @@ export function ConfirmCardsList() {
                     <CardMeta card={card} size="xs" />
                   </div>
                   <Group gap="xs">
-                    <Badge variant="filled" radius="sm">
+                    <Badge variant="light" color="teal" radius="sm">
                       × {card.quantity}
                     </Badge>
                     {card.language && (

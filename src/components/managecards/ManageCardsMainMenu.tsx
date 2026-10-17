@@ -58,7 +58,7 @@ function ComponentTitle({props}){
       {/* Main Menu? show Main Menu text or Exclusive trade */}
   {props[0]==MENU_MODE.mainMenu ? (
     <>
-    <Text size="sm">{props[1].t.manageCardsMainMenuTitle}</Text>
+    <Title order={2}>{props[1].t.manageCardsMainMenuTitle}</Title>
     </>
   ):(
     <>
@@ -93,7 +93,7 @@ function SelectedListButton() {
         size={50}
         radius="xl"
         variant="default"
-        style={{ pointerEvents: 'auto', boxShadow: 'var(--mantine-shadow-lg)' }}
+        style={{ pointerEvents: 'auto', boxShadow: 'var(--mantine-shadow-lg)', maxWidth: '100%', height: 'auto', minHeight: 50, whiteSpace: 'normal' }}
         aria-label={t.viewSelectedCards}
         data-click-id="ManageCardsMainMenu/floating-view-selected"
         onClick={() => setOpened(true)}
@@ -198,8 +198,8 @@ function FloatingAddPendingButton() {
       <Button
         data-click-id="ManageCardsMainMenu/floating-add-pending"
         color="blue"
-        style={{ pointerEvents: 'auto', boxShadow: 'var(--mantine-shadow-lg)' }}
-        size="lg"
+        style={{ pointerEvents: 'auto', boxShadow: 'var(--mantine-shadow-lg)', maxWidth: '100%', height: 'auto', minHeight: 50, whiteSpace: 'normal' }}
+        size="md"
         radius="xl"
         leftSection={<IconPlus size={18} />}
         onClick={() => {
@@ -284,8 +284,8 @@ async function submitCardsToSupabase(){
           <Button
             data-click-id="ManageCardsMainMenu/floating-add-selected"
             color="green"
-            style={{ pointerEvents: 'auto', boxShadow: 'var(--mantine-shadow-lg)' }}
-            size="lg"
+            style={{ pointerEvents: 'auto', boxShadow: 'var(--mantine-shadow-lg)', maxWidth: '100%', height: 'auto', minHeight: 50, whiteSpace: 'normal' }}
+            size="md"
             radius="xl"
             leftSection={<IconCheck size={18} />}
             onClick={open}
@@ -492,7 +492,7 @@ function cardCategoryOnChange(e) {
         </Alert>
       )}
       <Paper withBorder radius="md" p="md">
-        <Text fw={600} mb="sm">{useLocStore.t.manageWhereSection}</Text>
+        <Title order={4} mb="sm">{useLocStore.t.manageWhereSection}</Title>
         <SimpleGrid cols={{ base: 1, sm: useStateStoreWrapper.showLanguageDropdown ? 3 : 2 }} spacing="sm">
           {tcgAccountSelect}
           {cardCategorySelect}
@@ -500,7 +500,7 @@ function cardCategoryOnChange(e) {
         </SimpleGrid>
       </Paper>
       <Paper withBorder radius="md" p="md">
-        <Text fw={600} mb="sm">{useLocStore.t.manageFindSection}</Text>
+        <Title order={4} mb="sm">{useLocStore.t.manageFindSection}</Title>
         <SearchBar />
       </Paper>
     </>
@@ -569,8 +569,8 @@ function cardCategoryOnChange(e) {
   // Saved cards or trades of the selected account (replace the rest of the menu while open)
   if (view != 'menu' && callComponent==MENU_MODE.mainMenu) {
     return (
-      <Stack gap="lg" maw={760} mx="auto">
-        <Group justify="space-between">
+      <Stack gap="xl" w="100%">
+        <Group justify="space-between" wrap="nowrap">
           <Title order={2}>{view == 'trades' ? useLocStore.t.trades : useLocStore.t.myCards}</Title>
           <Button data-click-id="ManageCardsMainMenu/my-cards-back" variant="default" onClick={() => setView('menu')}>
             {useLocStore.t.myCardsBack}
@@ -584,8 +584,8 @@ function cardCategoryOnChange(e) {
   }
 
   return (
-  <>
-<ComponentTitle props={[callComponent,useLocStore]}/>
+  <Stack gap="md" w="100%">
+{(callComponent!=MENU_MODE.mainMenu || showManageCardsMainMenuOptions) && <ComponentTitle props={[callComponent,useLocStore]}/>}
   
   
   
@@ -597,16 +597,15 @@ function cardCategoryOnChange(e) {
 {/* this is if the  call component type is not the exclusive trade so this is not going to show up */}
 {hasTcgAccounts && showManageCardsMainMenuOptions && callComponent==MENU_MODE.mainMenu &&(
   <>
-  <Group justify="center">
+  <SimpleGrid cols={3} spacing="xs">
 
-  <Button data-click-id="ManageCardsMainMenu/add-cards" onClick={handleMainMenuAddCardsButton}>Add Cards</Button>
+  <Button data-click-id="ManageCardsMainMenu/add-cards" onClick={handleMainMenuAddCardsButton}>{useLocStore.t.addCardsTitle}</Button>
   <Button data-click-id="ManageCardsMainMenu/my-cards" variant="default" onClick={() => setView('myCards')}>{useLocStore.t.myCards}</Button>
   <Button data-click-id="ManageCardsMainMenu/trades" variant="default" onClick={() => { setTradesInitialView('find'); setView('trades') }}
     rightSection={incomingOffers > 0 ? <Badge size="sm" circle>{incomingOffers}</Badge> : undefined}>
     {useLocStore.t.trades}
   </Button>
-  </Group>
-  <Space h="xl" />
+  </SimpleGrid>
   {tcgAccountSelect}
   </>
 )}
@@ -614,7 +613,7 @@ function cardCategoryOnChange(e) {
 {/* Following from Manage Cards in Figma,   */}
 {/* I am not adding cards AND this is the Main Menu */}
 {useStateStoreWrapper.showAddCardsMenu  != true && callComponent!=MENU_MODE.exclusiveTrade  && (
-<Stack gap="lg" maw={760} mx="auto" pb={usePokeCardStore.listCardsSelected.length > 0 || Object.keys(usePokeCardStore.pendingCards).length > 0 ? 96 : undefined}>
+<Stack gap="xl" w="100%" pb={usePokeCardStore.listCardsSelected.length > 0 || Object.keys(usePokeCardStore.pendingCards).length > 0 ? 96 : undefined}>
     {addCardsControls}
     <Menu_ConfirmCards props={[useLocStore.t.addCardsToLibrary,LIST_TYPE.confirmAdd,useLocStore.t.addCardsToLibrary]} onConfirm={saveSelectedCards} floating hideTrigger/>
     <Title order={4}>{useLocStore.t.selectCardsToAdd}</Title>
@@ -665,7 +664,7 @@ function cardCategoryOnChange(e) {
 
 {/* Keep the add-cards screen mounted as the selection changes. */}
 {useStateStoreWrapper.showAddCardsMenu == true && callComponent!=MENU_MODE.exclusiveTrade && (
-<Stack gap="lg" maw={760} mx="auto" pb={usePokeCardStore.listCardsSelected.length > 0 || Object.keys(usePokeCardStore.pendingCards).length > 0 ? 96 : undefined}>
+<Stack gap="xl" w="100%" pb={usePokeCardStore.listCardsSelected.length > 0 || Object.keys(usePokeCardStore.pendingCards).length > 0 ? 96 : undefined}>
     {addCardsControls}
     <Menu_ConfirmCards props={[useLocStore.t.addCardsToLibrary,LIST_TYPE.confirmAdd,useLocStore.t.addCardsToLibrary]} onConfirm={saveSelectedCards} floating hideTrigger/>
     <Title order={4}>{useLocStore.t.selectCardsToAdd}</Title>
@@ -678,7 +677,7 @@ function cardCategoryOnChange(e) {
 
    
   
-  </>
+  </Stack>
   )
 
 }
