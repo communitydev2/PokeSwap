@@ -17,6 +17,18 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'preserve-card-market-filters',
+    date: '2026-10-17',
+    audience: 'user',
+    title: 'Keep your card filters when switching tabs',
+    summary: 'Your Cards filters now stay selected when you visit Exclusive Trades and return.',
+    body: [
+      'Switch between Cards and Exclusive Trades without losing your rarity and set selections. Your search text and place in the card list stay as you left them too.',
+    ],
+    screenshot: '/updates/preserve-card-market-filters.png',
+    tags: ['fix'],
+  },
+  {
     id: 'friends',
     date: '2026-10-17',
     audience: 'user',

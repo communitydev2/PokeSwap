@@ -29,7 +29,7 @@ export function HomeMarket() {
             {t.marketTabExclusive}
           </Tabs.Tab>
         </Tabs.List>
-        <Tabs.Panel value={MARKET_TAB.cards} pt="md">
+        <Tabs.Panel value={MARKET_TAB.cards} pt="md" keepMounted>
           <CardMarket
             onOpenExclusive={(id) => {
               setFocusExclusiveId(id);
