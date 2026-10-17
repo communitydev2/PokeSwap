@@ -31,3 +31,6 @@ export const ADMIN_TAB = { overview: 'overview', signIns: 'sign-ins', users: 'us
 
 // Enable once payments and the support database are set up.
 export const SUPPORT_PAGE_ENABLED = false;
+
+// Pause new-expansion banners while keeping automatic Updates articles.
+export const NEW_SET_BANNER_ENABLED = false;

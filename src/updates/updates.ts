@@ -17,6 +17,16 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'new-sets-banner-off',
+    date: '2026-10-17',
+    audience: 'user',
+    title: 'No more new-expansions banner',
+    summary: 'The new-expansions banner is now hidden on every page.',
+    body: ['New sets are still listed on the Updates page.'],
+    tags: ['improvement'],
+    screenshot: '/updates/new-sets-banner-off.png',
+  },
+  {
     id: 'trade-matches',
     date: '2026-10-17',
     audience: 'user',

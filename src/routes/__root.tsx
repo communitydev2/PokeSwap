@@ -1,4 +1,4 @@
-import { SUPPORT_PAGE_ENABLED } from '../constants'
+import { NEW_SET_BANNER_ENABLED, SUPPORT_PAGE_ENABLED } from '../constants'
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
 import { Header } from '../components/Header'
 import { NewSetBanner } from '../components/NewSetBanner'
@@ -118,7 +118,7 @@ const RootLayout =() => {
   <>
   <MantineProvider theme={ theme } defaultColorScheme="dark">
    <Header/>
-   <NewSetBanner/>
+   {NEW_SET_BANNER_ENABLED && <NewSetBanner/>}
     <Box component="main" pt="lg" pb={80}>
       <Outlet />
     </Box>
