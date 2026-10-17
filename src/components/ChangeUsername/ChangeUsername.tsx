@@ -4,8 +4,7 @@ import { useAuthStore } from '../../store/userStore';
 import { useLocalizationStore } from '../../store/useLocalizationStore';
 import { saveUsername } from '../../utils/saveUsername';
 
-// Lets a signed-in user choose their first username (mode "set") or change it
-// (mode "change"). Banned words and duplicates are rejected by the database.
+// Choose a first username (set mode), or display the permanent username (change mode).
 export function ChangeUsername({ mode = 'change' }: { mode?: 'set' | 'change' }) {
   const busy = useRef(false);
   const t = useLocalizationStore((state) => state.t);
@@ -29,7 +28,7 @@ export function ChangeUsername({ mode = 'change' }: { mode?: 'set' | 'change' })
   const unchanged = trimmed === (user?.username ?? '');
 
   async function handleSave() {
-    if (!userId || busy.current) return;
+    if (mode !== 'set' || user?.username != null || !userId || busy.current) return;
     if (!trimmed) {
       setMessage({ ok: false, text: t.qaUsernameRequired });
       return;
@@ -71,31 +70,41 @@ export function ChangeUsername({ mode = 'change' }: { mode?: 'set' | 'change' })
           {email ? t.headerSignedInAs(email) + '. ' : ''}{t.qaUsernameIntro}
         </Text>
       )}
-      <Group align="flex-end" wrap="nowrap">
-        <TextInput
-          data-click-id={mode === 'set' ? 'ChangeUsername/set-username-input' : 'ChangeUsername/username-input'}
-          label={t.qaUsername}
-          placeholder={mode === 'set' ? t.qaUsernamePlaceholder : t.qaUsernameNew}
-          value={username}
-          disabled={saving}
-          onChange={(e) => {
-            setUsername(e.target.value);
-            setMessage(null);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && !unchanged) { e.preventDefault(); handleSave(); }
-          }}
-          style={{ flex: 1, minWidth: 0 }}
-        />
-        <Button
-          data-click-id={mode === 'set' ? 'ChangeUsername/set-save' : 'ChangeUsername/save'}
-          onClick={handleSave}
-          loading={saving}
-          disabled={unchanged}
-        >
-          {t.qaSave}
-        </Button>
-      </Group>
+      {mode === 'change' ? (
+        <>
+          <Text fw={500}>{user?.username}</Text>
+          <Text size="sm" c="dimmed" mt="xs">{t.usernameLockedExplanation}</Text>
+        </>
+      ) : (
+        <>
+          <Group align="flex-end" wrap="nowrap">
+            <TextInput
+              data-click-id="ChangeUsername/set-username-input"
+              label={t.qaUsername}
+              placeholder={t.qaUsernamePlaceholder}
+              value={username}
+              disabled={saving}
+              onChange={(e) => {
+                setUsername(e.target.value);
+                setMessage(null);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !unchanged) { e.preventDefault(); handleSave(); }
+              }}
+              style={{ flex: 1, minWidth: 0 }}
+            />
+            <Button
+              data-click-id="ChangeUsername/set-save"
+              onClick={handleSave}
+              loading={saving}
+              disabled={unchanged}
+            >
+              {t.qaSave}
+            </Button>
+          </Group>
+          <Text size="sm" c="dimmed" mt="xs">{t.usernameChooseCarefully}</Text>
+        </>
+      )}
       {message && (
         <Text size="sm" mt="xs" c={message.ok ? 'teal' : 'red'}>
           {message.text}

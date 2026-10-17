@@ -17,6 +17,16 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'username-locked',
+    date: '2026-10-17',
+    audience: 'user',
+    title: 'Usernames are now permanent',
+    screenshot: '/updates/username-locked.png',
+    summary: 'Once you choose a username, it stays with your account.',
+    body: ['Choose carefully: keeping the same username helps trade partners always know who you are.'],
+    tags: ['improvement'],
+  },
+  {
     id: 'new-sets-banner-off',
     date: '2026-10-17',
     audience: 'user',

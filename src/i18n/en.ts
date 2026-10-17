@@ -308,6 +308,11 @@ export const en = {
   notificationTradeMatch: (partner: string, mine: string, theirs: string) =>
     `${partner} has ${theirs} from your wishlist and wants your ${mine}`,
 
+  // Username lock
+  usernameLocked: "Your username can't be changed",
+  usernameLockedExplanation: "Usernames can't be changed, so trade partners always know who you are.",
+  usernameChooseCarefully: "Choose carefully - you can't change it later.",
+
   // Header
   appName: 'Oaktrade',
   homeNav: 'Home',
