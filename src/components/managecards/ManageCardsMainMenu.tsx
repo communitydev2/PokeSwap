@@ -1,4 +1,4 @@
-import { PocketAccounts } from './PocketAccounts';
+import { PocketAccounts, type AccountBack } from './PocketAccounts';
 import { CARD_CATEGORY, LIST_TYPE, MENU_MODE } from '../../constants'
 import { Popover, Text, Button,List,Select,Group, Space,Title, ComboboxItem,UnstyledButton,Alert,Badge
 
@@ -329,6 +329,7 @@ export function ManageCardsMainMenu({callComponent,exclusiveCardSelected}:{callC
   // Shown above the card search after cards are saved
   const [savedMessage,setSavedMessage] = useState<string|null>(null)
   // Screen shown instead of the menu: the selected account's saved cards or its trades
+  const [accountBack, setAccountBack] = useState<AccountBack | null>(null)
   const [view,setView] = useState<'menu'|'myCards'|'trades'|'pocketAccounts'>('menu')
   // Offers waiting for this account's answer, shown on the Trades button
   const [incomingOffers,setIncomingOffers] = useState(0)
@@ -608,11 +609,14 @@ function cardCategoryOnChange(e) {
       <Stack gap="xl" w="100%">
         <Group justify="space-between" wrap="nowrap">
           <Title order={2}>{view == 'pocketAccounts' ? useLocStore.t.pocketAccounts : view == 'trades' ? useLocStore.t.trades : useLocStore.t.myCards}</Title>
-          <Button data-click-id="ManageCardsMainMenu/my-cards-back" variant="default" onClick={() => setView('menu')}>
+          <Button data-click-id="ManageCardsMainMenu/my-cards-back" variant="default" disabled={view == 'pocketAccounts' && accountBack?.disabled} onClick={() => {
+            if (view == 'pocketAccounts' && accountBack) accountBack.onClick()
+            else setView('menu')
+          }}>
             {useLocStore.t.myCardsBack}
           </Button>
         </Group>
-        {view == 'pocketAccounts' ? <PocketAccounts onChanged={() => setTcgAccountsReload((n) => n + 1)} onNavigate={(id, destination) => {
+        {view == 'pocketAccounts' ? <PocketAccounts onBackChanged={setAccountBack} onChanged={() => setTcgAccountsReload((n) => n + 1)} onNavigate={(id, destination) => {
           setSelectedTcgAccount(id)
           if (destination == 'wishlist' || destination == 'trade') {
             setMyCardsCategory(destination == 'wishlist' ? CARD_CATEGORY.wishlist : CARD_CATEGORY.trade)

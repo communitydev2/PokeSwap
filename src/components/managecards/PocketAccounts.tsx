@@ -9,18 +9,21 @@ import { normalizeFriendId, validateAccounts, type AccountErrors, type AccountFi
 type Account = { tcg_account_id: string; tcg_id_username: string; tcg_id: string };
 type Counts = { wishlist: number; trade: number; exclusive: number; offers: number };
 export type AccountDestination = keyof Counts;
+export type AccountBack = { onClick: () => void; disabled: boolean };
 const zero = (): Counts => ({ wishlist: 0, trade: 0, exclusive: 0, offers: 0 });
 
-export function PocketAccounts({ onChanged, onNavigate }: {
+export function PocketAccounts({ onChanged, onNavigate, onBackChanged }: {
+  onBackChanged: (back: AccountBack | null) => void;
   onChanged: () => void;
   onNavigate: (id: string, destination: AccountDestination) => void;
 }) {
   const userId = useAuthStore((s) => s.session?.user.id);
   // A different sign-in gets a fresh component, including all pending edits.
-  return userId ? <AccountScreen key={userId} userId={userId} onChanged={onChanged} onNavigate={onNavigate} /> : null;
+  return userId ? <AccountScreen key={userId} userId={userId} onBackChanged={onBackChanged} onChanged={onChanged} onNavigate={onNavigate} /> : null;
 }
 
-function AccountScreen({ userId, onChanged, onNavigate }: {
+function AccountScreen({ userId, onChanged, onNavigate, onBackChanged }: {
+  onBackChanged: (back: AccountBack | null) => void;
   userId: string; onChanged: () => void; onNavigate: (id: string, destination: AccountDestination) => void;
 }) {
   const t = useLocalizationStore((s) => s.t);
@@ -85,6 +88,15 @@ function AccountScreen({ userId, onChanged, onNavigate }: {
     load();
     return () => { cancelled = true; };
   }, [userId, reload]);
+
+  const account = accounts.find((a) => a.tcg_account_id === detail);
+  useEffect(() => {
+    onBackChanged(account ? {
+      onClick: () => { setDetail(null); setErrors({}); setMessage(null); },
+      disabled: busy,
+    } : null);
+    return () => onBackChanged(null);
+  }, [account, busy, onBackChanged]);
 
   function update(id: string, field: keyof AccountFields, value: string) {
     setDrafts((prev) => ({ ...prev, [id]: { ...prev[id], [field]: value } }));
@@ -159,11 +171,10 @@ function AccountScreen({ userId, onChanged, onNavigate }: {
   </SimpleGrid>;
   if (loading) return <Text role="status">{t.pocketAccountsLoading}</Text>;
   if (failed) return <Stack><Alert color="red">{t.marketAccountsLoadFailed}</Alert><Button data-click-id="PocketAccounts/retry" onClick={() => setReload((n) => n + 1)}>{t.pocketAccountsRetry}</Button></Stack>;
-  const account = accounts.find((a) => a.tcg_account_id === detail);
   return <Stack gap="md" data-click-context="Pocket accounts">
     {message && <Alert color={Object.keys(errors).length || message === t.pocketAccountsDeleteFailed ? 'red' : 'teal'}>{message}</Alert>}
     {account ? <>
-      <Group justify="space-between"><Text fw={600} style={{ overflowWrap: 'anywhere' }}>{account.tcg_id_username}</Text><Button data-click-id="PocketAccounts/back" variant="default" disabled={busy} onClick={() => { setDetail(null); setErrors({}); setMessage(null); }}>{t.myCardsBack}</Button></Group>
+      <Text fw={600} style={{ overflowWrap: 'anywhere' }}>{account.tcg_id_username}</Text>
       {fields(account)}
       <Button data-click-id="PocketAccounts/save" loading={busy} onClick={() => save([account.tcg_account_id])}>{t.pocketAccountsSave}</Button>
       {summary(account, true)}

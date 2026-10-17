@@ -17,6 +17,18 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'pocket-accounts-one-back',
+    date: '2026-10-17',
+    audience: 'user',
+    title: 'One Back button in Pocket accounts',
+    summary: 'When you open one of your Pocket accounts there is now a single Back button.',
+    body: [
+      'Opening a Pocket account used to show two Back buttons. Now there is one: it takes you back to your list of Pocket accounts, and from the list it takes you back to Manage cards.',
+    ],
+    tags: ['improvement'],
+    screenshot: '/updates/pocket-accounts-one-back.png',
+  },
+  {
     id: 'pocket-account-save-changes',
     date: '2026-10-17',
     audience: 'user',
