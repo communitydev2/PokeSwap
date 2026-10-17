@@ -4,9 +4,9 @@ import { IconSearch } from '@tabler/icons-react';
 import { useForm } from '@mantine/form';
 import { useLocalizationStore } from '../../store/useLocalizationStore';
 import { usePokemonCardStore } from '../../store/pokemonCardsStore';
-import { useSearchFunction } from '../../utils/Utilfunctions';
-import { useRef, useState } from 'react';
-import { supabase } from '../../supabaseClient';
+import { useEffect, useRef, useState } from 'react';
+import { fetchAllRpcRows } from '../../utils/fetchAllRpcRows';
+import type { PokemonCard } from '../../types/PokemonCard';
 import { expansionOptions, rarityOptions } from '../../utils/searchOptions';
 ;
 
@@ -45,6 +45,8 @@ export default function SearchBar() {
   const usePokeCardStore = usePokemonCardStore();
 
   const request = useRef(0);
+  const controller = useRef<AbortController | null>(null);
+  useEffect(() => () => { controller.current?.abort(); ++request.current; }, []);
   const [failed, setFailed] = useState(false);
 
   const form = useForm<SearchFormValues>({
@@ -58,6 +60,8 @@ export default function SearchBar() {
 
   async function handleFormSubmit (values: SearchFormValues) {
      const seq = ++request.current;
+     controller.current?.abort();
+     controller.current = new AbortController();
      setFailed(false);
      try {
       const anyLabel = ANY_OPTION;
@@ -68,25 +72,21 @@ export default function SearchBar() {
       const setParam =
         values.expansion.toLowerCase() === anyLabel.toLowerCase() ? 'any' : values.expansion;
 
-      const { data, error } = await supabase.rpc('search_cards_filter', {
+      const data = await fetchAllRpcRows<PokemonCard>('search_cards_filter', {
         p_search_string: values.searchInput,
         p_rarity: rarityParam,
         p_set: setParam,
-      });
+      }, ['card_name', 'card_id'], controller.current.signal);
 
       if (seq !== request.current) return;
-      if (error) {
-        setFailed(true);
-        console.error('Supabase search error:', error);
-        return;
-      }
 
       // console.log('Search results:', data);
 
 
       usePokeCardStore.setPokemonCardsSearchQuery(data ?? []);
     } catch (error) {
-      if (seq === request.current) setFailed(true);
+      if (seq !== request.current) return;
+      setFailed(true);
       console.error('Unexpected search error:', error);
     }
   };
@@ -94,6 +94,7 @@ export default function SearchBar() {
   // Clear the filters and show the full card list again
   function handleClear() {
     ++request.current;
+    controller.current?.abort();
     setFailed(false);
     form.reset();
     usePokemonCardStore.setState({ searchQuery: [], searchActive: false });

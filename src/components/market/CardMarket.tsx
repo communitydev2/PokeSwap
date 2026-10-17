@@ -18,7 +18,8 @@ import {
 import { useMediaQuery } from '@mantine/hooks';
 import { IconChevronDown, IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import { ANY_OPTION } from '../../constants';
-import { supabase } from '../../supabaseClient';
+import { fetchAllRpcRows } from '../../utils/fetchAllRpcRows';
+import { loadCardCatalogue } from '../../utils/loadCardCatalogue';
 import { usePokemonCardStore } from '../../store/pokemonCardsStore';
 import { useLocalizationStore } from '../../store/useLocalizationStore';
 import { expansionOptions, rarityOptions } from '../../utils/searchOptions';
@@ -38,6 +39,7 @@ export function CardMarket({ onOpenExclusive }: { onOpenExclusive: (exclusiveTra
   const onlyFriends = !!userId && friendsOnly;
   const t = useLocalizationStore((s) => s.t);
   const catalogue = usePokemonCardStore((s) => s.pokemonCards);
+  const catalogueStatus = usePokemonCardStore((s) => s.catalogueStatus);
   const rarities = usePokemonCardStore((s) => s.supabase_rarity);
   const expansions = usePokemonCardStore((s) => s.supabase_expansion);
   const rarityFallback = usePokemonCardStore((s) => s.rarities);
@@ -54,9 +56,11 @@ export function CardMarket({ onOpenExclusive }: { onOpenExclusive: (exclusiveTra
   const [failed, setFailed] = useState(false);
   const [page, setPage] = useState(1);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [retry, setRetry] = useState(0);
   const filtered = !!name.trim() || rarity !== ANY_OPTION || set !== ANY_OPTION;
   useEffect(() => {
     let cancelled = false;
+    const controller = new AbortController();
     setCounts(new Map());
     setCountsLoading(true);
     setCountsFailed(false);
@@ -64,9 +68,10 @@ export function CardMarket({ onOpenExclusive }: { onOpenExclusive: (exclusiveTra
     setExpanded(null);
     async function load() {
       try {
-        const { data, error } = await supabase.rpc(onlyFriends ? 'market_card_counts_friends' : 'market_card_counts');
+        const data = await fetchAllRpcRows<{ card_id: string; has_count: number; wants_count: number }>(
+          onlyFriends ? 'market_card_counts_friends' : 'market_card_counts', {}, ['card_id'], controller.signal,
+        );
         if (cancelled) return;
-        if (error) throw error;
         setCounts(
           new Map(
             ((data as { card_id: string; has_count: number; wants_count: number }[]) ?? []).map((r) => [
@@ -84,8 +89,9 @@ export function CardMarket({ onOpenExclusive }: { onOpenExclusive: (exclusiveTra
     void load();
     return () => {
       cancelled = true;
+      controller.abort();
     };
-  }, [onlyFriends, userId]);
+  }, [onlyFriends, userId, retry]);
   useEffect(() => {
     setPage(1);
     setExpanded(null);
@@ -95,16 +101,16 @@ export function CardMarket({ onOpenExclusive }: { onOpenExclusive: (exclusiveTra
       return;
     }
     let cancelled = false;
+    const controller = new AbortController();
     setLoading(true);
     const timer = window.setTimeout(async () => {
       try {
-        const { data, error } = await supabase.rpc('search_cards_filter', {
+        const data = await fetchAllRpcRows<PokemonCard>('search_cards_filter', {
           p_search_string: name,
           p_rarity: rarity === ANY_OPTION ? 'any' : rarity,
           p_set: set === ANY_OPTION ? 'any' : set,
-        });
+        }, ['card_name', 'card_id'], controller.signal);
         if (cancelled) return;
-        if (error) throw error;
         setResults((data ?? []) as PokemonCard[]);
       } catch {
         if (!cancelled) {
@@ -117,9 +123,10 @@ export function CardMarket({ onOpenExclusive }: { onOpenExclusive: (exclusiveTra
     }, 300);
     return () => {
       cancelled = true;
+      controller.abort();
       window.clearTimeout(timer);
     };
-  }, [name, rarity, set, filtered]);
+  }, [name, rarity, set, filtered, retry]);
   const cards = (filtered ? results : catalogue).filter(
     (c) => {
       const count = counts.get(c.card_id);
@@ -194,14 +201,22 @@ export function CardMarket({ onOpenExclusive }: { onOpenExclusive: (exclusiveTra
         style={{ flexGrow: 0, flexShrink: 0 }}
       />}
       </Group>
-      {countsFailed && <Alert color="red">{t.marketCardsLoadFailed}</Alert>}
-      {loading || countsLoading || (!filtered && catalogue.length === 0) ? (
+      {(countsFailed || failed || catalogueStatus === 'error') && (
+        <Alert color="red">
+          {catalogueStatus === 'error' ? t.marketCatalogueLoadFailed : t.marketCardsLoadFailed}
+          <Button data-click-id="CardMarket/retry" variant="light" ml="sm" onClick={() => {
+            if (catalogueStatus === 'error') void loadCardCatalogue();
+            setRetry((value) => value + 1);
+          }}>{t.qaRetry}</Button>
+        </Alert>
+      )}
+      {loading || countsLoading || (!filtered && (catalogueStatus === 'idle' || catalogueStatus === 'loading')) ? (
         <Group>
           <Loader size="sm" />
           <Text>{t.marketCardsLoading}</Text>
         </Group>
-      ) : failed ? (
-        <Alert color="red">{t.marketCardsLoadFailed}</Alert>
+      ) : failed || (!filtered && catalogueStatus === 'error') ? (
+        null
       ) : (
         <>
           <Text size="sm" c="dimmed">

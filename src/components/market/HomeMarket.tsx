@@ -9,6 +9,7 @@ export function HomeMarket() {
   const t = useLocalizationStore((s) => s.t);
   const [tab, setTab] = useState<string | null>(MARKET_TAB.cards);
   const [focusExclusiveId, setFocusExclusiveId] = useState<number | null>(null);
+  const [exclusiveVisited, setExclusiveVisited] = useState(false);
 
   return (
     <Box w="100%">
@@ -16,7 +17,10 @@ export function HomeMarket() {
       <Text size="sm" c="dimmed" mt="xs" mb="md">
         {t.marketIntro}
       </Text>
-      <Tabs value={tab} onChange={setTab} keepMounted={false}>
+      <Tabs value={tab} onChange={(value) => {
+        setTab(value);
+        if (value === MARKET_TAB.exclusive) setExclusiveVisited(true);
+      }} keepMounted={false}>
         <Tabs.List>
           <Tabs.Tab value={MARKET_TAB.cards} data-click-id="HomeMarket/tab:cards">
             {t.marketTabCards}
@@ -33,12 +37,13 @@ export function HomeMarket() {
           <CardMarket
             onOpenExclusive={(id) => {
               setFocusExclusiveId(id);
+              setExclusiveVisited(true);
               setTab(MARKET_TAB.exclusive);
             }}
           />
         </Tabs.Panel>
-        <Tabs.Panel value={MARKET_TAB.exclusive} pt="md">
-          <ExclusiveTradeMarket focusId={focusExclusiveId} />
+        <Tabs.Panel value={MARKET_TAB.exclusive} pt="md" keepMounted>
+          {exclusiveVisited && <ExclusiveTradeMarket focusId={focusExclusiveId} />}
         </Tabs.Panel>
       </Tabs>
     </Box>

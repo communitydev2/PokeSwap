@@ -17,6 +17,32 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'complete-search-and-market-recovery',
+    date: '2026-10-17',
+    audience: 'user',
+    title: 'Complete card searches and easier recovery',
+    summary: 'Broad searches now include every matching card, failed loads offer a retry, and Exclusive Trades remembers your search.',
+    body: [
+      'Card searches in the market and Manage cards now include all matches, even when more than 1,000 cards match your filters. Availability badges and the filters for cards people have or want also cover the full market.',
+      'If the card catalogue cannot load, you now see an explanation and a Try again button instead of a loading message that never ends.',
+      'Switch between Cards and Exclusive Trades without losing your exclusive-trade search, page or expanded listings.',
+    ],
+    screenshot: '/updates/complete-search-and-market-recovery.png',
+    tags: ['fix'],
+  },
+  {
+    id: 'complete-search-and-market-recovery-dev',
+    date: '2026-10-17',
+    audience: 'dev',
+    title: 'Paged RPC reads and explicit catalogue status',
+    summary: 'Search and count RPCs use stable paged reads; catalogue loading is shared, deduplicated and retryable.',
+    body: [
+      'fetchAllRpcRows applies range pagination with a unique ordering tie-breaker and supports cancellation. Search results are only published once every page succeeds.',
+      'The catalogue store distinguishes idle, loading, ready and error, including a valid empty catalogue. Exclusive Trades mounts on its first visit and stays mounted across tab switches.',
+    ],
+    tags: ['dev'],
+  },
+  {
     id: 'searchable-rarity-dropdown',
     date: '2026-10-17',
     audience: 'user',

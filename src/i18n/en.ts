@@ -35,6 +35,7 @@ export const en = {
   marketCardsLoading: 'Loading cards…',
   marketCardsEmpty: 'No cards match these filters.',
   marketCardsLoadFailed: "Couldn't load the market. Please try again.",
+  marketCatalogueLoadFailed: "Couldn't load the card catalogue. Please try again.",
   marketCardsHaveTitle: 'Have it for trade',
   marketCardsWantTitle: 'Looking for it',
   marketCardsNoPlayers: 'No players here yet.',

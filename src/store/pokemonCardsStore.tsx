@@ -14,7 +14,8 @@ export const cardLanguageOptions = (languages: string[]) => languages.map((value
   return { value, label: name.charAt(0).toLocaleUpperCase(locale) + name.slice(1) };
 });
 
-export const usePokemonCardStore = create<PokemonDBStoreType & { searchActive: boolean }>((set) => ({
+export const usePokemonCardStore = create<PokemonDBStoreType & { searchActive: boolean; catalogueStatus: 'idle' | 'loading' | 'ready' | 'error' }>((set) => ({
+  catalogueStatus: 'idle',
   pokemonCards: [],
   // Filter options come from the rarity / set tables (src/utils/searchOptions.ts);
   // these are only shown until those load, so they never go out of date.

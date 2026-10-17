@@ -1,117 +1,61 @@
-import { useEffect } from 'react'
-import { useNavigate } from '@tanstack/react-router'
-import { supabase } from '../supabaseClient'
-import { useStateStore } from '../store/useStateStore'
-import { Auth } from './Auth'
-import { HomeMarket } from './market/HomeMarket'
-import {Account} from './Account'
-import { useAuthStore } from '../store/userStore'
-import { ChangeUsername } from './ChangeUsername/ChangeUsername'
-import { useSavedAccountsStore } from '../store/savedAccountsStore'
-import { Alert, Button, Center, Container, Loader, Stack } from '@mantine/core'
-import { useLocalizationStore } from '../store/useLocalizationStore'
-import { usePokemonCardStore } from '../store/pokemonCardsStore'
-import { fetchAllRows } from '../utils/fetchAllRows'
-import type { PokemonCard } from '../types/PokemonCard'
-
-
-
-
+import { useEffect } from 'react';
+import { useNavigate } from '@tanstack/react-router';
+import { Alert, Button, Center, Container, Loader, Stack } from '@mantine/core';
+import { useStateStore } from '../store/useStateStore';
+import { useAuthStore } from '../store/userStore';
+import { useSavedAccountsStore } from '../store/savedAccountsStore';
+import { useLocalizationStore } from '../store/useLocalizationStore';
+import { loadCardCatalogue } from '../utils/loadCardCatalogue';
+import { Auth } from './Auth';
+import { HomeMarket } from './market/HomeMarket';
+import { Account } from './Account';
+import { ChangeUsername } from './ChangeUsername/ChangeUsername';
 
 export default function LandingPage({ signInOnly = false }: { signInOnly?: boolean }) {
-    const navigate = useNavigate()
-    const showManageCardsMainMenu = useStateStore((s) => s.showManageCardsMainMenu)
-    const session = useAuthStore((state) => state.session)
-    const profileLoading = useAuthStore((state) => state.profileLoading)
-    const addingAccount = useSavedAccountsStore((state) => state.addingAccount)
-    const notice = useSavedAccountsStore((state) => state.notice)
-    const setNotice = useSavedAccountsStore((state) => state.setNotice)
-    const profileError = useAuthStore((state) => state.profileError)
-    const t = useLocalizationStore((state) => state.t)
-    const authStore = useAuthStore();
-    useEffect(() => {
-      if (signInOnly && authStore.authReady && session && authStore.user?.username && !profileLoading && !addingAccount) {
-        void navigate({ to: '/', replace: true })
-      }
-      if (!signInOnly && authStore.authReady && session && !authStore.user?.username && !profileLoading && !profileError) {
-        void navigate({ to: '/login', replace: true })
-      }
-    }, [signInOnly, authStore.authReady, session, authStore.user?.username, profileLoading, profileError, addingAccount, navigate])
-    const usePokeCardStore = usePokemonCardStore();
+  const navigate = useNavigate();
+  const showManageCardsMainMenu = useStateStore((s) => s.showManageCardsMainMenu);
+  const { session, profileLoading, profileError, authReady, user } = useAuthStore();
+  const { addingAccount, notice, setNotice } = useSavedAccountsStore();
+  const t = useLocalizationStore((state) => state.t);
 
-    
-//  I'm going to the rarity and expansion variables in pokemondbstore
-  useEffect(()=>{
-    if (signInOnly) return
-    async function fetchRarityExpansionValues(){
-      let {data: rarity, error: errorRarity} = await supabase
-      .from('rarity')
-      .select('*')
-
-      let {data: set, error: errorSet} = await supabase
-      .from('set')
-      .select('*')
-  
-      if (errorRarity) console.warn(errorRarity)
-      else usePokeCardStore.setSupabase_rarity(rarity ?? [])
-      if (errorSet) console.warn(errorSet)
-      else usePokeCardStore.setSupabase_expansion(set ?? [])
+  useEffect(() => {
+    if (signInOnly && authReady && session && user?.username && !profileLoading && !addingAccount) {
+      void navigate({ to: '/', replace: true });
     }
-    fetchRarityExpansionValues()
-  },[signInOnly])
-    
+    if (!signInOnly && authReady && session && !user?.username && !profileLoading && !profileError) {
+      void navigate({ to: '/login', replace: true });
+    }
+  }, [signInOnly, authReady, session, user?.username, profileLoading, profileError, addingAccount, navigate]);
 
-
-    
-    
-  // The saved session is restored in __root.tsx and kept in authStore
-
-// setting PokemonCards at launch
-    useEffect(()=>{
-    if (signInOnly) return
-async function getCards(){
-  // The catalogue has more than Supabase's 1000-rows-per-request limit, so load it in pages
-  try {
-    const cards = await fetchAllRows<PokemonCard>('card', 'card_local_id')
-    usePokeCardStore.setPokemonCards(cards)
-  } catch (error) {
-    console.warn(error)
-  }
-}
-getCards()
-  },[signInOnly])
-
+  useEffect(() => {
+    if (!signInOnly) void loadCardCatalogue();
+  }, [signInOnly]);
 
   return (
     <Container size={760} px="md">
       <Stack gap="xl">
-      {/* {<PokeList/>} */}
-      {/* Come back this when you want to debug username */}
-      {/* {!session ? <Auth /> :  <Username/> } */}
-      {notice && (
-
+        {notice && (
           <Alert data-click-id="LandingPage/notice" color="yellow" withCloseButton onClose={() => setNotice(null)}>
             {notice}
           </Alert>
-
-      )}
-      {!authStore.authReady ? (
-        signInOnly ? <Center py="xl"><Loader /></Center> : null
-      ) : !session || addingAccount ? (
-        signInOnly ? <Auth /> : null
-      ) : profileLoading ? (
-        <Center py="xl"><Loader /></Center>
-      ) : profileError ? (
-        <Alert color="red">{t.qaProfileFailed}
-          <Button data-click-id="LandingPage/retry-profile" onClick={() => window.location.reload()}>{t.qaRetry}</Button>
-        </Alert>
-      ) : !authStore.user?.username ? (
-        signInOnly ? <ChangeUsername key={session.user.id} mode="set" /> : null
-      ) : (
-        !signInOnly && <Account key={session.user.id} session={session} />
-      )}
-      {!signInOnly && (!session || !showManageCardsMainMenu) && <HomeMarket />}
+        )}
+        {!authReady ? (
+          signInOnly ? <Center py="xl"><Loader /></Center> : null
+        ) : !session || addingAccount ? (
+          signInOnly ? <Auth /> : null
+        ) : profileLoading ? (
+          <Center py="xl"><Loader /></Center>
+        ) : profileError ? (
+          <Alert color="red">{t.qaProfileFailed}
+            <Button data-click-id="LandingPage/retry-profile" onClick={() => window.location.reload()}>{t.qaRetry}</Button>
+          </Alert>
+        ) : !user?.username ? (
+          signInOnly ? <ChangeUsername key={session.user.id} mode="set" /> : null
+        ) : (
+          !signInOnly && <Account key={session.user.id} session={session} />
+        )}
+        {!signInOnly && (!session || !showManageCardsMainMenu) && <HomeMarket />}
       </Stack>
     </Container>
-  )
+  );
 }
