@@ -539,7 +539,7 @@ export const en = {
   rarityLabel: 'Rarity',
   searchByName: 'Search by name',
   setLabel: 'Set',
-  searchPlaceholder: 'e.g. Pikachu ex',
+  searchPlaceholder: 'e.g. Pikachu ex, Bulbizarre or フシギダネ',
   search: 'Search',
   clearSearch: 'Clear',
 

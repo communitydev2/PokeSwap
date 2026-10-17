@@ -134,6 +134,7 @@ export function CardMarket({ onOpenExclusive }: { onOpenExclusive: (exclusiveTra
       <TextInput
         data-click-id="CardMarket/name"
         label={t.searchByName}
+        placeholder={t.searchPlaceholder}
         value={name}
         onChange={(e) => setName(e.currentTarget.value)}
       />

@@ -17,6 +17,31 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'multilingual-pokemon-search',
+    date: '2026-10-17',
+    audience: 'user',
+    title: 'Find Pokémon by names in other languages',
+    summary: 'Search for Pokémon using their names in Japanese, French, German, Korean, Chinese and more.',
+    body: [
+      'Try フシギダネ, Bulbizarre or Bisasam to find Bulbasaur in the card market or when managing your cards. Results still show the English card name.',
+      'You can use the beginning of a name, combine it with ex or Mega, and keep using your rarity and expansion filters. Translated names are available where they are included in our name source.',
+    ],
+    screenshot: '/updates/multilingual-pokemon-search.png',
+    tags: ['improvement'],
+  },
+  {
+    id: 'multilingual-pokemon-search-dev',
+    date: '2026-10-17',
+    audience: 'dev',
+    title: 'Species aliases in the shared card-search RPC',
+    summary: 'Two migrations add PokéAPI species aliases and extend search_cards_filter without changing the card catalogue.',
+    body: [
+      'Apply 20261018000600_multilingual_card_search.sql and 20261018000700_pokemon_search_names_data.sql. The alias table is publicly readable with RLS and disallows browser writes. The RPC remains security invoker and retains its existing signature.',
+      'Generated aliases cover 1,025 species. docs/multilingual-search.md explains source refreshes and the disposable PostgreSQL regression checks. No card sync or Edge Function redeployment is required.',
+    ],
+    tags: ['dev', 'database'],
+  },
+  {
     id: 'dedicated-sign-in-page',
     date: '2026-10-17',
     audience: 'user',
