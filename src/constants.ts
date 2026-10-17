@@ -23,3 +23,6 @@ export const CARD_CATEGORY = {
 
 // "No filter" option in the rarity / set dropdowns (also the first entry of those lists)
 export const ANY_OPTION = 'Any';
+
+// Tabs in the home page market
+export const MARKET_TAB = { cards: 'cards', exclusive: 'exclusive' } as const;

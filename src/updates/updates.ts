@@ -17,6 +17,34 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'card-market',
+    date: '2026-10-17',
+    audience: 'user',
+    title: 'Card market on the home page',
+    summary: 'Browse cards and exclusive trades on the home page, and send offers when you are signed in.',
+    body: [
+      'Every card is listed with how many players have it for trade and how many are looking for it. Open a card to see who has it or wants it; player names are shown when you are signed in.',
+      'Everyone’s exclusive trades have their own tab, where you can browse the cards on offer and the cards players want in return.',
+      'Signed-in players with a TCG Pocket account added can send an offer straight from the market.',
+    ],
+    tags: ['new'],
+    screenshot: '/updates/card-market.png',
+  },
+  {
+    id: 'card-market-functions',
+    date: '2026-10-17',
+    audience: 'dev',
+    title: 'Home market functions and components',
+    summary:
+      'Read-only market functions provide card counts, player lists and exclusive trade listings for the home page.',
+    body: [
+      'The new migration 20261017000000_market.sql adds market_card_counts(), market_card_players(uuid) and market_exclusive_trades(text,int,int). All three are security definer functions with an empty search_path, callable by anon and authenticated users. Names come from trade_account_name only when auth.uid() is set.',
+      'Components under src/components/market/ provide the home market, card players and offer dialogs. The useMyTcgAccounts hook loads the signed-in player’s accounts, and shared tradeErrorText handles trade errors in the market and Manage Cards.',
+      'Apply the migration to the hosted project before release.',
+    ],
+    tags: ['dev'],
+  },
+  {
     id: 'header-cleanup',
     date: '2026-10-17',
     audience: 'user',

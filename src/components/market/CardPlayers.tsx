@@ -1,0 +1,147 @@
+import { useEffect, useState } from 'react';
+import { Alert, Badge, Button, Group, Loader, Stack, Text, Title } from '@mantine/core';
+import { supabase } from '../../supabaseClient';
+import { useLocalizationStore } from '../../store/useLocalizationStore';
+import { useAuthStore } from '../../store/userStore';
+import { useMyTcgAccounts } from '../../hooks/useMyTcgAccounts';
+import type { PokemonCard } from '../../types/PokemonCard';
+import { TradeOfferModal } from './TradeOfferModal';
+
+type Player = {
+  tcg_account_id: string;
+  player_name: string | null;
+  side: 'has' | 'wants';
+  language: string;
+  quantity: number;
+  exclusive_trade_id: number | null;
+  is_mine: boolean;
+};
+export function CardPlayers({
+  card,
+  onOpenExclusive,
+}: {
+  card: PokemonCard;
+  onOpenExclusive: (exclusiveTradeId: number) => void;
+}) {
+  const t = useLocalizationStore((s) => s.t);
+  const session = useAuthStore((s) => s.session);
+  const { accounts, loading: accountsLoading } = useMyTcgAccounts();
+  const [rows, setRows] = useState<Player[]>([]);
+  const [rarities, setRarities] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
+  const [offer, setOffer] = useState<Player | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setFailed(false);
+    setOffer(null);
+    async function load() {
+      try {
+        const [players, tradable] = await Promise.all([
+          supabase.rpc('market_card_players', { p_card: card.card_id }),
+          supabase.rpc('tradable_rarities'),
+        ]);
+        if (cancelled) return;
+        if (players.error || tradable.error) throw players.error || tradable.error;
+        setRows((players.data ?? []) as Player[]);
+        setRarities((tradable.data ?? []) as string[]);
+      } catch {
+        if (!cancelled) setFailed(true);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, [card.card_id, session?.user.id]);
+  if (loading) return <Loader size="sm" mt="sm" />;
+  if (failed)
+    return (
+      <Alert color="red" mt="sm">
+        {t.marketCardsLoadFailed}
+      </Alert>
+    );
+  const tradable = card.rarity_id !== null && rarities.includes(card.rarity_id);
+  return (
+    <Stack mt="md" gap="md">
+      {(['has', 'wants'] as const).map((side) => (
+        <Stack key={side} gap="xs">
+          <Title order={5}>{side === 'has' ? t.marketCardsHaveTitle : t.marketCardsWantTitle}</Title>
+          {!rows.some((r) => r.side === side) && (
+            <Text size="sm" c="dimmed">
+              {t.marketCardsNoPlayers}
+            </Text>
+          )}
+          {rows
+            .filter((r) => r.side === side)
+            .map((row) => {
+              const key = `${side}:${row.tcg_account_id}:${row.language}`;
+              return (
+                <Group key={key} justify="space-between">
+                  <Group gap="xs">
+                    <Text size="sm">{row.player_name ?? t.marketSignInToSeePlayers}</Text>
+                    <Badge size="sm" color="gray">
+                      {row.language.toUpperCase()}
+                    </Badge>
+                    {row.quantity > 1 && <Text size="sm">x{row.quantity}</Text>}
+                    {row.is_mine && <Badge size="sm">{t.marketYours}</Badge>}
+                    {row.exclusive_trade_id !== null && (
+                      <Badge size="sm" color="grape">
+                        {t.marketCardsExclusive}
+                      </Badge>
+                    )}
+                  </Group>
+                  {!row.is_mine &&
+                    (!session ? (
+                      <Text size="xs" c="dimmed">
+                        {t.marketSignInToOffer}
+                      </Text>
+                    ) : accountsLoading ? (
+                      <Loader size="xs" />
+                    ) : !accounts.length ? (
+                      <Text size="xs" c="dimmed">
+                        {t.marketNoAccount}
+                      </Text>
+                    ) : !tradable ? (
+                      <Text size="xs" c="dimmed">
+                        {t.marketCardsNotTradable}
+                      </Text>
+                    ) : (
+                      <Button
+                        size="xs"
+                        data-click-id={`CardPlayers/action:${card.card_id}:${key}`}
+                        onClick={() =>
+                          side === 'has' && row.exclusive_trade_id !== null
+                            ? onOpenExclusive(row.exclusive_trade_id)
+                            : setOffer(row)
+                        }
+                      >
+                        {side === 'has'
+                          ? row.exclusive_trade_id !== null
+                            ? t.marketCardsSeeExclusive
+                            : t.marketCardsOfferTrade
+                          : t.marketCardsOfferCard}
+                      </Button>
+                    ))}
+                </Group>
+              );
+            })}
+        </Stack>
+      ))}
+      {offer && (
+        <TradeOfferModal
+          opened
+          onClose={() => setOffer(null)}
+          mode={offer.side === 'has' ? 'get' : 'give'}
+          card={card}
+          partnerAccount={offer.tcg_account_id}
+          partnerName={offer.player_name}
+          language={offer.language}
+        />
+      )}
+    </Stack>
+  );
+}
