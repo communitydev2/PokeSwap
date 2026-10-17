@@ -17,6 +17,32 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'dataset-card-pictures',
+    date: '2026-10-17',
+    audience: 'user',
+    title: 'Pictures for newer cards',
+    summary: 'Newer cards now have pictures while we wait for our usual picture source to catch up.',
+    body: [
+      'Cards from newer expansions can now show their artwork in the market, your lists, trades and notifications. Open a picture to see it larger.',
+      'Pictures in lists load as you browse, and larger pictures only load when you open them.',
+    ],
+    screenshot: '/updates/dataset-card-pictures.png',
+    tags: ['improvement', 'cards'],
+  },
+  {
+    id: 'dataset-card-pictures-dev',
+    date: '2026-10-17',
+    audience: 'dev',
+    title: 'Dataset picture backfill and monthly storage uploads',
+    summary: 'Missing pictures use portable storage:dataset references; TCGdex pictures retain precedence.',
+    body: [
+      'npm run mirror:dataset-images backfills only empty card_image rows using set code and padded card number. It supports dry-run, limit, force, remote opt-in, retries, resumable uploads and eight workers.',
+      'The monthly sync uses the same release ZIP reader and storage uploader for missing pictures, fetching individual image byte ranges instead of the whole archive. Existing storage references are replaced when TCGdex supplies a picture.',
+      'Dataset pictures stop on load failure; the existing TCGdex mirror, WebP and PNG fallback chain remains. Zoom artwork is mounted only while open.',
+    ],
+    tags: ['dev', 'cards', 'storage'],
+  },
+  {
     id: 'admin-delete-user-dev',
     date: '2026-10-17',
     audience: 'dev',

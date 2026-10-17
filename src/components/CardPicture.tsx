@@ -4,8 +4,8 @@ import { cardImageUrl, fallBackToPng } from '../utils/cardImage';
 import { useLocalizationStore } from '../store/useLocalizationStore';
 
 // A card's picture at card proportions. Cards from brand-new sets can arrive
-// before TCGdex has their pictures, so those show a placeholder until the
-// monthly card sync fills the picture in.
+// before either source has their pictures, so those show a placeholder until
+// the monthly card sync fills the picture in.
 export function CardPicture({ cardImage, alt, width, radius = 8, zoom = true }: { cardImage: string | null | undefined; alt: string; width: number | string; radius?: number; zoom?: boolean }) {
   const t = useLocalizationStore((state) => state.t);
   const [opened, setOpened] = useState(false);
@@ -81,7 +81,7 @@ export function CardPicture({ cardImage, alt, width, radius = 8, zoom = true }: 
               <Modal.CloseButton data-click-id="CardPicture/zoom-close" data-mantine-stop-propagation="true" aria-label={t.close} />
             </Modal.Header>
             <Modal.Body p="sm" pt={0}>
-              <img
+              {opened && <img
                 src={cardImageUrl(cardImage, 'webp', 'high')}
                 onError={(event) => fallBackToPng(event, cardImage, 'high')}
                 alt={alt}
@@ -90,7 +90,7 @@ export function CardPicture({ cardImage, alt, width, radius = 8, zoom = true }: 
                 style={{ display: 'block', width: 'min(85vw, 420px)', height: 'auto', aspectRatio: '245 / 337', borderRadius: 12, objectFit: 'contain' }}
                 data-click-id="CardPicture/zoom-image"
                 onClick={() => setOpened(false)}
-              />
+              />}
             </Modal.Body>
           </Modal.Content>
         </Modal.Root>

@@ -1,9 +1,8 @@
 // Supabase Edge Function: sync Pokémon TCG Pocket sets and cards.
 //
 // Card data comes from the flibustier/pokemon-tcg-pocket-database dataset
-// (MIT, kept up to date with every release). Pictures come from TCGdex, which
-// lags behind: cards TCGdex doesn't have yet are saved without a picture and
-// the app shows "Picture coming soon" until a later run finds one.
+// (MIT, kept up to date with every release). TCGdex pictures take precedence;
+// missing pictures are copied from the dataset release into Supabase Storage.
 //
 // For cards TCGdex also has, TCGdex's name and picture are used, so existing
 // cards don't get renamed between the two sources' spellings.
@@ -19,6 +18,7 @@
 // Deploy:  npx supabase functions deploy sync-cards --no-verify-jwt
 
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import { createDatasetImageSource, datasetReference, ensureDatasetBucket, storeDatasetImage } from '../_shared/dataset-images.mjs';
 
 const DATASET = 'https://raw.githubusercontent.com/flibustier/pokemon-tcg-pocket-database/main/dist';
 const TCGDEX = 'https://api.tcgdex.net/v2/en';
@@ -63,6 +63,15 @@ const artworkParts = (image?: string) => {
 
 async function sync(dryRun: boolean) {
   const summary = { setsAdded: [] as string[], cardsAdded: 0, cardsUpdated: 0, changes: [] as string[] };
+
+  const downloadDatasetImage = createDatasetImageSource();
+  let bucketReady: Promise<void> | undefined;
+  async function datasetPicture(card: DatasetCard) {
+    if (dryRun) return datasetReference(card);
+    bucketReady ??= ensureDatasetBucket(admin);
+    await bucketReady;
+    return (await storeDatasetImage(admin, card, downloadDatasetImage)).reference;
+  }
 
   // 1. Sources
   const [datasetSetsByLetter, datasetCards] = await Promise.all([
@@ -170,15 +179,29 @@ async function sync(dryRun: boolean) {
     if (cardsError) throw cardsError;
     const existing = new Map((cardRows as CardRow[]).map((c) => [c.card_local_id, c]));
 
+    const setCards = datasetCards.filter((c) => c.set === dataset.code);
+    const missing = setCards.filter((card) => {
+      if (!card.image || existing.get(cardId(card))?.card_image || tcgdexCards.get(cardId(card))?.image) return false;
+      const { original } = originalOf(card);
+      return !original || !tcgdexCards.get(cardId(original))?.image;
+    });
+    const storedPictures = new Map<string, string>();
+    let cursor = 0;
+    await Promise.all(Array.from({ length: Math.min(8, missing.length) }, async () => {
+      while (cursor < missing.length) {
+        const card = missing[cursor++];
+        storedPictures.set(cardId(card), await datasetPicture(card));
+      }
+    }));
     const toInsert: CardRow[] = [];
-    for (const card of datasetCards.filter((c) => c.set === dataset.code)) {
+    for (const card of setCards) {
       const id = cardId(card);
       const fromTcgdex = tcgdexCards.get(id);
       const current = existing.get(id);
       const { original, variant } = originalOf(card);
       const reprintOf = original ? cardId(original) : null;
       // A reprint shows its original's picture until TCGdex has one of its own
-      const picture = fromTcgdex?.image ?? (reprintOf ? tcgdexCards.get(reprintOf)?.image : undefined) ?? null;
+      const picture = fromTcgdex?.image ?? (reprintOf ? tcgdexCards.get(reprintOf)?.image : undefined) ?? storedPictures.get(id) ?? null;
 
       if (!current) {
         toInsert.push({
