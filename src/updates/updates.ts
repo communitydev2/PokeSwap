@@ -17,6 +17,31 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'trade-matches',
+    date: '2026-10-17',
+    audience: 'user',
+    title: 'Get told about new trades straight away',
+    summary: 'Adding cards now shows you any new possible trades, and the other player gets a notification too.',
+    body: [
+      'When the cards you add mean another player has a card you want and wants one of yours, a "New possible trades" window opens right away. You can send them an offer from there, or open Find trades to see everything.',
+      'The other player is told as well: their bell shows that you have a card from their wishlist and want one of theirs. You\'ll get at most one of these per player per day.',
+    ],
+    tags: ['feature'],
+    screenshot: '/updates/trade-matches.png',
+  },
+  {
+    id: 'trade-matches-dev',
+    date: '2026-10-17',
+    audience: 'dev',
+    title: 'Trade-match pop-up and trade_match notifications',
+    summary: 'NewMatchesModal after add_cards_to_tcg_account; migration 20261018000300 adds notification kind trade_match.',
+    body: [
+      'Front end: after a successful add, ManageCardsMainMenu calls find_trade_partners for the account and keeps matches involving the just-added cards (get_card for wishlist adds, wanted_from_me for trade-list adds); NewMatchesModal sends offers with create_trade_offer like Trades does. NotificationBell renders trade_match and opens Trades -> Find trades; its account relation is now qualified (player_tcg_account!notification_tcg_account_id_fkey) because notification gained a second FK.',
+      'Database: notification.match_account (nullable FK, on delete cascade) and kind trade_match; add_cards_to_tcg_account notifies every other player with a new match involving the added cards (same rules as find_trade_partners), one per (tcg_account_id, match_account) per 24 hours, set-based.',
+    ],
+    tags: ['dev', 'database'],
+  },
+  {
     id: 'support-paused',
     date: '2026-10-17',
     audience: 'user',

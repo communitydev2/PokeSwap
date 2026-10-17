@@ -24,7 +24,7 @@ type Notification = {
 
 const SELECT =
   'id, kind, read_at, created_at, tcg_account_id, partner_name, exclusive, ' +
-  'account:player_tcg_account(tcg_id_username, tcg_id), ' +
+  'account:player_tcg_account!notification_tcg_account_id_fkey(tcg_id_username, tcg_id), ' +
   'my_card:card!notification_my_card_id_fkey(card_name, card_image), ' +
   'their_card:card!notification_their_card_id_fkey(card_name, card_image)';
 
@@ -121,7 +121,8 @@ export function NotificationBell() {
     if (!n.read_at) markRead([n.id]);
     navigate({ to: '/' });
     setShowManageCardsMainMenu(true);
-    setTradesRequest({ tcgAccountId: n.tcg_account_id, seq: Date.now() });
+    const request = { tcgAccountId: n.tcg_account_id, seq: Date.now(), view: n.kind === 'trade_match' ? 'find' : 'offers' };
+    setTradesRequest(request);
   }
 
   if (!userId) return null;
@@ -164,7 +165,7 @@ export function NotificationBell() {
                       <CardPicture cardImage={n.their_card?.card_image} alt={n.their_card?.card_name ?? ''} width={32} radius={3} zoom={false} />
                       <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
                         <Text size="sm" fw={n.read_at ? 400 : 600}>
-                          {(t.notificationMessage[n.kind] ?? t.notificationMessage.offer_received)(
+                          {(n.kind === 'trade_match' ? t.notificationTradeMatch : t.notificationMessage[n.kind] ?? t.notificationMessage.offer_received)(
                             n.partner_name, n.my_card?.card_name ?? '', n.their_card?.card_name ?? ''
                           )}
                         </Text>

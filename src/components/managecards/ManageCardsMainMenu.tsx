@@ -23,6 +23,7 @@ import { PokemonCard } from '../../types/PokemonCard';
 import { ConfirmCardsList } from '../ConfirmCardsList/ConfirmCardsList';
 import { MyCards } from './MyCards';
 import { Trades } from './Trades';
+import { NewMatchesModal, type NewTradeMatch } from './NewMatchesModal';
 
 type tcgAccountType =  {
   available_cards_for_trade : string,
@@ -327,6 +328,7 @@ export function ManageCardsMainMenu({callComponent,exclusiveCardSelected}:{callC
   // value is the account's tcg_account_id, label is what the player sees
   const [comboData_accountUsernames,setComboData_accountUsernames] = useState<ComboboxItem[]|null>(null)
   // Shown above the card search after cards are saved
+  const [newMatches, setNewMatches] = useState<{ accountId: string; rows: NewTradeMatch[] } | null>(null)
   const [savedMessage,setSavedMessage] = useState<string|null>(null)
   // Screen shown instead of the menu: the selected account's saved cards or its trades
   const [accountBack, setAccountBack] = useState<AccountBack | null>(null)
@@ -488,6 +490,20 @@ function cardCategoryOnChange(e) {
     setSavedMessage(category == CARD_CATEGORY.trade ? t.cardsSavedForTrade(total, accountName) : t.cardsSavedToWishlist(total, accountName))
     setMyCardsCategory(category == CARD_CATEGORY.trade ? CARD_CATEGORY.trade : CARD_CATEGORY.wishlist)
     usePokeCardStore.setListCardsSelected([])
+    try {
+      const result = await supabase.rpc('find_trade_partners', { p_account: account.tcg_account_id })
+      if (result.error) throw result.error
+      const added = new Set(cards.map((c) => c.card_id + '|' + c.language))
+      const rows = (result.data as NewTradeMatch[]).filter((row) =>
+        row.wanted_from_me.length > 0 && (category === CARD_CATEGORY.trade
+          ? row.wanted_from_me.some((w) => added.has(w.card.card_id + '|' + w.language))
+          : added.has(row.get_card.card_id + '|' + row.get_language)))
+      if (rows.length && useAuthStore.getState().user?.user_id === account.user_id) {
+        setNewMatches({ accountId: account.tcg_account_id, rows })
+      }
+    } catch (error) {
+      console.warn('Could not load new trade matches', error)
+    }
     return null
   }
 
@@ -590,7 +606,7 @@ function cardCategoryOnChange(e) {
   useEffect(() => {
     if (!tradesRequest || callComponent!=MENU_MODE.mainMenu || !tcgAccounts) return
     if (tcgAccounts.some((a) => a.tcg_account_id == tradesRequest.tcgAccountId)) setSelectedTcgAccount(tradesRequest.tcgAccountId)
-    setTradesInitialView('offers')
+    setTradesInitialView('view' in tradesRequest && tradesRequest.view === 'find' ? 'find' : 'offers')
     setTradesOpenSeq(tradesRequest.seq)
     setView('trades')
     useStateStoreWrapper.setTradesRequest(null)
@@ -600,6 +616,7 @@ function cardCategoryOnChange(e) {
     setView('menu')
     setSelectedTcgAccount(null)
     setSavedMessage(null)
+    setNewMatches(null)
     setShowManageCardsMainMenuOptions(true)
   }, [useAuthStoreWrapper.user?.user_id])
 
@@ -635,6 +652,15 @@ function cardCategoryOnChange(e) {
 
   return (
   <Stack gap="md" w="100%">
+{newMatches && <NewMatchesModal accountId={newMatches.accountId} matches={newMatches.rows}
+  onClose={() => setNewMatches(null)} onOfferSent={() => setOffersReload((n) => n + 1)}
+  onSeeAll={() => {
+    setSelectedTcgAccount(newMatches.accountId)
+    setTradesInitialView('find')
+    setTradesOpenSeq((n) => n + 1)
+    setNewMatches(null)
+    setView('trades')
+  }} />}
 {(callComponent!=MENU_MODE.mainMenu || showManageCardsMainMenuOptions) && <ComponentTitle props={[callComponent,useLocStore]}/>}
   
   

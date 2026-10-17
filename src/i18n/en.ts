@@ -300,6 +300,14 @@ export const en = {
   supportPausedDescription: "Support isn't available right now.",
   supportPausedHome: 'Go home',
 
+  // Trade matches
+  newMatchesTitle: 'New possible trades',
+  newMatchesSeeAll: 'See all in Find trades',
+  newMatchesTheyHave: (card: string) => `They have ${card} you want`,
+  newMatchesTheyWant: 'They want:',
+  notificationTradeMatch: (partner: string, mine: string, theirs: string) =>
+    `${partner} has ${theirs} from your wishlist and wants your ${mine}`,
+
   // Header
   appName: 'Oaktrade',
   homeNav: 'Home',
