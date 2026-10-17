@@ -1,3 +1,4 @@
+import { useLocalizationStore } from '../store/useLocalizationStore';
 import { supabase } from '../supabaseClient';
 import type { User } from '../types/User';
 
@@ -9,6 +10,7 @@ export async function saveUsername(
   userId: string,
   username: string,
 ): Promise<{ user: User } | { error: string }> {
+  const t = useLocalizationStore.getState().t;
   const updated = await supabase.from('user_account').update({ username }).eq('user_id', userId).select();
   let result = updated;
 
@@ -19,15 +21,15 @@ export async function saveUsername(
   if (result.error) {
     console.warn(result.error);
     if (result.error.message === 'Username contains a banned word') {
-      return { error: 'This username is inappropriate, please choose another one.' };
+      return { error: t.qaUsernameInappropriate };
     }
     if (result.error.code === '23505') {
-      return { error: 'This username already exists. Please pick another one.' };
+      return { error: t.qaUsernameTaken };
     }
-    return { error: "Couldn't save your username. Please try again." };
+    return { error: t.qaUsernameFailed };
   }
   if (!result.data?.length) {
-    return { error: "Couldn't save your username. Please try again." };
+    return { error: t.qaUsernameFailed };
   }
   return { user: result.data[0] };
 }

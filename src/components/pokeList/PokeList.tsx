@@ -29,9 +29,9 @@ export function PokeList({listType}:{listType:string}) {
   // Search and catalogue changes reset only the add list.
   useEffect(() => {
     if (listType != LIST_TYPE.add) return
-    setActiveList(usePokeCard.searchQuery.length > 0 ? usePokeCard.searchQuery : usePokeCard.pokemonCards)
+    setActiveList(usePokeCard.searchActive ? usePokeCard.searchQuery : usePokeCard.pokemonCards)
     setCurrentPageNumber(1)
-  }, [listType, usePokeCard.searchQuery, usePokeCard.pokemonCards])
+  }, [listType, usePokeCard.searchActive, usePokeCard.searchQuery, usePokeCard.pokemonCards])
 
   // Keep the selected list on its current page unless that page no longer exists.
   useEffect(() => {

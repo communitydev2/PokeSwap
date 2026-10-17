@@ -26,14 +26,20 @@ type SavedAccountsState = {
   setUsername: (userId: string, username: string | null) => void;
   remove: (userId: string) => void;
   setAddingAccount: (adding: boolean) => void;
-  switchTo: (userId: string) => Promise<{ ok: boolean }>;
+  switchTo: (userId: string) => Promise<{ ok: boolean; expired?: boolean }>;
 };
 
 const STORAGE_KEY = 'saved-accounts';
 
 function load(): SavedAccount[] {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]');
+    const value: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]');
+    return Array.isArray(value) ? value.filter((entry): entry is SavedAccount =>
+      entry !== null && typeof entry === 'object' &&
+      typeof entry.userId === 'string' && typeof entry.email === 'string' &&
+      (entry.username === null || typeof entry.username === 'string') &&
+      typeof entry.accessToken === 'string' && typeof entry.refreshToken === 'string',
+    ) : [];
   } catch {
     return [];
   }
@@ -48,6 +54,7 @@ function persist(accounts: SavedAccount[]) {
 }
 
 export const useSavedAccountsStore = create<SavedAccountsState>((set, get) => {
+  let switching = false;
   const update = (accounts: SavedAccount[]) => {
     persist(accounts);
     set({ accounts });
@@ -92,19 +99,29 @@ export const useSavedAccountsStore = create<SavedAccountsState>((set, get) => {
     // Make a saved account the active session. If its tokens no longer work
     // (signed out elsewhere, revoked), it is forgotten and needs a new sign-in.
     switchTo: async (userId) => {
+      if (switching) return { ok: false };
       const account = get().accounts.find((a) => a.userId === userId);
-      if (!account) return { ok: false };
-      const { error } = await supabase.auth.setSession({
-        access_token: account.accessToken,
-        refresh_token: account.refreshToken,
-      });
-      if (error) {
+      if (!account) return { ok: false, expired: true };
+      switching = true;
+      try {
+        const { error } = await supabase.auth.setSession({
+          access_token: account.accessToken,
+          refresh_token: account.refreshToken,
+        });
+        if (error) {
+          console.warn(error);
+          const expired = error.status === 400 || error.status === 401 || error.status === 403;
+          if (expired) get().remove(userId);
+          return { ok: false, expired };
+        }
+        set({ addingAccount: false });
+        return { ok: true };
+      } catch (error) {
         console.warn(error);
-        get().remove(userId);
         return { ok: false };
+      } finally {
+        switching = false;
       }
-      set({ addingAccount: false });
-      return { ok: true };
     },
   };
 });

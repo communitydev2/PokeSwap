@@ -1,11 +1,11 @@
 import { ANY_OPTION } from '../../constants'
-import { Button, Group, Select, SimpleGrid, Stack, TextInput } from '@mantine/core';
+import { Alert, Button, Group, Select, SimpleGrid, Stack, TextInput } from '@mantine/core';
 import { IconSearch } from '@tabler/icons-react';
 import { useForm } from '@mantine/form';
 import { useLocalizationStore } from '../../store/useLocalizationStore';
 import { usePokemonCardStore } from '../../store/pokemonCardsStore';
 import { useSearchFunction } from '../../utils/Utilfunctions';
-import { useEffect } from 'react';
+import { useRef, useState } from 'react';
 import { supabase } from '../../supabaseClient';
 import { expansionOptions, rarityOptions } from '../../utils/searchOptions';
 ;
@@ -44,6 +44,9 @@ export default function SearchBar() {
   const useLocStore = useLocalizationStore();
   const usePokeCardStore = usePokemonCardStore();
 
+  const request = useRef(0);
+  const [failed, setFailed] = useState(false);
+
   const form = useForm<SearchFormValues>({
     mode: 'controlled',
     initialValues: {
@@ -54,6 +57,8 @@ export default function SearchBar() {
   });
 
   async function handleFormSubmit (values: SearchFormValues) {
+     const seq = ++request.current;
+     setFailed(false);
      try {
       const anyLabel = ANY_OPTION;
       // is it equal to any?
@@ -69,29 +74,35 @@ export default function SearchBar() {
         p_set: setParam,
       });
 
+      if (seq !== request.current) return;
       if (error) {
+        setFailed(true);
         console.error('Supabase search error:', error);
         return;
       }
 
       // console.log('Search results:', data);
-      usePokeCardStore.setPokemonCardsSearchQuery(data);
+
 
       usePokeCardStore.setPokemonCardsSearchQuery(data ?? []);
     } catch (error) {
+      if (seq === request.current) setFailed(true);
       console.error('Unexpected search error:', error);
     }
   };
 
   // Clear the filters and show the full card list again
   function handleClear() {
+    ++request.current;
+    setFailed(false);
     form.reset();
-    usePokeCardStore.setPokemonCardsSearchQuery([]);
+    usePokemonCardStore.setState({ searchQuery: [], searchActive: false });
   }
 
   return (
     <form onSubmit={form.onSubmit(handleFormSubmit)}>
       <Stack gap="sm">
+        {failed && <Alert color="red">{useLocStore.t.qaManageSearchFailed}</Alert>}
         <TextInput data-click-id="SearchBar/search-input"
           label={useLocStore.t.searchByName}
           placeholder={useLocStore.t.searchPlaceholder}

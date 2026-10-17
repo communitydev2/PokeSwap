@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActionIcon, Badge, Box, Button, Group, Indicator, Popover, ScrollArea, Stack, Text, UnstyledButton } from '@mantine/core';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ActionIcon, Alert, Badge, Box, Button, Group, Indicator, Popover, ScrollArea, Stack, Text, UnstyledButton } from '@mantine/core';
 import { IconBell } from '@tabler/icons-react';
 import { useNavigate } from '@tanstack/react-router';
 import { supabase } from '../supabaseClient';
@@ -39,19 +39,37 @@ export function NotificationBell() {
   const [opened, setOpened] = useState(false);
   const [items, setItems] = useState<Notification[]>([]);
   const [unread, setUnread] = useState(0);
+  const [loadedFor, setLoadedFor] = useState<string>();
+  const request = useRef(0);
+  const [limit, setLimit] = useState(50);
+  const [failed, setFailed] = useState(false);
 
   const load = useCallback(async () => {
     if (!userId) return;
+    const seq = ++request.current;
     const [list, count] = await Promise.all([
-      supabase.from('notification').select(SELECT).order('created_at', { ascending: false }).limit(50),
-      supabase.from('notification').select('id', { count: 'exact', head: true }).is('read_at', null),
+      supabase.from('notification').select(SELECT).eq('user_id', userId).order('created_at', { ascending: false }).order('id', { ascending: false }).limit(limit),
+      supabase.from('notification').select('id', { count: 'exact', head: true }).eq('user_id', userId).is('read_at', null),
     ]);
+    if (seq !== request.current || useAuthStore.getState().user?.user_id !== userId) return;
     if (list.error || count.error) {
+      setFailed(true);
       console.warn(list.error ?? count.error);
       return;
     }
+    setFailed(false);
+    setLoadedFor(userId);
     setItems(list.data as unknown as Notification[]);
     setUnread(count.count ?? 0);
+  }, [userId, limit]);
+
+  useEffect(() => {
+    setItems([]);
+    setUnread(0);
+    setOpened(false);
+    setLoadedFor(undefined);
+    setLimit(50);
+    setFailed(false);
   }, [userId]);
 
   // Live updates, plus a refresh when the tab gets focus and once a minute in case the live connection drops
@@ -65,6 +83,7 @@ export function NotificationBell() {
     const timer = window.setInterval(load, 60_000);
     window.addEventListener('focus', load);
     return () => {
+      request.current++;
       supabase.removeChannel(channel);
       window.clearInterval(timer);
       window.removeEventListener('focus', load);
@@ -83,7 +102,7 @@ export function NotificationBell() {
     const now = new Date().toISOString();
     setItems((list) => list.map((n) => (ids.includes(n.id) ? { ...n, read_at: n.read_at ?? now } : n)));
     setUnread((count) => Math.max(0, count - items.filter((n) => ids.includes(n.id) && !n.read_at).length));
-    const { error } = await supabase.from('notification').update({ read_at: now }).in('id', ids).is('read_at', null);
+    const { error } = await supabase.from('notification').update({ read_at: now }).eq('user_id', userId!).in('id', ids).is('read_at', null);
     if (error) console.warn(error);
     load();
   }
@@ -92,7 +111,7 @@ export function NotificationBell() {
     const now = new Date().toISOString();
     setItems((list) => list.map((n) => ({ ...n, read_at: n.read_at ?? now })));
     setUnread(0);
-    const { error } = await supabase.from('notification').update({ read_at: now }).is('read_at', null);
+    const { error } = await supabase.from('notification').update({ read_at: now }).eq('user_id', userId!).is('read_at', null);
     if (error) console.warn(error);
     load();
   }
@@ -106,13 +125,14 @@ export function NotificationBell() {
   }
 
   if (!userId) return null;
+  const visible = loadedFor === userId;
 
   return (
     <Popover opened={opened} onChange={setOpened} position="bottom-end" width="min(360px, calc(100vw - 24px))" shadow="md" withinPortal>
       <Popover.Target>
-        <Indicator label={unread > 99 ? '99+' : unread} size={18} color="red" disabled={unread === 0} offset={4}>
+        <Indicator label={visible ? (unread > 99 ? '99+' : unread) : 0} size={18} color="red" disabled={!visible || unread === 0} offset={4}>
           <ActionIcon data-click-id="NotificationBell/open" variant="default" size="lg" radius="md"
-            aria-label={t.notificationsOpen(unread)} onClick={() => setOpened((o) => !o)}>
+            aria-label={t.notificationsOpen(visible ? unread : 0)} onClick={() => setOpened((o) => !o)}>
             <IconBell size={18} />
           </ActionIcon>
         </Indicator>
@@ -120,17 +140,18 @@ export function NotificationBell() {
       <Popover.Dropdown p={0} maw="calc(100vw - 24px)">
         <Group justify="space-between" px="md" py="sm">
           <Text fw={600}>{t.notifications}</Text>
-          {unread > 0 && (
+          {visible && unread > 0 && (
             <Button data-click-id="NotificationBell/mark-all-read" size="compact-xs" variant="subtle" onClick={markAllRead}>
               {t.notificationsMarkAllRead}
             </Button>
           )}
         </Group>
         <ScrollArea.Autosize mah={440} type="auto">
-          {items.length === 0 && (
+          {failed && <Alert color="red">{t.notificationsLoadFailed}</Alert>}
+          {visible && items.length === 0 && (
             <Text size="sm" c="dimmed" ta="center" px="md" pb="lg">{t.notificationsEmpty}</Text>
           )}
-          {groups.map((group) => (
+          {(visible ? groups : []).map((group) => (
             <Box key={group[0].tcg_account_id} pb="xs">
               <Text size="xs" fw={700} c="dimmed" tt="uppercase" px="md" py={4}>
                 {group[0].account?.tcg_id_username ?? group[0].account?.tcg_id ?? ''}
@@ -159,6 +180,11 @@ export function NotificationBell() {
               </Stack>
             </Box>
           ))}
+          {visible && items.length >= limit && (
+            <Button data-click-id="NotificationBell/load-more" variant="subtle" fullWidth onClick={() => setLimit((n) => n + 50)}>
+              {t.notificationsLoadMore}
+            </Button>
+          )}
         </ScrollArea.Autosize>
       </Popover.Dropdown>
     </Popover>

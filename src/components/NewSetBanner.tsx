@@ -9,7 +9,8 @@ const DISMISSED_KEY = 'dismissed-new-sets';
 
 function readDismissed(): string[] {
   try {
-    return JSON.parse(localStorage.getItem(DISMISSED_KEY) ?? '[]');
+    const value: unknown = JSON.parse(localStorage.getItem(DISMISSED_KEY) ?? '[]');
+    return Array.isArray(value) ? value.filter((code): code is string => typeof code === 'string') : [];
   } catch {
     return [];
   }

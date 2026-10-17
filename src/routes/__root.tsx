@@ -1,11 +1,12 @@
-import { createRootRoute, Outlet } from '@tanstack/react-router'
-import { TanStackRouterDevtoolsInProd } from '@tanstack/react-router-devtools'
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
+import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
 import { Header } from '../components/Header'
 import { NewSetBanner } from '../components/NewSetBanner'
-import { Box, MantineProvider} from "@mantine/core";
+import { Anchor, Box, Container, Stack, Text, Title, MantineProvider} from "@mantine/core";
 import { theme } from '../theme';
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
+import { useStateStore } from '../store/useStateStore';
+
+const Devtools = import.meta.env.DEV ? lazy(() => import('@tanstack/react-router-devtools').then((module) => ({ default: module.TanStackRouterDevtools }))) : null;
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from '../supabaseClient';
 import { useAuthStore } from '../store/userStore';
@@ -18,9 +19,7 @@ const initialAuthError = (() => {
   const params = new URLSearchParams(window.location.hash.slice(1))
   return params.get('error') ? params.get('error_code') ?? 'unknown' : null
 })()
-if(process.env.NODE_ENV === 'production'){
-  <TanStackRouterDevtoolsInProd/>
-}
+
 
 
 
@@ -31,6 +30,7 @@ function useSupabaseSession() {
   const setSession = useAuthStore((state) => state.setSession)
   const setUser = useAuthStore((state) => state.setUser)
   const setProfileLoading = useAuthStore((state) => state.setProfileLoading)
+  const setProfileError = useAuthStore((state) => state.setProfileError)
   const setIsSupporter = useAuthStore((state) => state.setIsSupporter)
   const userId = useAuthStore((state) => state.session?.user.id)
   const username = useAuthStore((state) => state.user?.username ?? null)
@@ -49,19 +49,25 @@ function useSupabaseSession() {
 
   useEffect(() => {
     const apply = (event: string, session: Session | null) => {
+      const previousId = useAuthStore.getState().session?.user.id
+      if (previousId !== session?.user.id) useStateStore.getState().setShowManageCardsMainMenu(false)
+      if (!session) setAddingAccount(false)
       setSession(session)
       // Remember every account signed in on this device, with its latest tokens
       if (session) saveSession(session)
       if (event === 'SIGNED_IN') setAddingAccount(false)
     }
-    supabase.auth.getSession().then(({ data: { session } }) => apply('INITIAL', session))
-    const { data } = supabase.auth.onAuthStateChange(apply)
+    let receivedEvent = false
+    supabase.auth.getSession().then(({ data: { session } }) => { if (!receivedEvent) apply('INITIAL', session) })
+    const { data } = supabase.auth.onAuthStateChange((event, session) => { receivedEvent = true; apply(event, session) })
     return () => data.subscription.unsubscribe()
   }, [setSession, saveSession, setAddingAccount])
 
   // Load the signed-in user's profile (username etc.); clear it on sign-out
   useEffect(() => {
     setUser(null)
+    setProfileError(false)
+    setIsSupporter(false)
     if (!userId) {
       setProfileLoading(false)
       return
@@ -71,23 +77,28 @@ function useSupabaseSession() {
     // Supporter badge (false if the support SQL hasn't been run yet)
     setIsSupporter(false)
     supabase.rpc('my_supporter_status').then(({ data, error }) => {
-      if (!cancelled && !error) setIsSupporter(data === true)
+      if (!cancelled && useAuthStore.getState().session?.user.id === userId && !error) setIsSupporter(data === true)
     })
-    supabase
+    Promise.resolve(supabase
       .from('user_account')
       .select('*')
       .eq('user_id', userId)
-      .maybeSingle()
+      .maybeSingle())
       .then(({ data, error }) => {
-        if (cancelled) return
-        if (error) console.warn(error)
+        if (cancelled || useAuthStore.getState().session?.user.id !== userId) return
+        if (error) { console.warn(error); setProfileError(true) }
         else setUser(data)
+        setProfileLoading(false)
+      }).catch((error) => {
+        if (cancelled || useAuthStore.getState().session?.user.id !== userId) return
+        console.warn(error)
+        setProfileError(true)
         setProfileLoading(false)
       })
     return () => {
       cancelled = true
     }
-  }, [userId, setUser, setProfileLoading, setIsSupporter])
+  }, [userId, setUser, setProfileLoading, setIsSupporter, setProfileError])
 
   // Keep the saved account's username in sync for the account switcher
   useEffect(() => {
@@ -109,11 +120,24 @@ const RootLayout =() => {
       <Outlet />
     </Box>
      </MantineProvider>
-    <TanStackRouterDevtools />
+    {Devtools && <Suspense fallback={null}><Devtools /></Suspense>}
   </>
   )
 }
   
 
 
-export const Route = createRootRoute({ component: RootLayout })
+function NotFound() {
+  const t = useLocalizationStore((state) => state.t)
+  return (
+    <Container size={760} px="md">
+      <Stack>
+        <Title order={2}>{t.qaNotFoundTitle}</Title>
+        <Text c="dimmed">{t.qaNotFoundDescription}</Text>
+        <Anchor component={Link} to="/" data-click-id="NotFound/home">{t.qaNotFoundHome}</Anchor>
+      </Stack>
+    </Container>
+  )
+}
+
+export const Route = createRootRoute({ component: RootLayout, notFoundComponent: NotFound })

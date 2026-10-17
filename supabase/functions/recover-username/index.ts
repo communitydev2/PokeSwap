@@ -95,7 +95,7 @@ Deno.serve(async (req) => {
   ]);
   if (byEmail.error || byIp.error) {
     console.error('Rate limit check failed', byEmail.error ?? byIp.error);
-    return json({ ok: true });
+    return json({ error: 'Recovery is temporarily unavailable' }, 503);
   }
 
   // Over the limit: answer the same as usual, just don't send anything
@@ -103,7 +103,11 @@ Deno.serve(async (req) => {
     return json({ ok: true });
   }
 
-  await supabase.from('username_recovery_requests').insert({ email_hash: emailHash, ip_hash: ipHash });
+  const { error: requestError } = await supabase.from('username_recovery_requests').insert({ email_hash: emailHash, ip_hash: ipHash });
+  if (requestError) {
+    console.error('Rate limit record failed', requestError);
+    return json({ error: 'Recovery is temporarily unavailable' }, 503);
+  }
 
   const { data: username, error } = await supabase.rpc('get_username_by_email', { p_email: email });
   if (error) console.error('Username lookup failed', error);

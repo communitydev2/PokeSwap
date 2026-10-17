@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ActionIcon, Alert, Badge, Button, Group, Loader, Pagination, Paper, Popover, SegmentedControl, Stack, Text } from '@mantine/core';
 import { IconMinus, IconPlus, IconTrash } from '@tabler/icons-react';
 import { supabase } from '../../supabaseClient';
@@ -36,6 +36,7 @@ export function MyCards({ tcgAccountId, initialCategory = CARD_CATEGORY.wishlist
   const [saveFailed, setSaveFailed] = useState(false);
   // Rows with a change on its way to the database (their buttons are disabled meanwhile)
   const [savingIds, setSavingIds] = useState<Set<number>>(new Set());
+  const inFlight = useRef(new Set<string>());
   const [page, setPage] = useState(1);
 
   useEffect(() => {
@@ -90,7 +91,9 @@ export function MyCards({ tcgAccountId, initialCategory = CARD_CATEGORY.wishlist
   // Shows the change immediately and puts the old list back if saving fails
   async function applyChange(row: SavedCard, change: { quantity: number } | 'remove') {
     const list = category;
-    const before = lists[list];
+    const key = `${list}:${row.id}`;
+    if (inFlight.current.has(key)) return;
+    inFlight.current.add(key);
     setSaveFailed(false);
     setSaving(row.id, true);
     setLists((prev) => ({
@@ -102,15 +105,23 @@ export function MyCards({ tcgAccountId, initialCategory = CARD_CATEGORY.wishlist
     }));
 
     const table = supabase.from(TABLES[list]);
-    const { error } =
+    let error;
+    try {
+      ({ error } =
       change === 'remove'
         ? await table.delete().eq('id', row.id)
-        : await table.update({ quantity: change.quantity, updated_at: new Date().toISOString() }).eq('id', row.id);
+        : await table.update({ quantity: change.quantity, updated_at: new Date().toISOString() }).eq('id', row.id));
+    } catch (cause) {
+      error = cause;
+    }
+    inFlight.current.delete(key);
 
     setSaving(row.id, false);
     if (error) {
       console.warn(error);
-      setLists((prev) => ({ ...prev, [list]: before }));
+      setLists((prev) => ({ ...prev, [list]: change === 'remove'
+        ? [...prev[list], row]
+        : prev[list].map((saved) => saved.id === row.id ? row : saved) }));
       setSaveFailed(true);
     }
   }

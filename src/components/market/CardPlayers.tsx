@@ -27,7 +27,7 @@ export function CardPlayers({
   const phone = useMediaQuery('(max-width: 30em)');
   const t = useLocalizationStore((s) => s.t);
   const session = useAuthStore((s) => s.session);
-  const { accounts, loading: accountsLoading } = useMyTcgAccounts();
+  const { accounts, loading: accountsLoading, error: accountsError } = useMyTcgAccounts();
   const [rows, setRows] = useState<Player[]>([]);
   const [rarities, setRarities] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -104,6 +104,8 @@ export function CardPlayers({
                       </Text>
                     ) : accountsLoading ? (
                       <Loader size="xs" />
+                    ) : accountsError ? (
+                      <Text c="red">{t.marketAccountsLoadFailed}</Text>
                     ) : !accounts.length ? (
                       <Text size="xs" c="dimmed">
                         {t.marketNoAccount}

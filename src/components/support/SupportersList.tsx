@@ -10,23 +10,34 @@ export function SupportersList({ usernames, onOptInChanged }: { usernames: strin
   const user = useAuthStore((state) => state.user);
   const setUser = useAuthStore((state) => state.setUser);
   const [saving, setSaving] = useState(false);
+  const [failed, setFailed] = useState(false);
 
   async function handleToggle(show: boolean) {
-    if (!user) return;
+    if (!user || saving) return;
+    setFailed(false);
     setSaving(true);
-    const { data, error } = await supabase
-      .from('user_account')
-      .update({ show_in_supporters: show })
-      .eq('user_id', user.user_id)
-      .select()
-      .maybeSingle();
-    setSaving(false);
-    if (error) {
+    try {
+      const { data, error } = await supabase
+        .from('user_account')
+        .update({ show_in_supporters: show })
+        .eq('user_id', user.user_id)
+        .select()
+        .maybeSingle();
+
+      if (useAuthStore.getState().session?.user.id !== user.user_id) return;
+      if (error || !data) {
+        setFailed(true);
+        console.warn(error);
+        return;
+      }
+      if (data) setUser(data);
+      onOptInChanged();
+    } catch (error) {
       console.warn(error);
-      return;
+      setFailed(true);
+    } finally {
+      setSaving(false);
     }
-    if (data) setUser(data);
-    onOptInChanged();
   }
 
   return (
@@ -47,6 +58,7 @@ export function SupportersList({ usernames, onOptInChanged }: { usernames: strin
           {t.supportNoSupportersYet}
         </Text>
       )}
+      {failed && <Text size="sm" c="red" mt="sm">{t.qaOptInFailed}</Text>}
       {user?.username && (
         <Switch
           wrapperProps={{ 'data-click-id': 'SupportersList/show-me' }}

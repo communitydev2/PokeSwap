@@ -1,4 +1,4 @@
-import { useEffect,useEffectEvent,useState } from 'react'
+import { useEffect } from 'react'
 import { supabase } from '../supabaseClient'
 import { useStateStore } from '../store/useStateStore'
 import { Auth } from './Auth'
@@ -7,8 +7,8 @@ import {Account} from './Account'
 import { useAuthStore } from '../store/userStore'
 import { ChangeUsername } from './ChangeUsername/ChangeUsername'
 import { useSavedAccountsStore } from '../store/savedAccountsStore'
-import { Alert, Center, Container, Loader, Stack } from '@mantine/core'
-import { PokeList } from './pokeList/PokeList'
+import { Alert, Button, Center, Container, Loader, Stack } from '@mantine/core'
+import { useLocalizationStore } from '../store/useLocalizationStore'
 import { usePokemonCardStore } from '../store/pokemonCardsStore'
 import { fetchAllRows } from '../utils/fetchAllRows'
 import type { PokemonCard } from '../types/PokemonCard'
@@ -24,7 +24,8 @@ export default function LandingPage() {
     const addingAccount = useSavedAccountsStore((state) => state.addingAccount)
     const notice = useSavedAccountsStore((state) => state.notice)
     const setNotice = useSavedAccountsStore((state) => state.setNotice)
-    const [userInfo,setUserInfo] = useState(null);
+    const profileError = useAuthStore((state) => state.profileError)
+    const t = useLocalizationStore((state) => state.t)
     const authStore = useAuthStore();
     const usePokeCardStore = usePokemonCardStore();
 
@@ -32,16 +33,18 @@ export default function LandingPage() {
 //  I'm going to the rarity and expansion variables in pokemondbstore
   useEffect(()=>{
     async function fetchRarityExpansionValues(){
-      let {data: rarity, errorRarity} = await supabase
+      let {data: rarity, error: errorRarity} = await supabase
       .from('rarity')
       .select('*')
 
-      let {data: set, errorSet} = await supabase
+      let {data: set, error: errorSet} = await supabase
       .from('set')
       .select('*')
   
-      usePokeCardStore.setSupabase_rarity(rarity)
-      usePokeCardStore.setSupabase_expansion(set)
+      if (errorRarity) console.warn(errorRarity)
+      else usePokeCardStore.setSupabase_rarity(rarity ?? [])
+      if (errorSet) console.warn(errorSet)
+      else usePokeCardStore.setSupabase_expansion(set ?? [])
     }
     fetchRarityExpansionValues()
   },[])
@@ -84,8 +87,12 @@ getCards()
         <Auth />
       ) : profileLoading ? (
         <Center py="xl"><Loader /></Center>
+      ) : profileError ? (
+        <Alert color="red">{t.qaProfileFailed}
+          <Button data-click-id="LandingPage/retry-profile" onClick={() => window.location.reload()}>{t.qaRetry}</Button>
+        </Alert>
       ) : !authStore.user?.username ? (
-        <ChangeUsername mode="set" />
+        <ChangeUsername key={session.user.id} mode="set" />
       ) : (
         <Account key={session.user.id} session={session} />
       )}

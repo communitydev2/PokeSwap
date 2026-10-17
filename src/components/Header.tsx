@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react';
 import { ColorSchemeToggle } from './ColorSchemeToggle/ColorSchemeToggle';
 
 import { Link, useNavigate } from '@tanstack/react-router';
@@ -28,6 +29,8 @@ export function Header() {
   const authStore = useAuthStore();
   const useStateStoreHandle = useStateStore();
 
+  const actionBusy = useRef(false);
+  const [busy, setBusy] = useState(false);
   const navigate = useNavigate();
   const savedAccounts = useSavedAccountsStore();
   const t = useLocalizationStore((state) => state.t);
@@ -55,21 +58,41 @@ export function Header() {
   async function handleLogOut() {
     closeDrawer();
     useStateStoreHandle.setShowManageCardsMainMenu(false);
-    if (session) savedAccounts.remove(session.user.id);
-    await supabase.auth.signOut({ scope: 'local' });
+    if (actionBusy.current) return;
+    actionBusy.current = true;
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.signOut({ scope: 'local' });
+      if (error) { savedAccounts.setNotice(t.qaSignOutFailed); navigate({ to: '/' }); return; }
+      if (session) savedAccounts.remove(session.user.id);
+      savedAccounts.setAddingAccount(false);
+    } catch {
+      savedAccounts.setNotice(t.qaSignOutFailed);
+      navigate({ to: '/' });
+      return;
+    } finally {
+      actionBusy.current = false;
+      setBusy(false);
+    }
     navigate({ to: '/' });
   }
 
   async function handleSwitchAccount(userId: string) {
+    if (actionBusy.current) return;
+    actionBusy.current = true;
+    setBusy(true);
     closeDrawer();
     useStateStoreHandle.setShowManageCardsMainMenu(false);
-    const { ok } = await savedAccounts.switchTo(userId);
-    if (!ok) savedAccounts.setNotice(t.headerAccountSignedOut);
+    const { ok, expired } = await savedAccounts.switchTo(userId);
+    actionBusy.current = false;
+    setBusy(false);
+    if (!ok) savedAccounts.setNotice(expired ? t.headerAccountSignedOut : t.qaSwitchFailed);
     navigate({ to: '/' });
   }
 
   // Shows the sign-in form while keeping the current account saved
   function handleAddAccount() {
+    if (actionBusy.current) return;
     closeDrawer();
     useStateStoreHandle.setShowManageCardsMainMenu(false);
     savedAccounts.setAddingAccount(true);
@@ -111,7 +134,7 @@ export function Header() {
               )}
               <Menu position="bottom-end" width={260} shadow="md" withinPortal>
                 <Menu.Target>
-                  <Button data-click-id="Header/account-menu" variant="subtle" color="gray" c="var(--mantine-color-text)" maw={200} mt={0} style={{ whiteSpace: 'nowrap' }} styles={{ label: { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }} rightSection={<IconChevronDown size={16} />}>
+                  <Button data-click-id="Header/account-menu" disabled={busy} variant="subtle" color="gray" c="var(--mantine-color-text)" maw={200} mt={0} style={{ whiteSpace: 'nowrap' }} styles={{ label: { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }} rightSection={<IconChevronDown size={16} />}>
                     {t.headerGreeting(displayName)}
                     {authStore.isSupporter && (
                       <Badge ml={6} size="xs" variant="filled" color="pink">
@@ -165,6 +188,7 @@ export function Header() {
         title={t.headerNavigation}
         hiddenFrom="sm"
         zIndex={1000000}
+        closeButtonProps={{ 'aria-label': t.close, ...{ 'data-click-id': 'Header/drawer-close' } }}
       >
         <ScrollArea h="calc(100vh - 80px)" mx="-md">
           <Divider my="sm" />
@@ -195,14 +219,15 @@ export function Header() {
                 <Button
                   key={account.userId}
                   data-click-id={`Header/drawer-switch-account:${i}`}
+                  disabled={busy}
                   variant="light"
                   onClick={() => handleSwitchAccount(account.userId)}
                 >
                   {t.headerSwitchTo(account.username || account.email)}
                 </Button>
               ))}
-              <Button data-click-id="Header/drawer-add-account" variant="subtle" c="var(--mantine-color-text)" onClick={handleAddAccount}>{t.headerAddAccount}</Button>
-              <Button data-click-id="Header/drawer-log-out" variant="subtle" color="red" onClick={handleLogOut}>{t.headerLogOut}</Button>
+              <Button data-click-id="Header/drawer-add-account" disabled={busy} variant="subtle" c="var(--mantine-color-text)" onClick={handleAddAccount}>{t.headerAddAccount}</Button>
+              <Button data-click-id="Header/drawer-log-out" disabled={busy} variant="subtle" color="red" onClick={handleLogOut}>{t.headerLogOut}</Button>
             </Stack>
           ) : (
             <Group justify="center" grow pb="xl" px="md">

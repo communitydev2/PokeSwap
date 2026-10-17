@@ -33,7 +33,7 @@ export function ExclusiveOfferModal({
   const phone = useMediaQuery('(max-width: 36em)');
   const t = useLocalizationStore((s) => s.t);
   const session = useAuthStore((s) => s.session);
-  const { accounts, loading: accountsLoading } = useMyTcgAccounts();
+  const { accounts, loading: accountsLoading, error: accountsError } = useMyTcgAccounts();
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
   const account =
     accounts.find((a) => a.tcg_account_id === selectedAccount)?.tcg_account_id ?? accounts[0]?.tcg_account_id;
@@ -156,6 +156,8 @@ export function ExclusiveOfferModal({
               <Text size="sm" c="dimmed">
                 {t.marketExclusiveEligibilityLoading}
               </Text>
+            ) : accountsError ? (
+              <Text c="red">{t.marketAccountsLoadFailed}</Text>
             ) : !account ? (
               <Text size="sm" c="dimmed">
                 {t.marketNoAccount}

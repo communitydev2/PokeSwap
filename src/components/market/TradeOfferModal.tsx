@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Alert, Badge, Button, Group, Loader, Modal, Select, Stack, Text, UnstyledButton } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { supabase } from '../../supabaseClient';
@@ -48,7 +48,7 @@ export function TradeOfferModal({ opened, onClose, mode, card, partnerAccount, p
   const phone = useMediaQuery('(max-width: 36em)');
   const t = useLocalizationStore((s) => s.t);
   const session = useAuthStore((s) => s.session);
-  const { accounts, loading: accountsLoading } = useMyTcgAccounts();
+  const { accounts, loading: accountsLoading, error: accountsError } = useMyTcgAccounts();
   const [chosenAccount, setChosenAccount] = useState<string | null>(null);
   const account =
     accounts.find((a) => a.tcg_account_id === chosenAccount)?.tcg_account_id ?? accounts[0]?.tcg_account_id;
@@ -59,6 +59,7 @@ export function TradeOfferModal({ opened, onClose, mode, card, partnerAccount, p
   const [loadedFor, setLoadedFor] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const sendingRef = useRef(false);
   const [sent, setSent] = useState(false);
   const requestKey = JSON.stringify([account, mode, card.card_id, card.rarity_id, partnerAccount, language]);
   useEffect(() => {
@@ -103,7 +104,8 @@ export function TradeOfferModal({ opened, onClose, mode, card, partnerAccount, p
   const give = mode === 'get' ? picked : { card, language };
   const get = mode === 'get' ? { card, language } : picked;
   async function send() {
-    if (!ready || !give || !get) return;
+    if (!ready || !give || !get || sendingRef.current) return;
+    sendingRef.current = true;
     setSending(true);
     setError(null);
     try {
@@ -123,6 +125,7 @@ export function TradeOfferModal({ opened, onClose, mode, card, partnerAccount, p
     } catch (e) {
       setError(tradeErrorText(t, e instanceof Error ? e.message : undefined));
     } finally {
+      sendingRef.current = false;
       setSending(false);
     }
   }
@@ -169,7 +172,9 @@ export function TradeOfferModal({ opened, onClose, mode, card, partnerAccount, p
               <Text c="dimmed">{t.marketSignInToOffer}</Text>
             ) : accountsLoading ? (
               <Loader size="sm" />
-            ) : !accounts.length ? (
+            ) : accountsError ? (
+                      <Text c="red">{t.marketAccountsLoadFailed}</Text>
+                    ) : !accounts.length ? (
               <Text c="dimmed">{t.marketNoAccount}</Text>
             ) : (
               <>

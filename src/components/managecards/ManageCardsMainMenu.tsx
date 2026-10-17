@@ -224,23 +224,34 @@ const pendingList = Object.values(pendingCards);
 const different = cards.length;
 const total = cards.reduce((sum, card) => sum + (card.quantity ?? 0), 0);
 const [saving, setSaving] = useState(false);
+const submitting = useRef(false);
 const [saveError, setSaveError] = useState<string|null>(null);
 
 async function submitCardsToSupabase(){
+  if (submitting.current) return;
   if (!onConfirm) return close();
+  submitting.current = true;
+  try {
   setSaving(true);
   setSaveError(null);
   const error = await onConfirm();
   setSaving(false);
   if (error) setSaveError(error);
   else close();
+  } catch (error) {
+    console.warn(error);
+    setSaveError(t.cardsSaveFailed);
+  } finally {
+    submitting.current = false;
+    setSaving(false);
+  }
 }
 
 
 
   return (
     <>
-      <Modal opened={opened} onClose={close} title={props[0]} centered size={props[1]==LIST_TYPE.confirmAdd ? 'md' : undefined}>
+      <Modal opened={opened} onClose={() => { if (!submitting.current) close(); }} closeButtonProps={{ disabled: saving, ...{ 'data-click-id': 'ManageCardsMainMenu/confirm-close' } }} title={props[0]} centered size={props[1]==LIST_TYPE.confirmAdd ? 'md' : undefined}>
         {/* Modal content */}
         {props[1]==LIST_TYPE.selected && (
           <>
@@ -263,7 +274,7 @@ async function submitCardsToSupabase(){
             )}
             <Group justify="flex-end" gap="sm" mt="md">
               <Button data-click-id="ManageCardsMainMenu/confirm-modal-change" variant="default" onClick={close} disabled={saving}>
-                {t.confirmChange}
+                {t.qaManageGoBack}
               </Button>
               <Button data-click-id="ManageCardsMainMenu/confirm-modal-confirm" onClick={submitCardsToSupabase} loading={saving}>
                 {t.confirmAddCards}
@@ -422,6 +433,7 @@ function cardCategoryOnChange(e) {
         allowDeselect={false}
         onChange={(_value,option)=> {
           if (!option) return
+          usePokemonCardStore.setState({ listCardsSelected: [], pendingCards: {} })
           setSelectedCardCategory(option)
           // update the adding cards sector so that I will be able to pass that value onto the PokeCard
           useStateStoreWrapper.setAddingCardsSector(option.value)
@@ -434,7 +446,7 @@ function cardCategoryOnChange(e) {
   const tcgAccountSelect = (
     <Select data-click-id="ManageCardsMainMenu/tcg-account-select"
       label={useLocStore.t.selectPocketAccount}
-      placeholder={useLocStore.t.pickValue}
+      placeholder={useLocStore.t.qaManageChooseAccount}
       data={comboData_accountUsernames ?? []}
       value={selectedTcgAccount}
       allowDeselect={false}
@@ -480,7 +492,15 @@ function cardCategoryOnChange(e) {
   // Top of the add-cards screen: where the cards go, then searching for them
   const addCardsControls = (
     <>
-      <Title order={2}>{useLocStore.t.addCardsTitle}</Title>
+      <Group justify="space-between" wrap="nowrap">
+        <Title order={2}>{useLocStore.t.addCardsTitle}</Title>
+        <Button data-click-id="ManageCardsMainMenu/add-cards-back" variant="default" onClick={() => {
+          setShowManageCardsMainMenuOptions(true)
+          useStateStoreWrapper.setShowAddCardsMenu(false)
+        }}>
+          {useLocStore.t.myCardsBack}
+        </Button>
+      </Group>
       {savedMessage && (
         <Alert color="green">
           <Group justify="space-between" gap="sm">
@@ -610,22 +630,6 @@ function cardCategoryOnChange(e) {
   </>
 )}
 
-{/* Following from Manage Cards in Figma,   */}
-{/* I am not adding cards AND this is the Main Menu */}
-{useStateStoreWrapper.showAddCardsMenu  != true && callComponent!=MENU_MODE.exclusiveTrade  && (
-<Stack gap="xl" w="100%" pb={usePokeCardStore.listCardsSelected.length > 0 || Object.keys(usePokeCardStore.pendingCards).length > 0 ? 96 : undefined}>
-    {addCardsControls}
-    <Menu_ConfirmCards props={[useLocStore.t.addCardsToLibrary,LIST_TYPE.confirmAdd,useLocStore.t.addCardsToLibrary]} onConfirm={saveSelectedCards} floating hideTrigger/>
-    <Title order={4}>{useLocStore.t.selectCardsToAdd}</Title>
-    <PokeList listType={'listAddCards'}/>
-    <FloatingAddPendingButton />
-    <AddedToast />
-    <SelectedListDrawer />
-  </Stack>
-// When pressing the add cards button
-) 
-
-}
 {/* I am adding cards AND this is the exclusive trade */}
 {useStateStoreWrapper.showAddCardsMenu  == true && callComponent==MENU_MODE.exclusiveTrade && (
   
@@ -663,10 +667,10 @@ function cardCategoryOnChange(e) {
 )}
 
 {/* Keep the add-cards screen mounted as the selection changes. */}
-{useStateStoreWrapper.showAddCardsMenu == true && callComponent!=MENU_MODE.exclusiveTrade && (
+{hasTcgAccounts && !showManageCardsMainMenuOptions && useStateStoreWrapper.showAddCardsMenu == true && callComponent!=MENU_MODE.exclusiveTrade && (
 <Stack gap="xl" w="100%" pb={usePokeCardStore.listCardsSelected.length > 0 || Object.keys(usePokeCardStore.pendingCards).length > 0 ? 96 : undefined}>
     {addCardsControls}
-    <Menu_ConfirmCards props={[useLocStore.t.addCardsToLibrary,LIST_TYPE.confirmAdd,useLocStore.t.addCardsToLibrary]} onConfirm={saveSelectedCards} floating hideTrigger/>
+    <Menu_ConfirmCards props={[useLocStore.t.qaManageConfirmTitle,LIST_TYPE.confirmAdd,useLocStore.t.qaManageConfirmTitle]} onConfirm={saveSelectedCards} floating hideTrigger/>
     <Title order={4}>{useLocStore.t.selectCardsToAdd}</Title>
     <PokeList listType={'listAddCards'}/>
     <FloatingAddPendingButton />

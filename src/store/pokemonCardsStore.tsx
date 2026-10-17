@@ -1,17 +1,19 @@
 import { create } from "zustand";
+import { useAuthStore } from "./userStore";
 import { ANY_OPTION } from "../constants";
 import type { PokemonCard } from "../types/PokemonCard";
 import type { PokemonDBStoreType } from "../types/pokemonDBStoreType";
 import { SupabaseRarityType } from "../types/SupabaseRarityType";
 import { SupabaseExpansionType } from "../types/SupabaseExpansionType";
 
-export const usePokemonCardStore = create<PokemonDBStoreType>((set) => ({
+export const usePokemonCardStore = create<PokemonDBStoreType & { searchActive: boolean }>((set) => ({
   pokemonCards: [],
   // Filter options come from the rarity / set tables (src/utils/searchOptions.ts);
   // these are only shown until those load, so they never go out of date.
   rarities: [ANY_OPTION],
   expansions: [ANY_OPTION],
   searchQuery: [],
+  searchActive: false,
   splitSearchPokemonNameCharacters: [" ","-"],
   languages: [
     "en" , "es" ,"fr" , "de", "it" , "pt", "jp" ,"kr", "ch"
@@ -26,7 +28,7 @@ export const usePokemonCardStore = create<PokemonDBStoreType>((set) => ({
     set((state) => {
       const pendingCards = { ...state.pendingCards };
       if (quantity <= 0) delete pendingCards[card.card_id];
-      else pendingCards[card.card_id] = { ...card, quantity, language };
+      else pendingCards[card.card_id] = { ...card, quantity: Math.min(9999, Math.floor(quantity)), language };
       return { pendingCards };
     }),
   removePendingCard: (cardId) =>
@@ -45,7 +47,7 @@ export const usePokemonCardStore = create<PokemonDBStoreType>((set) => ({
           listCardsSelected.push({ ...card, language });
         } else {
           const existing = listCardsSelected[index];
-          listCardsSelected[index] = { ...existing, quantity: (existing.quantity ?? 0) + (card.quantity ?? 0) };
+          listCardsSelected[index] = { ...existing, quantity: Math.min(9999, (existing.quantity ?? 0) + (card.quantity ?? 0)) };
         }
       }
       return { listCardsSelected, pendingCards: {} };
@@ -54,7 +56,7 @@ export const usePokemonCardStore = create<PokemonDBStoreType>((set) => ({
   setPokemonCards: (pokemonCards: PokemonCard[]) =>
     set(() => ({ pokemonCards })),
   setPokemonCardsSearchQuery: (searchQuery: PokemonCard[]) =>
-    set(() => ({ searchQuery })),
+    set(() => ({ searchQuery, searchActive: true })),
   setSupabase_rarity: (supabase_rarity: SupabaseRarityType[]) =>
     set(() => ({ supabase_rarity })),
   setSupabase_expansion: (supabase_expansion: SupabaseExpansionType[]) =>
@@ -63,3 +65,10 @@ export const usePokemonCardStore = create<PokemonDBStoreType>((set) => ({
     set(() => ({ listCardsSelected })),
 
 }));
+
+// A draft belongs to the signed-in player, even when this menu is unmounted.
+useAuthStore.subscribe((state, previous) => {
+  if (state.session?.user.id !== previous.session?.user.id) {
+    usePokemonCardStore.setState({ listCardsSelected: [], pendingCards: {} });
+  }
+});

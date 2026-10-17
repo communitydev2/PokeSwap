@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { ActionIcon, Button, Group, Paper, Stack, Text, TextInput, Title } from '@mantine/core';
 import { supabase } from '../../supabaseClient';
 import { useAuthStore } from '../../store/userStore';
+import { useLocalizationStore } from '../../store/useLocalizationStore';
 
 
 type AccountRow = { key: number; name: string; tcgId: string };
@@ -14,6 +15,8 @@ const emptyRow = (): AccountRow => ({ key: nextKey++, name: '', tcgId: '' });
 // more can be added. Everything is validated before saving, all rows are saved
 // in one request, and onCreated lets the parent reload its account list.
 export function ManageTCGAccountsMenu({ onCreated }: { onCreated?: () => void }) {
+  const t = useLocalizationStore((state) => state.t);
+  const submitting = useRef(false);
   const userId = useAuthStore((state) => state.session?.user.id);
   const [rows, setRows] = useState<AccountRow[]>(() => [emptyRow()]);
   const [errors, setErrors] = useState<Record<number, RowErrors>>({});
@@ -36,10 +39,10 @@ export function ManageTCGAccountsMenu({ onCreated }: { onCreated?: () => void })
     for (const row of rows) {
       const rowErrors: RowErrors = {};
       const id = row.tcgId.replace(/[\s-]/g, '');
-      if (!row.name.trim()) rowErrors.name = 'Enter the account name';
-      if (!id) rowErrors.tcgId = 'Enter the account ID';
-      else if (!/^\d+$/.test(id)) rowErrors.tcgId = 'The ID should only contain numbers';
-      else if (seenIds.has(id)) rowErrors.tcgId = 'This ID is already in the list';
+      if (!row.name.trim()) rowErrors.name = t.qaManageAccountNameRequired;
+      if (!id) rowErrors.tcgId = t.qaManageAccountIdRequired;
+      else if (!/^\d{16}$/.test(id)) rowErrors.tcgId = t.qaManageAccountIdInvalid;
+      else if (seenIds.has(id)) rowErrors.tcgId = t.qaManageAccountDuplicate;
       seenIds.add(id);
       if (rowErrors.name || rowErrors.tcgId) found[row.key] = rowErrors;
     }
@@ -48,10 +51,13 @@ export function ManageTCGAccountsMenu({ onCreated }: { onCreated?: () => void })
   }
 
   async function handleSubmit() {
+    if (submitting.current) return;
     setMessage(null);
     if (!userId || !validate()) return;
 
+    submitting.current = true;
     setSaving(true);
+    try {
     const { error } = await supabase.from('player_tcg_account').insert(
       rows.map((row) => ({
         user_id: userId,
@@ -66,36 +72,44 @@ export function ManageTCGAccountsMenu({ onCreated }: { onCreated?: () => void })
       console.warn(error);
       setMessage({
         ok: false,
-        text: error.code === '23505' ? 'One of these accounts has already been added.' : "Couldn't save your accounts. Please try again.",
+        text: error.code === '23505' ? t.qaManageAccountExists : t.qaManageAccountSaveFailed,
       });
       return;
     }
-    setMessage({ ok: true, text: rows.length === 1 ? 'Account added.' : `${rows.length} accounts added.` });
+    setMessage({ ok: true, text: t.qaManageAccountsAdded(rows.length) });
     setRows([emptyRow()]);
     onCreated?.();
+    } catch (error) {
+      console.warn(error);
+      setMessage({ ok: false, text: t.qaManageAccountSaveFailed });
+    } finally {
+      submitting.current = false;
+      setSaving(false);
+    }
   }
 
   return (
     <Stack gap="md" w="100%" my="xl">
       <Title order={2}>
-        Add your Pokémon TCG Pocket accounts
+        {t.qaManageAccountsTitle}
       </Title>
       <Text c="dimmed" size="sm">
-        Add at least one account to start managing your cards.
+        {t.qaManageAccountsIntro}
       </Text>
 
       <Stack gap="sm">
         {rows.map((row, i) => (
           <Paper key={row.key} withBorder radius="md" p="md">
             <Group justify="space-between" mb="xs">
-              <Text fw={500}>Account {i + 1}</Text>
+              <Text fw={500}>{t.qaManageAccountNumber(i + 1)}</Text>
               {rows.length > 1 && (
                 <ActionIcon
                   data-click-id={`ManageTCGAccountsMenu/remove-account:${i}`}
+                  disabled={saving}
                   variant="subtle"
                   size={36}
                   color="gray"
-                  aria-label={`Remove account ${i + 1}`}
+                  aria-label={t.qaManageRemoveAccount(i + 1)}
                   onClick={() => removeRow(row.key)}
                 >
                   ×
@@ -105,8 +119,9 @@ export function ManageTCGAccountsMenu({ onCreated }: { onCreated?: () => void })
             <Stack gap="xs">
               <TextInput
                 data-click-id={`ManageTCGAccountsMenu/account-name:${i}`}
+                disabled={saving}
                 withAsterisk
-                label="Account name"
+                label={t.qaManageAccountName}
                 placeholder="pokePlayer555"
                 value={row.name}
                 error={errors[row.key]?.name}
@@ -114,8 +129,9 @@ export function ManageTCGAccountsMenu({ onCreated }: { onCreated?: () => void })
               />
               <TextInput
                 data-click-id={`ManageTCGAccountsMenu/account-id-number:${i}`}
+                disabled={saving}
                 withAsterisk
-                label="Account ID"
+                label={t.qaManageAccountId}
                 placeholder="1234 5678 9012 3456"
                 inputMode="numeric"
                 value={row.tcgId}
@@ -133,10 +149,10 @@ export function ManageTCGAccountsMenu({ onCreated }: { onCreated?: () => void })
           variant="subtle"
           onClick={() => setRows((current) => [...current, emptyRow()])}
         >
-          + Add another account
+          {t.qaManageAddAccount}
         </Button>
         <Button data-click-id="ManageTCGAccountsMenu/submit-accounts" onClick={handleSubmit} loading={saving}>
-          {rows.length === 1 ? 'Save account' : `Save ${rows.length} accounts`}
+          {t.qaManageSaveAccounts(rows.length)}
         </Button>
       </Group>
 

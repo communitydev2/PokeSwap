@@ -84,7 +84,7 @@ export function PokeCard(
     // card doesn't remount it and close the dropdown while it's open
     const languageSelectionDropdown = (
         <Select data-click-id={`PokeCard/language-select:${pokeListType}:${currentCard.card_id}`}
-          label={useLocStore.t.pickLanguage}
+          label={useStateWrapper.addingCardsSector == CARD_CATEGORY.trade ? useLocStore.t.qaManageCardLanguage : useLocStore.t.pickLanguage}
           placeholder={useLocStore.t.pickValue}
           data={usePokeCard.languages}
           value={cardLanguage}
@@ -101,7 +101,7 @@ export function PokeCard(
 
 
   const incrementQuantity = () => {
-    if (isAddList) usePokeCard.setPendingCard(currentCard, quantity + 1, showLanguageSelect ? cardLanguage : null)
+    if (isAddList) usePokeCard.setPendingCard(currentCard, Math.min(9999, quantity + 1), showLanguageSelect ? cardLanguage : null)
     else setQuantity((prev) => prev + 1)
   }
 
@@ -131,7 +131,7 @@ export function PokeCard(
         // card already selected: add to its quantity
         usePokeCard.setListCardsSelected(
           usePokeCard.listCardsSelected.map((card) =>
-            card.card_id === currentCard.card_id && (card.language ?? null) === (cardToBeAdded.language ?? null) ? { ...card, quantity: (card.quantity ?? 0) + quantity } : card
+            card.card_id === currentCard.card_id && (card.language ?? null) === (cardToBeAdded.language ?? null) ? { ...card, quantity: Math.min(9999, (card.quantity ?? 0) + quantity) } : card
           )
         )
       }
@@ -170,7 +170,7 @@ export function PokeCard(
               <IconMinus size={16} />
             </ActionIcon>
             <Text fw={600} w="2ch" ta="center">{quantity}</Text>
-            <ActionIcon data-click-id={`PokeCard/quantity-plus:${pokeListType}:${currentCard.card_id}`} variant="default" radius="md" size="lg" aria-label={useLocStore.t.increaseQuantity} onClick={incrementQuantity}>
+            <ActionIcon data-click-id={`PokeCard/quantity-plus:${pokeListType}:${currentCard.card_id}`} variant="default" radius="md" size="lg" aria-label={useLocStore.t.increaseQuantity} disabled={quantity >= 9999} onClick={incrementQuantity}>
               <IconPlus size={16} />
             </ActionIcon>
           </Group>

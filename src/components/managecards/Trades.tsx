@@ -1,5 +1,5 @@
 import { SimpleGrid } from '@mantine/core';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Badge, Button, CopyButton, Divider, Group, Loader, Paper, SegmentedControl, Select, Stack, Text, Title } from '@mantine/core';
 import { IconArrowsExchange, IconLock } from '@tabler/icons-react';
 import { supabase } from '../../supabaseClient';
@@ -60,6 +60,7 @@ export function Trades({ tcgAccountId, initialView = VIEW.find, onOffersChanged 
   const [loadFailed, setLoadFailed] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   // Offer / button currently waiting on the database
+  const running = useRef(false);
   const [busy, setBusy] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -98,7 +99,10 @@ export function Trades({ tcgAccountId, initialView = VIEW.find, onOffersChanged 
 
   // Calls a trade function, shows its error if any, and reloads. Resolves to whether it worked.
   async function run(key: string, call: PromiseLike<{ error: { message: string } | null }>) {
+    if (running.current) return false;
+    running.current = true;
     setBusy(key);
+    try {
     setActionError(null);
     const { error } = await call;
     if (error) {
@@ -107,8 +111,15 @@ export function Trades({ tcgAccountId, initialView = VIEW.find, onOffersChanged 
     }
     await load();
     onOffersChanged?.();
-    setBusy(null);
     return !error;
+    } catch (error) {
+      console.warn(error);
+      setActionError(t.tradesLoadFailed);
+      return false;
+    } finally {
+      running.current = false;
+      setBusy(null);
+    }
   }
 
   // Cards held for an exclusive trade only trade there

@@ -17,6 +17,36 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'bug-sweep',
+    date: '2026-10-17',
+    audience: 'user',
+    title: 'A round of bug fixes',
+    summary: 'We played through every part of the site and fixed the problems we found, from usernames to trades.',
+    body: [
+      'Usernames: a name that only differs in capital letters from someone else\'s (like "testash" and "TestAsh") is now treated as taken, so nobody can pose as another player. Names with punctuation or emoji, such as "Ash!", are no longer wrongly called inappropriate, and names over 30 characters get a clear message.',
+      'Signing in: pressing Enter now sends the email and checks the code, and the button says "Email me a sign-in code". Switching between saved accounts no longer forgets an account because of a brief connection problem.',
+      'Manage cards: if you have not added a Pokémon TCG Pocket account yet, you now only see the form to add one. Account IDs must be the 16-digit ID from the game. Add cards has a Back button, cards for your trade list ask for "Language of your card", and searches with no matches show no cards instead of every card.',
+      'Trades: an offer can no longer be accepted after one of the two cards has left its owner\'s trade list. Notifications from one account no longer show up after switching to another, and you can now load older notifications.',
+      'Unknown links now show a proper "Page not found" page with a way home.',
+    ],
+    tags: ['fix'],
+    screenshot: '/updates/bug-sweep.png',
+  },
+  {
+    id: 'bug-sweep-dev',
+    date: '2026-10-17',
+    audience: 'dev',
+    title: 'QA sweep: database rules, security and race fixes',
+    summary: 'Three new migrations, guarded async state across account switches, and hardened Edge Functions.',
+    body: [
+      'Migrations (apply to the hosted project before the next release): 20261017100000_username_rules.sql makes block_banned_usernames security definer with search_path \'\', rejects case-insensitive duplicate usernames (23505), skips blank banned words, lowercases and regex-escapes words, deletes the empty banned word, and adds a unique index on lower(username) only if no case-variant duplicates exist (it raises a notice otherwise - check for duplicates on hosted). 20261017100100_validate_trade_acceptance.sql makes respond_trade_offer re-check both trade-list rows before accepting. 20261017100200_security.sql revokes get_username_by_email from anon/authenticated (it let anyone map an email to a username), pins search_path on handle_new_user_account, revokes API execute on trigger functions, replaces the open friend insert policy with an owner-only one, and drops the stray create_account_on_verification trigger on banned_words.',
+      'Client: user/profile/notification/account state is tied to the session user so late responses after a switch or sign-out are ignored; saved accounts are only forgotten on 400/401/403 refresh failures; sign-out removes the saved account only after it succeeds; synchronous ref guards stop double submits; useMyTcgAccounts returns a stable empty array (a new [] per render caused a render loop in ExclusiveTradeMarket); router devtools are lazy-loaded only in dev; support data is fetched with fetchAllRows.',
+      'Edge Functions: create-checkout validates the body shape and integer pence; stripe-webhook records only GBP and only subscription invoices; recover-username stops (503) if it cannot record the rate-limit attempt.',
+      'Typecheck went from 77 to 59 errors. Flows were play-tested with Playwright against local Supabase (sign-up, usernames, accounts, add cards, My cards, offers through to done on both sides, market signed in/out on phone and desktop, account switching, sign-out).',
+    ],
+    tags: ['fix', 'security', 'database'],
+  },
+  {
     id: 'layout-refresh',
     date: '2026-10-17',
     audience: 'user',

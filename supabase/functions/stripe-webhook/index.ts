@@ -32,6 +32,7 @@ const idOf = (value: unknown) => (typeof value === 'string' ? value : (value as 
 
 // Same Stripe object twice (Stripe retries notifications) is ignored thanks to the unique key
 async function record(row: Contribution) {
+  if (row.currency !== 'gbp') return;
   const { error } = await admin.from('contributions').upsert(row, { onConflict: 'stripe_object_id', ignoreDuplicates: true });
   if (error) throw error;
 }
@@ -67,7 +68,8 @@ async function handle(event: Stripe.Event) {
       // Where the subscription's metadata lives depends on the Stripe API version
       let metadata = invoice.parent?.subscription_details?.metadata ?? invoice.subscription_details?.metadata ?? {};
       const subscriptionId = invoice.parent?.subscription_details?.subscription ?? idOf(invoice.subscription);
-      if (!metadata.user_id && !metadata.goal_id && subscriptionId) {
+      if (!subscriptionId) return;
+      if (!metadata.user_id && !metadata.goal_id) {
         metadata = (await stripe.subscriptions.retrieve(subscriptionId)).metadata ?? {};
       }
       await record({

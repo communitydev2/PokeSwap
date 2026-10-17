@@ -26,7 +26,7 @@ export type MarketExclusiveListing = {
 export function ExclusiveTradeMarket({ focusId }: { focusId?: number | null }) {
   const t = useLocalizationStore((s) => s.t);
   const session = useAuthStore((s) => s.session);
-  const { accounts, loading: accountsLoading } = useMyTcgAccounts();
+  const { accounts, loading: accountsLoading, error: accountsError } = useMyTcgAccounts();
   const [search, setSearch] = useState('');
   const [query, setQuery] = useState({ search: '', page: 0 });
   const [rows, setRows] = useState<MarketExclusiveListing[]>([]);
@@ -94,12 +94,13 @@ export function ExclusiveTradeMarket({ focusId }: { focusId?: number | null }) {
     setLoading(true);
     setError(false);
     setRows([]);
+    setOffer(null);
     setPinned(null);
     setTotal(0);
     async function load() {
       try {
         if (focus != null) {
-          for (let offset = 0; offset < 500; offset += 100) {
+          for (let offset = 0; true; offset += 100) {
             const result = await supabase.rpc('market_exclusive_trades', {
               p_search: '',
               p_limit: 100,
@@ -124,6 +125,10 @@ export function ExclusiveTradeMarket({ focusId }: { focusId?: number | null }) {
           if (cancelled) return;
           if (result.error) throw result.error;
           const listings = (result.data ?? []) as MarketExclusiveListing[];
+          if (!listings.length && query.page > 0) {
+            setQuery((q) => ({ ...q, page: q.page - 1 }));
+            return;
+          }
           setRows(listings);
           setTotal(Number(listings[0]?.total_count ?? 0));
         }
@@ -297,7 +302,9 @@ export function ExclusiveTradeMarket({ focusId }: { focusId?: number | null }) {
                   <Text size="xs" c="dimmed">
                     {t.marketExclusiveEligibilityLoading}
                   </Text>
-                ) : !accounts.length ? (
+                ) : accountsError ? (
+                      <Text c="red">{t.marketAccountsLoadFailed}</Text>
+                    ) : !accounts.length ? (
                   <Text size="xs" c="dimmed">
                     {t.marketNoAccount}
                   </Text>

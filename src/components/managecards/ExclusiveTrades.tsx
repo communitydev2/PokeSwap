@@ -217,7 +217,7 @@ function ListingEditor({ draft: initial, cardChoices, saving, disabled, onSave, 
           <>
             <Select data-click-id="ExclusiveTrades/language-select" label={t.exclusiveWantLanguage} data={languages}
               value={draft.wantLanguage} allowDeselect={false}
-              onChange={(value) => value && setDraft({ ...draft, wantLanguage: value })} />
+              onChange={(value) => value && setDraft({ ...draft, wantLanguage: value, wants: draft.wants.filter((id) => !(id === row.card.card_id && value === row.language)) })} />
             <MultiSelect styles={{ pill: { maxWidth: '100%' }, input: { overflow: 'hidden' } }} data-click-id="ExclusiveTrades/wants-select" label={t.exclusiveWants} description={t.exclusiveWantsHelp}
               placeholder={draft.wants.length ? undefined : t.exclusiveSearchCards} searchable hidePickedOptions maxValues={50} limit={100}
               data={wantOptions} value={draft.wants} onChange={(wants) => setDraft({ ...draft, wants })} />

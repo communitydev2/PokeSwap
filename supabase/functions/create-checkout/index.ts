@@ -39,13 +39,14 @@ Deno.serve(async (req) => {
   let body: { amountPence?: unknown; mode?: unknown; goalId?: unknown };
   try {
     body = await req.json();
+    if (!body || typeof body !== 'object' || Array.isArray(body)) return json({ error: 'Invalid request' }, 400);
   } catch {
     return json({ error: 'Invalid request' }, 400);
   }
 
-  const amountPence = Number(body.amountPence);
+  const amountPence = body.amountPence;
   const mode = body.mode === 'monthly' ? 'monthly' : body.mode === 'one_off' ? 'one_off' : null;
-  if (!mode || !Number.isInteger(amountPence) || amountPence < MIN_PENCE || amountPence > MAX_PENCE) {
+  if (!mode || typeof amountPence !== 'number' || !Number.isInteger(amountPence) || amountPence < MIN_PENCE || amountPence > MAX_PENCE) {
     return json({ error: 'Choose an amount between £1 and £500' }, 400);
   }
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Button, Chip, Group, NumberInput, Paper, SegmentedControl, Select, Stack, Text, Title } from '@mantine/core';
 import { supabase } from '../../supabaseClient';
 import { formatPence } from '../../utils/money';
@@ -13,6 +13,7 @@ export type UpgradeGoalOption = { id: string; title: string };
 
 // Choose monthly/one-off, amount and which bar to fund, then go to Stripe Checkout
 export function ContributeForm({ upgradeGoals }: { upgradeGoals: UpgradeGoalOption[] }) {
+  const busy = useRef(false);
   const t = useLocalizationStore((state) => state.t);
   const signedIn = useAuthStore((state) => Boolean(state.session));
   const [mode, setMode] = useState<'monthly' | 'one_off'>('monthly');
@@ -26,18 +27,27 @@ export function ContributeForm({ upgradeGoals }: { upgradeGoals: UpgradeGoalOpti
   const validAmount = Number.isFinite(amountPence) && amountPence >= MIN_PENCE && amountPence <= MAX_PENCE;
 
   async function handleContinue() {
+    if (!validAmount || busy.current) return;
+    busy.current = true;
     setStarting(true);
     setError(null);
-    const { data, error } = await supabase.functions.invoke('create-checkout', {
-      body: { amountPence, mode, goalId: goalId === 'monthly' ? null : goalId },
-    });
-    if (error || !data?.url) {
-      console.warn(error ?? data);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: { amountPence, mode, goalId: goalId === 'monthly' ? null : goalId },
+      });
+      if (error || !data?.url) {
+        console.warn(error ?? data);
+        setError(t.supportStartFailed);
+        return;
+      }
+      window.location.href = data.url;
+    } catch (error) {
+      console.warn(error);
       setError(t.supportStartFailed);
+    } finally {
+      busy.current = false;
       setStarting(false);
-      return;
     }
-    window.location.href = data.url;
   }
 
   return (
