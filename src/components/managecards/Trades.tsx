@@ -1,9 +1,10 @@
 import { SimpleGrid } from '@mantine/core';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Badge, Button, CopyButton, Divider, Group, Loader, Paper, SegmentedControl, Select, Stack, Text, Title } from '@mantine/core';
+import { Alert, Badge, Button, CopyButton, Divider, Group, Loader, Paper, SegmentedControl, Select, Stack, Switch, Text, Title } from '@mantine/core';
 import { IconArrowsExchange, IconLock } from '@tabler/icons-react';
 import { supabase } from '../../supabaseClient';
 import { useLocalizationStore } from '../../store/useLocalizationStore';
+import { useFriendAccounts } from '../../hooks/useFriendAccounts';
 import { tradeErrorText } from '../../utils/tradeErrors';
 import type { PokemonCard } from '../../types/PokemonCard';
 import { CardPicture } from '../CardPicture';
@@ -48,6 +49,8 @@ export function Trades({ tcgAccountId, initialView = VIEW.find, onOffersChanged 
   initialView?: (typeof VIEW)[keyof typeof VIEW];
   onOffersChanged?: () => void;
 }) {
+  const { ids: friendIds, loading: friendsLoading } = useFriendAccounts();
+  const [friendsOnly, setFriendsOnly] = useState(false);
   const t = useLocalizationStore((state) => state.t);
   const [view, setView] = useState<string>(initialView);
   const [partners, setPartners] = useState<PartnerCard[]>([]);
@@ -148,9 +151,9 @@ export function Trades({ tcgAccountId, initialView = VIEW.find, onOffersChanged 
   // Group the partner rows by player
   const byPartner = useMemo(() => {
     const groups = new Map<string, PartnerCard[]>();
-    for (const row of partners) groups.set(row.partner_account, [...(groups.get(row.partner_account) ?? []), row]);
+    for (const row of partners.filter((row) => !friendsOnly || friendIds.has(row.partner_account))) groups.set(row.partner_account, [...(groups.get(row.partner_account) ?? []), row]);
     return [...groups.values()];
-  }, [partners]);
+  }, [partners, friendsOnly, friendIds]);
 
   if (loading) {
     return (
@@ -184,11 +187,17 @@ export function Trades({ tcgAccountId, initialView = VIEW.find, onOffersChanged 
 
       {view === VIEW.find && (
         <>
+          <Switch data-click-id="Trades/friends-only" label={t.friendsFilterOnly} checked={friendsOnly}
+            onChange={(event) => setFriendsOnly(event.currentTarget.checked)} />
           <Text size="sm" c="dimmed">{t.tradesIntro}</Text>
-          {byPartner.length === 0 && <Text c="dimmed" ta="center" py="xl">{t.tradesNoneFound}</Text>}
+          {friendsOnly && friendsLoading && <Loader size="sm" />}
+          {!(friendsOnly && friendsLoading) && byPartner.length === 0 && <Text c="dimmed" ta="center" py="xl">{t.tradesNoneFound}</Text>}
           {byPartner.map((rows) => (
             <Paper key={rows[0].partner_account} withBorder radius="md" p="md">
-              <Title order={4} mb="sm">{rows[0].partner_name}</Title>
+              <Group gap="xs" mb="sm">
+                <Title order={4}>{rows[0].partner_name}</Title>
+                {friendIds.has(rows[0].partner_account) && <Badge size="sm" variant="light">{t.friendsFilterBadge}</Badge>}
+              </Group>
               <Stack gap="md">
                 {rows.map((row, i) => (
                   <PartnerRow

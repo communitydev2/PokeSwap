@@ -4,6 +4,7 @@ import { useMediaQuery } from '@mantine/hooks';
 import { supabase } from '../../supabaseClient';
 import { useLocalizationStore } from '../../store/useLocalizationStore';
 import { useAuthStore } from '../../store/userStore';
+import { useFriendAccounts } from '../../hooks/useFriendAccounts';
 import { useMyTcgAccounts } from '../../hooks/useMyTcgAccounts';
 import type { PokemonCard } from '../../types/PokemonCard';
 import { TradeOfferModal } from './TradeOfferModal';
@@ -19,11 +20,14 @@ type Player = {
 };
 export function CardPlayers({
   card,
+  friendsOnly = false,
   onOpenExclusive,
 }: {
   card: PokemonCard;
+  friendsOnly?: boolean;
   onOpenExclusive: (exclusiveTradeId: number) => void;
 }) {
+  const { ids: friendIds, loading: friendsLoading } = useFriendAccounts();
   const phone = useMediaQuery('(max-width: 30em)');
   const t = useLocalizationStore((s) => s.t);
   const session = useAuthStore((s) => s.session);
@@ -59,13 +63,14 @@ export function CardPlayers({
       cancelled = true;
     };
   }, [card.card_id, session?.user.id]);
-  if (loading) return <Loader size="sm" mt="sm" />;
+  if (loading || (friendsOnly && friendsLoading)) return <Loader size="sm" mt="sm" />;
   if (failed)
     return (
       <Alert color="red" mt="sm">
         {t.marketCardsLoadFailed}
       </Alert>
     );
+  const visibleRows = friendsOnly ? rows.filter((row) => friendIds.has(row.tcg_account_id)) : rows;
   const tradable = card.rarity_id !== null && rarities.includes(card.rarity_id);
   return (
     <Stack mt="md" gap="md">
@@ -73,12 +78,12 @@ export function CardPlayers({
       {(['has', 'wants'] as const).map((side) => (
         <Stack key={side} gap="xs">
           <Title order={4}>{side === 'has' ? t.marketCardsHaveTitle : t.marketCardsWantTitle}</Title>
-          {!rows.some((r) => r.side === side) && (
+          {!visibleRows.some((r) => r.side === side) && (
             <Text size="sm" c="dimmed">
               {t.marketCardsNoPlayers}
             </Text>
           )}
-          {rows
+          {visibleRows
             .filter((r) => r.side === side)
             .map((row) => {
               const key = `${side}:${row.tcg_account_id}:${row.language}`;
@@ -90,6 +95,7 @@ export function CardPlayers({
                       {row.language.toUpperCase()}
                     </Badge>
                     {row.quantity > 1 && <Text size="sm">x{row.quantity}</Text>}
+                    {friendIds.has(row.tcg_account_id) && <Badge size="sm" variant="light">{t.friendsFilterBadge}</Badge>}
                     {row.is_mine && <Badge size="sm" variant="light" color="teal">{t.marketYours}</Badge>}
                     {row.exclusive_trade_id !== null && (
                       <Badge size="sm" variant="light" color="grape">

@@ -17,6 +17,32 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'friends',
+    date: '2026-10-17',
+    audience: 'user',
+    title: 'Friends',
+    summary: 'Add other players as friends to see their cards, copy their Pocket friend IDs and trade with them first.',
+    body: [
+      'Open Friends in the menu and send a request by username. Once they accept, you can see their wishlists and trade lists, copy their Pocket friend IDs to add them in the game, and make an offer straight from their cards.',
+      'Switch on "Friends only" in the card market or in Find trades to see just your friends\' cards, and you\'ll get a notification when a friend adds a card that\'s on your wishlist.',
+      'Also new: after you add cards, the "cards were added" message now disappears when you move on.',
+    ],
+    tags: ['feature'],
+  },
+  {
+    id: 'friends-dev',
+    date: '2026-10-17',
+    audience: 'dev',
+    title: 'Friends: friendship table, RPCs and friend notifications',
+    summary: 'Migration 20261018000500_friends.sql plus the /friends page, friends filters and new notification kinds.',
+    body: [
+      'public.friendship (requester, addressee, pending|accepted; unique unordered pair; RLS select for the two users, no client writes). RPCs: send_friend_request (mutual request auto-accepts), respond_friend_request, remove_friend, list_friends (Pocket friend IDs only for accepted friends), friend_cards (42501 unless friends), my_friend_account_ids, market_card_counts_friends. The old unused public.friend table is untouched.',
+      'notification.tcg_account_id is now nullable and has friend_user; new kinds friend_request, friend_accepted and friend_card (raised from add_cards_to_tcg_account for trade-list adds, one per account/friend/card per 24h; trade_match unchanged).',
+      'Front end: src/routes/friends.tsx + src/components/friends/FriendsPage.tsx, useFriendAccounts hook, Friends only in CardMarket (lists only cards friends have or want) and Find trades, Friend badges, bell rendering for the new kinds.',
+    ],
+    tags: ['dev', 'database'],
+  },
+  {
     id: 'username-locked',
     date: '2026-10-17',
     audience: 'user',

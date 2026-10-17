@@ -10,6 +10,7 @@ import {
   Select,
   SimpleGrid,
   Stack,
+  Switch,
   Text,
   TextInput,
   UnstyledButton,
@@ -24,11 +25,17 @@ import { expansionOptions, rarityOptions } from '../../utils/searchOptions';
 import type { PokemonCard } from '../../types/PokemonCard';
 import { CardPicture } from '../CardPicture';
 import { CardMeta } from '../CardMeta';
+import { useAuthStore } from '../../store/userStore';
 import { CardPlayers } from './CardPlayers';
 
 type Count = { has: number; wants: number };
 export function CardMarket({ onOpenExclusive }: { onOpenExclusive: (exclusiveTradeId: number) => void }) {
   const phone = useMediaQuery('(max-width: 30em)');
+  const userId = useAuthStore((s) => s.user?.user_id);
+  const [friendsOnly, setFriendsOnly] = useState(() => {
+    try { return localStorage.getItem('market-friends-only') === 'true'; } catch { return false; }
+  });
+  const onlyFriends = !!userId && friendsOnly;
   const t = useLocalizationStore((s) => s.t);
   const catalogue = usePokemonCardStore((s) => s.pokemonCards);
   const rarities = usePokemonCardStore((s) => s.supabase_rarity);
@@ -50,9 +57,14 @@ export function CardMarket({ onOpenExclusive }: { onOpenExclusive: (exclusiveTra
   const filtered = !!name.trim() || rarity !== ANY_OPTION || set !== ANY_OPTION;
   useEffect(() => {
     let cancelled = false;
+    setCounts(new Map());
+    setCountsLoading(true);
+    setCountsFailed(false);
+    setPage(1);
+    setExpanded(null);
     async function load() {
       try {
-        const { data, error } = await supabase.rpc('market_card_counts');
+        const { data, error } = await supabase.rpc(onlyFriends ? 'market_card_counts_friends' : 'market_card_counts');
         if (cancelled) return;
         if (error) throw error;
         setCounts(
@@ -73,7 +85,7 @@ export function CardMarket({ onOpenExclusive }: { onOpenExclusive: (exclusiveTra
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [onlyFriends, userId]);
   useEffect(() => {
     setPage(1);
     setExpanded(null);
@@ -109,7 +121,11 @@ export function CardMarket({ onOpenExclusive }: { onOpenExclusive: (exclusiveTra
     };
   }, [name, rarity, set, filtered]);
   const cards = (filtered ? results : catalogue).filter(
-    (c) => side === 'all' || (counts.get(c.card_id)?.[side === 'has' ? 'has' : 'wants'] ?? 0) > 0,
+    (c) => {
+      const count = counts.get(c.card_id);
+      if (onlyFriends && (count?.has ?? 0) + (count?.wants ?? 0) <= 0) return false;
+      return side === 'all' || (count?.[side === 'has' ? 'has' : 'wants'] ?? 0) > 0;
+    },
   );
   const pages = Math.max(1, Math.ceil(cards.length / 10));
   const currentPage = Math.min(page, pages);
@@ -146,6 +162,7 @@ export function CardMarket({ onOpenExclusive }: { onOpenExclusive: (exclusiveTra
           )}
         />
       </SimpleGrid>
+      <Group align="center" grow>
       <SegmentedControl
         fullWidth
         size="sm"
@@ -163,6 +180,18 @@ export function CardMarket({ onOpenExclusive }: { onOpenExclusive: (exclusiveTra
           { value: 'wants', label: <span data-click-id="CardMarket/filter:wants">{t.marketCardsWants}</span> },
         ]}
       />
+      {userId && <Switch
+        data-click-id="CardMarket/friends-only"
+        label={t.friendsFilterOnly}
+        checked={friendsOnly}
+        onChange={(event) => {
+          const checked = event.currentTarget.checked;
+          setFriendsOnly(checked);
+          try { localStorage.setItem('market-friends-only', String(checked)); } catch { /* Storage may be disabled. */ }
+        }}
+        style={{ flexGrow: 0, flexShrink: 0 }}
+      />}
+      </Group>
       {countsFailed && <Alert color="red">{t.marketCardsLoadFailed}</Alert>}
       {loading || countsLoading || (!filtered && catalogue.length === 0) ? (
         <Group>
@@ -204,7 +233,7 @@ export function CardMarket({ onOpenExclusive }: { onOpenExclusive: (exclusiveTra
                   <IconChevronDown size={16} aria-hidden style={{ flexShrink: 0, color: 'var(--mantine-color-dimmed)', transform: expanded === card.card_id ? 'rotate(180deg)' : undefined, transition: 'transform 150ms ease' }} />
                 </Group>
               </UnstyledButton>
-              {expanded === card.card_id && <CardPlayers card={card} onOpenExclusive={onOpenExclusive} />}
+              {expanded === card.card_id && <CardPlayers friendsOnly={onlyFriends} card={card} onOpenExclusive={onOpenExclusive} />}
             </Paper>
           ))}
           {pages > 1 && (

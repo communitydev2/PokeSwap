@@ -354,6 +354,21 @@ export function ManageCardsMainMenu({callComponent,exclusiveCardSelected}:{callC
   //  dropdown language selection category
 const [selectedLanguageDropdownChoice,setSelectedLanguageDropdownChoice] = useState<string | null>(usePokeCardStore.languages[0]);
 
+  // The confirmation belongs only to the current Add cards context.
+  useEffect(() => {
+    setSavedMessage(null)
+  }, [selectedTcgAccount, selectedCardCategory?.value, view, showManageCardsMainMenuOptions, useStateStoreWrapper.showAddCardsMenu, useStateStoreWrapper.showManageCardsMainMenu])
+
+  useEffect(() => {
+    function clearOnHeaderNavigation(event: MouseEvent) {
+      if (!(event.target instanceof Element)) return
+      const id = event.target.closest('[data-click-id]')?.getAttribute('data-click-id')
+      if (id === 'Header/manage-cards' || id === 'Header/drawer-manage-cards') setSavedMessage(null)
+    }
+    document.addEventListener('click', clearOnHeaderNavigation, true)
+    return () => document.removeEventListener('click', clearOnHeaderNavigation, true)
+  }, [])
+
   /*
 function handleChangeSearchBar(event:ChangeEvent<HTMLInputElement>){
 
@@ -539,7 +554,9 @@ function cardCategoryOnChange(e) {
       </Paper>
       <Paper withBorder radius="md" p="md">
         <Title order={4} mb="sm">{useLocStore.t.manageFindSection}</Title>
-        <SearchBar />
+        <div onSubmitCapture={() => setSavedMessage(null)}>
+          <SearchBar />
+        </div>
       </Paper>
     </>
   )

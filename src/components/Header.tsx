@@ -128,6 +128,7 @@ export function Header() {
               {t.homeNav}
             </Link>
 
+            {isSignedIn && <Link data-click-id="Header/friends" to="/friends" className={classes.link}>{t.friendsTitle}</Link>}
             <Link data-click-id="Header/updates" to="/updates" className={classes.link}>
               {t.updatesNav}
             </Link>
@@ -215,6 +216,7 @@ export function Header() {
           <Link data-click-id="Header/drawer-home" to="/" onClick={closeDrawer} className={classes.link}>
             {t.homeNav}
           </Link>
+          {isSignedIn && <Link data-click-id="Header/drawer-friends" to="/friends" className={classes.link} onClick={closeDrawer}>{t.friendsTitle}</Link>}
           <Link data-click-id="Header/drawer-updates" to="/updates" className={classes.link} onClick={closeDrawer}>
             {t.updatesNav}
           </Link>

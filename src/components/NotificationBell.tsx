@@ -14,7 +14,7 @@ type Notification = {
   kind: string;
   read_at: string | null;
   created_at: string;
-  tcg_account_id: string;
+  tcg_account_id: string | null;
   partner_name: string;
   exclusive: boolean;
   account: { tcg_id_username: string | null; tcg_id: string } | null;
@@ -28,8 +28,7 @@ const SELECT =
   'my_card:card!notification_my_card_id_fkey(card_name, card_image), ' +
   'their_card:card!notification_their_card_id_fkey(card_name, card_image)';
 
-// Header bell with trade notifications for all of the player's Pocket accounts.
-// Clicking one opens that account's offers in Manage Cards.
+// Header bell for account trade updates and user-level friend notifications.
 export function NotificationBell() {
   const t = useLocalizationStore((state) => state.t);
   const userId = useAuthStore((state) => state.user?.user_id);
@@ -92,7 +91,7 @@ export function NotificationBell() {
 
   // Grouped by Pocket account, newest first
   const groups = useMemo(() => {
-    const byAccount = new Map<string, Notification[]>();
+    const byAccount = new Map<string | null, Notification[]>();
     for (const n of items) byAccount.set(n.tcg_account_id, [...(byAccount.get(n.tcg_account_id) ?? []), n]);
     return [...byAccount.values()];
   }, [items]);
@@ -119,6 +118,11 @@ export function NotificationBell() {
   function openNotification(n: Notification) {
     setOpened(false);
     if (!n.read_at) markRead([n.id]);
+    if (['friend_request', 'friend_accepted', 'friend_card'].includes(n.kind)) {
+      navigate({ to: '/friends' });
+      return;
+    }
+    if (!n.tcg_account_id) return;
     navigate({ to: '/' });
     setShowManageCardsMainMenu(true);
     const request = { tcgAccountId: n.tcg_account_id, seq: Date.now(), view: n.kind === 'trade_match' ? 'find' : 'offers' };
@@ -153,19 +157,19 @@ export function NotificationBell() {
             <Text size="sm" c="dimmed" ta="center" px="md" pb="lg">{t.notificationsEmpty}</Text>
           )}
           {(visible ? groups : []).map((group) => (
-            <Box key={group[0].tcg_account_id} pb="xs">
-              <Text size="xs" fw={700} c="dimmed" tt="uppercase" px="md" py={4}>
+            <Box key={group[0].tcg_account_id ?? 'friends'} pb="xs">
+              {group[0].tcg_account_id && <Text size="xs" fw={700} c="dimmed" tt="uppercase" px="md" py={4}>
                 {group[0].account?.tcg_id_username ?? group[0].account?.tcg_id ?? ''}
-              </Text>
+              </Text>}
               <Stack gap={0}>
                 {group.map((n) => (
                   <UnstyledButton key={n.id} data-click-id={`NotificationBell/item:${n.id}`} onClick={() => openNotification(n)}
                     px="md" py="xs" style={{ background: n.read_at ? undefined : 'var(--mantine-color-blue-light)' }}>
                     <Group wrap="nowrap" gap="sm" align="flex-start">
-                      <CardPicture cardImage={n.their_card?.card_image} alt={n.their_card?.card_name ?? ''} width={32} radius={3} zoom={false} />
+                      {!['friend_request', 'friend_accepted'].includes(n.kind) && <CardPicture cardImage={n.their_card?.card_image} alt={n.their_card?.card_name ?? ''} width={32} radius={3} zoom={false} />}
                       <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
                         <Text size="sm" fw={n.read_at ? 400 : 600}>
-                          {(n.kind === 'trade_match' ? t.notificationTradeMatch : t.notificationMessage[n.kind] ?? t.notificationMessage.offer_received)(
+                          {n.kind === 'friend_request' ? t.notificationFriendRequest(n.partner_name) : n.kind === 'friend_accepted' ? t.notificationFriendAccepted(n.partner_name) : n.kind === 'friend_card' ? t.notificationFriendCard(n.partner_name, n.their_card?.card_name ?? '') : (n.kind === 'trade_match' ? t.notificationTradeMatch : t.notificationMessage[n.kind] ?? t.notificationMessage.offer_received)(
                             n.partner_name, n.my_card?.card_name ?? '', n.their_card?.card_name ?? ''
                           )}
                         </Text>
