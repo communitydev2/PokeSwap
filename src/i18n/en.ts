@@ -10,8 +10,8 @@ export const en = {
   // Layout: shell
   authTitle: 'Sign in or create an account',
   authSubtitle: 'We email you a sign-in link and code - no password needed.',
-  aboutTitle: 'About Poke app',
-  aboutBody1: 'Poke app helps Pokémon TCG Pocket players find trades: keep a wishlist and a trade list, see who has the cards you want, and send trade offers.',
+  aboutTitle: 'About Oaktrade',
+  aboutBody1: 'Oaktrade helps Pokémon TCG Pocket players find trades: keep a wishlist and a trade list, see who has the cards you want, and send trade offers.',
   aboutBody2: 'Card data is updated every month. The site is free and funded by player contributions.',
   updatesIntro: 'Everything new on the site, latest first.',
   updateScreenshotAlt: (title: string) => `Screenshot: ${title}`,
@@ -290,7 +290,7 @@ export const en = {
   pocketAccountsDeleteFailed: 'Could not remove this account. Please try again.',
 
   // Header
-  appName: 'Poke app',
+  appName: 'Oaktrade',
   homeNav: 'Home',
   updatesNav: 'Updates',
   headerFallbackName: 'there',
@@ -518,7 +518,7 @@ export const en = {
   supportNav: 'Support',
   supportTitle: 'Support the site',
   supportIntro:
-    'Poke app is free to use. Contributions pay for the server and sign-in emails, and fund upgrades that make it better for everyone.',
+    'Oaktrade is free to use. Contributions pay for the server and sign-in emails, and fund upgrades that make it better for everyone.',
   supportThisMonth: 'This month',
   supportRaisedOf: (raised: string, target: string) => `${raised} of ${target}`,
   supportGoalReached: 'Goal reached, thank you!',

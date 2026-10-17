@@ -6,9 +6,9 @@
 //
 // Secrets (supabase secrets set ...):
 //   RESEND_API_KEY  - API key from https://resend.com
-//   FROM_EMAIL      - verified sender, e.g. "Poke app <no-reply@yourdomain.com>"
+//   FROM_EMAIL      - verified sender, e.g. "Oaktrade <no-reply@yourdomain.com>"
 //   SITE_URL        - live site address, linked in the email
-//   APP_NAME        - optional, defaults to "Poke app"
+//   APP_NAME        - optional, defaults to "Oaktrade"
 // SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are provided automatically.
 //
 // Needs supabase/username-recovery.sql to have been run.
@@ -42,7 +42,7 @@ function escapeHtml(text: string) {
 }
 
 async function sendUsernameEmail(to: string, username: string) {
-  const appName = Deno.env.get('APP_NAME') ?? 'Poke app';
+  const appName = Deno.env.get('APP_NAME') ?? 'Oaktrade';
   const siteUrl = Deno.env.get('SITE_URL') ?? '';
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',

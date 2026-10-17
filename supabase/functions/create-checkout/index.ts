@@ -9,7 +9,7 @@
 //   SITE_URLS         - comma-separated allowed site addresses, e.g.
 //                       "https://your-site.netlify.app,http://localhost:3000"
 //                       (first one is the fallback for returning after payment)
-//   APP_NAME          - optional, shown on the Stripe page (default "Poke app")
+//   APP_NAME          - optional, shown on the Stripe page (default "Oaktrade")
 // SUPABASE_URL, SUPABASE_ANON_KEY and SUPABASE_SERVICE_ROLE_KEY are provided automatically.
 //
 // Deploy: npx supabase functions deploy create-checkout --no-verify-jwt
@@ -73,7 +73,7 @@ Deno.serve(async (req) => {
   const site = allowed.includes(origin) ? origin : allowed[0];
   if (!site) return json({ error: 'SITE_URLS is not configured' }, 500);
 
-  const appName = Deno.env.get('APP_NAME') ?? 'Poke app';
+  const appName = Deno.env.get('APP_NAME') ?? 'Oaktrade';
   const metadata = { user_id: user?.id ?? '', goal_id: goalId ?? '' };
 
   try {

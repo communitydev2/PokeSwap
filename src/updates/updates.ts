@@ -17,6 +17,18 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'renamed-to-oaktrade',
+    date: '2026-10-17',
+    audience: 'user',
+    title: 'Poke app is now Oaktrade',
+    summary: 'Poke app has a new name: Oaktrade.',
+    body: [
+      'Welcome to Oaktrade: a new name for the same site, at the same address. Your sign-in emails will say Oaktrade too.',
+    ],
+    tags: ['improvement'],
+    screenshot: '/updates/renamed-to-oaktrade.png',
+  },
+  {
     id: 'pocket-accounts-one-back',
     date: '2026-10-17',
     audience: 'user',
