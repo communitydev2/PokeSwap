@@ -17,6 +17,18 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'live-database-migrated',
+    date: '2026-10-17',
+    audience: 'dev',
+    title: 'Live database brought up to date',
+    summary: 'All feature migrations are now applied to the hosted Supabase project, so the live market, trades and notifications work.',
+    body: [
+      'The hosted project had been paused and only had the original schema (the state captured in 20261007000000_remote_schema.sql) with no migration history, so the live site showed "Couldn\'t load the market". After it was restored, 20261007000000 was marked as applied with supabase migration repair and the other ten were pushed with supabase db push --linked. The old wishlist / trade-list tables that user_cards.sql recreates were empty (0 bytes).',
+      '20261018000100_clean_banned_words.sql no longer starts with LOCK TABLE: the CLI does not wrap each migration in a transaction, so the lock failed with 25P01. The cleanup itself is unchanged.',
+    ],
+    tags: ['dev', 'database', 'deploy'],
+  },
+  {
     id: 'suspended-accounts',
     date: '2026-10-17',
     audience: 'user',
