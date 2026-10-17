@@ -17,6 +17,31 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'pocket-account-save-changes',
+    date: '2026-10-17',
+    audience: 'user',
+    title: 'Save changes to older Pocket accounts',
+    summary: 'Older account IDs no longer prevent you from saving account name changes.',
+    body: [
+      'Edit all now saves only the accounts you changed. Accounts you leave untouched no longer block your changes because they have an older account ID.',
+      'You can also rename an individual account while keeping its existing ID. When you change an ID, it must contain 16 digits and differ from the other accounts in the form.',
+    ],
+    tags: ['accounts', 'fix'],
+  },
+  {
+    id: 'pocket-accounts',
+    date: '2026-10-17',
+    audience: 'user',
+    title: 'Manage your Pocket accounts',
+    summary: 'Add, rename and remove Pocket accounts from Manage Cards.',
+    body: [
+      'Open Pocket accounts to see each account’s wishlist and trade card totals, exclusive trades and open offers. Choose an account to jump straight to its cards or trades.',
+      'Edit one account or save changes to several accounts together. Removing an account requires typing its name and also removes its lists and trade offers, including offers with other players.',
+    ],
+    screenshot: '/updates/pocket-accounts.png',
+    tags: ['accounts', 'improvement'],
+  },
+  {
     id: 'dataset-card-pictures',
     date: '2026-10-17',
     audience: 'user',

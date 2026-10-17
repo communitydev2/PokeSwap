@@ -1,3 +1,4 @@
+import { validateAccounts, normalizeFriendId } from './accountValidation';
 import { useRef, useState } from 'react';
 import { ActionIcon, Button, Group, Paper, Stack, Text, TextInput, Title } from '@mantine/core';
 import { supabase } from '../../supabaseClient';
@@ -19,7 +20,7 @@ export function ManageTCGAccountsMenu({ onCreated }: { onCreated?: () => void })
   const submitting = useRef(false);
   const userId = useAuthStore((state) => state.session?.user.id);
   const [rows, setRows] = useState<AccountRow[]>(() => [emptyRow()]);
-  const [errors, setErrors] = useState<Record<number, RowErrors>>({});
+  const [errors, setErrors] = useState<Partial<Record<number, RowErrors>>>({});
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
 
@@ -34,18 +35,7 @@ export function ManageTCGAccountsMenu({ onCreated }: { onCreated?: () => void })
   }
 
   function validate(): boolean {
-    const found: Record<number, RowErrors> = {};
-    const seenIds = new Set<string>();
-    for (const row of rows) {
-      const rowErrors: RowErrors = {};
-      const id = row.tcgId.replace(/[\s-]/g, '');
-      if (!row.name.trim()) rowErrors.name = t.qaManageAccountNameRequired;
-      if (!id) rowErrors.tcgId = t.qaManageAccountIdRequired;
-      else if (!/^\d{16}$/.test(id)) rowErrors.tcgId = t.qaManageAccountIdInvalid;
-      else if (seenIds.has(id)) rowErrors.tcgId = t.qaManageAccountDuplicate;
-      seenIds.add(id);
-      if (rowErrors.name || rowErrors.tcgId) found[row.key] = rowErrors;
-    }
+    const found = validateAccounts(rows, t);
     setErrors(found);
     return Object.keys(found).length === 0;
   }
@@ -63,7 +53,7 @@ export function ManageTCGAccountsMenu({ onCreated }: { onCreated?: () => void })
         user_id: userId,
         tcg_id_username: row.name.trim(),
         // Sent as text: 16-digit IDs are too long for a JavaScript number
-        tcg_id: row.tcgId.replace(/[\s-]/g, ''),
+        tcg_id: normalizeFriendId(row.tcgId),
       })),
     );
     setSaving(false);

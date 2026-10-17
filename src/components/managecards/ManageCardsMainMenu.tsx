@@ -1,3 +1,4 @@
+import { PocketAccounts } from './PocketAccounts';
 import { CARD_CATEGORY, LIST_TYPE, MENU_MODE } from '../../constants'
 import { Popover, Text, Button,List,Select,Group, Space,Title, ComboboxItem,UnstyledButton,Alert,Badge
 
@@ -328,13 +329,13 @@ export function ManageCardsMainMenu({callComponent,exclusiveCardSelected}:{callC
   // Shown above the card search after cards are saved
   const [savedMessage,setSavedMessage] = useState<string|null>(null)
   // Screen shown instead of the menu: the selected account's saved cards or its trades
-  const [view,setView] = useState<'menu'|'myCards'|'trades'>('menu')
+  const [view,setView] = useState<'menu'|'myCards'|'trades'|'pocketAccounts'>('menu')
   // Offers waiting for this account's answer, shown on the Trades button
   const [incomingOffers,setIncomingOffers] = useState(0)
   const [offersReload,setOffersReload] = useState(0)
   // Bumped each time the notification bell opens an account's offers, to reopen Trades there
   const [tradesOpenSeq,setTradesOpenSeq] = useState(0)
-  const [tradesInitialView,setTradesInitialView] = useState<'find'|'offers'>('find')
+  const [tradesInitialView,setTradesInitialView] = useState<'find'|'offers'|'exclusive'>('find')
   const tradesRequest = useStateStoreWrapper.tradesRequest
   const [myCardsCategory,setMyCardsCategory] = useState<typeof CARD_CATEGORY[keyof typeof CARD_CATEGORY]>(CARD_CATEGORY.wishlist)
   const [activeVarables,setActiveVariables] = useState()
@@ -529,6 +530,7 @@ function cardCategoryOnChange(e) {
 
   // checks if there are any accounts and sets them to a data
       useEffect(() => {
+      let cancelled = false
       async function getTcgAccounts() {
         setLoading(true)
         const user  = useAuthStoreWrapper.user?.user_id
@@ -546,11 +548,13 @@ function cardCategoryOnChange(e) {
         //   .eq('user_id', user.id)
         //   .single()
   
+        if (cancelled) return
         if (error) {
           console.warn(error)
         } else if (data) {
           // console.log(data.map((v,i,a)=> `${v.tcg_id_username} | ${v.tcg_id}`))
           setHasTcgAccounts(data.length>0);
+          if (!data.length) { setView('menu'); setShowManageCardsMainMenuOptions(true) }
           setTcgAccounts(data);
           setComboData_accountUsernames(data.map((v)=> ({ value: v.tcg_account_id, label: `${v.tcg_id_username} | ${v.tcg_id}` })))
           // keep the chosen account (e.g. one opened from a notification) if it's still there
@@ -562,7 +566,12 @@ function cardCategoryOnChange(e) {
   
         setLoading(false)
       }
+        setTcgAccounts(undefined)
+        setHasTcgAccounts(false)
+        setComboData_accountUsernames([])
         if (useAuthStoreWrapper.user?.user_id) getTcgAccounts()
+        else { setSelectedTcgAccount(null); setView('menu') }
+        return () => { cancelled = true }
   
     }, [tcgAccountsReload, useAuthStoreWrapper.user?.user_id])
   
@@ -586,17 +595,34 @@ function cardCategoryOnChange(e) {
     useStateStoreWrapper.setTradesRequest(null)
   }, [tradesRequest, tcgAccounts, callComponent])
 
+  useEffect(() => {
+    setView('menu')
+    setSelectedTcgAccount(null)
+    setSavedMessage(null)
+    setShowManageCardsMainMenuOptions(true)
+  }, [useAuthStoreWrapper.user?.user_id])
+
   // Saved cards or trades of the selected account (replace the rest of the menu while open)
   if (view != 'menu' && callComponent==MENU_MODE.mainMenu) {
     return (
       <Stack gap="xl" w="100%">
         <Group justify="space-between" wrap="nowrap">
-          <Title order={2}>{view == 'trades' ? useLocStore.t.trades : useLocStore.t.myCards}</Title>
+          <Title order={2}>{view == 'pocketAccounts' ? useLocStore.t.pocketAccounts : view == 'trades' ? useLocStore.t.trades : useLocStore.t.myCards}</Title>
           <Button data-click-id="ManageCardsMainMenu/my-cards-back" variant="default" onClick={() => setView('menu')}>
             {useLocStore.t.myCardsBack}
           </Button>
         </Group>
-        {tcgAccountSelect}
+        {view == 'pocketAccounts' ? <PocketAccounts onChanged={() => setTcgAccountsReload((n) => n + 1)} onNavigate={(id, destination) => {
+          setSelectedTcgAccount(id)
+          if (destination == 'wishlist' || destination == 'trade') {
+            setMyCardsCategory(destination == 'wishlist' ? CARD_CATEGORY.wishlist : CARD_CATEGORY.trade)
+            setView('myCards')
+          } else {
+            setTradesInitialView(destination == 'exclusive' ? 'exclusive' : 'offers')
+            setTradesOpenSeq((n) => n + 1)
+            setView('trades')
+          }
+        }} /> : tcgAccountSelect}
         {selectedTcgAccount && view == 'myCards' && <MyCards key={selectedTcgAccount} tcgAccountId={selectedTcgAccount} initialCategory={myCardsCategory} />}
         {selectedTcgAccount && view == 'trades' && <Trades key={`${selectedTcgAccount}:${tradesOpenSeq}`} tcgAccountId={selectedTcgAccount} initialView={tradesInitialView} onOffersChanged={() => setOffersReload((n) => n + 1)} />}
       </Stack>
@@ -611,13 +637,13 @@ function cardCategoryOnChange(e) {
   
   {/* only this place if it's called from accounts .tsx */}
 {!hasTcgAccounts && callComponent==MENU_MODE.mainMenu &&(
-  <ManageTCGAccountsMenu onCreated={() => setTcgAccountsReload((n) => n + 1)}/>
+  <ManageTCGAccountsMenu key={useAuthStoreWrapper.user?.user_id} onCreated={() => setTcgAccountsReload((n) => n + 1)}/>
 )}
 {/* display list of accounts */}
 {/* this is if the  call component type is not the exclusive trade so this is not going to show up */}
 {hasTcgAccounts && showManageCardsMainMenuOptions && callComponent==MENU_MODE.mainMenu &&(
   <>
-  <SimpleGrid cols={3} spacing="xs">
+  <SimpleGrid cols={{ base: 2, xs: 4 }} spacing="xs">
 
   <Button data-click-id="ManageCardsMainMenu/add-cards" onClick={handleMainMenuAddCardsButton}>{useLocStore.t.addCardsTitle}</Button>
   <Button data-click-id="ManageCardsMainMenu/my-cards" variant="default" onClick={() => setView('myCards')}>{useLocStore.t.myCards}</Button>
@@ -625,6 +651,7 @@ function cardCategoryOnChange(e) {
     rightSection={incomingOffers > 0 ? <Badge size="sm" circle>{incomingOffers}</Badge> : undefined}>
     {useLocStore.t.trades}
   </Button>
+  <Button data-click-id="ManageCardsMainMenu/pocket-accounts" variant="default" onClick={() => setView('pocketAccounts')}>{useLocStore.t.pocketAccounts}</Button>
   </SimpleGrid>
   {tcgAccountSelect}
   </>
