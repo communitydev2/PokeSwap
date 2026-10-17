@@ -17,6 +17,17 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'longer-sign-in-codes',
+    date: '2026-10-17',
+    audience: 'user',
+    title: 'Sign-in codes work again',
+    summary: 'The code from the sign-in email was being cut short, so it was always rejected. It now goes in whole.',
+    body: [
+      'Sign-in emails now send an 8-digit code, but the code box only took 6 digits, so the code you typed was cut off and reported as wrong. The box now takes the full code.',
+    ],
+    tags: ['fix'],
+  },
+  {
     id: 'new-address-and-email',
     date: '2026-10-17',
     audience: 'user',

@@ -102,7 +102,7 @@ export function Auth() {
   }
 
   const handleVerifyCode = async () => {
-    if (!codeSentTo || busy.current || !/^\d{6}$/.test(code)) return
+    if (!codeSentTo || busy.current || !/^\d{6,10}$/.test(code)) return
     busy.current = true
     setVerifying(true)
     setLoginMessage(null)
@@ -207,7 +207,7 @@ export function Auth() {
               label={t.signInCodeLabel}
               placeholder={t.signInCodePlaceholder}
               inputMode="numeric"
-              maxLength={6}
+              maxLength={10}
               disabled={verifying}
               autoComplete="one-time-code"
               radius="md"
@@ -217,10 +217,10 @@ export function Auth() {
                 setLoginMessage(null)
               }}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' && code.length === 6) handleVerifyCode()
+                if (e.key === 'Enter' && code.length >= 6 && code.length <= 10) handleVerifyCode()
               }}
             />
-            <Button data-click-id="Auth/verify-code" fullWidth radius="md" onClick={handleVerifyCode} loading={verifying} disabled={code.length !== 6 || loading}>
+            <Button data-click-id="Auth/verify-code" fullWidth radius="md" onClick={handleVerifyCode} loading={verifying} disabled={code.length < 6 || code.length > 10 || loading}>
               {t.signInWithCode}
             </Button>
             <Group justify="space-between">
