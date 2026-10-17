@@ -17,6 +17,18 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'agents-md-sync',
+    date: '2026-10-17',
+    audience: 'dev',
+    title: 'AGENTS.md now matches CLAUDE.md',
+    summary: 'The project rules for Codex (AGENTS.md) are committed and kept identical to CLAUDE.md.',
+    body: [
+      'AGENTS.md was an untracked, out-of-date copy of CLAUDE.md (it still said self-hosting card pictures was undecided, and used CRLF line endings). It is now an exact copy and committed.',
+      'CLAUDE.md now says the two files must stay identical: whenever one changes, copy it over the other in the same commit.',
+    ],
+    tags: ['dev', 'docs'],
+  },
+  {
     id: 'self-hosted-card-images-dev',
     date: '2026-10-17',
     audience: 'dev',

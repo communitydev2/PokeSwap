@@ -1,5 +1,7 @@
 # Project rules
 
+`AGENTS.md` is a copy of this file for Codex and other agents. Keep the two identical: whenever you change one, copy it over the other in the same commit.
+
 This app will be used by many real users. Keep dev tooling out of production builds, keep user-facing text written for users, and treat Supabase Row Level Security as the real security boundary (the anon key ships in the page). Draft RLS policies are in `supabase/rls-policies.sql`.
 
 ## Where code goes

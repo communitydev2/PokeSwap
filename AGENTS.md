@@ -1,0 +1,50 @@
+# Project rules
+
+`AGENTS.md` is a copy of this file for Codex and other agents. Keep the two identical: whenever you change one, copy it over the other in the same commit.
+
+This app will be used by many real users. Keep dev tooling out of production builds, keep user-facing text written for users, and treat Supabase Row Level Security as the real security boundary (the anon key ships in the page). Draft RLS policies are in `supabase/rls-policies.sql`.
+
+## Where code goes
+- `src/routes/` is only for real pages (each file there becomes a URL): `__root.tsx`, `index.tsx`, `updates.tsx`, `support.tsx`, `about.tsx`.
+- Everything else (screens shown inside a page, menus, cards, forms) goes in `src/components/`.
+
+## Text and translations
+The app is meant to support several languages.
+- On-screen text goes in `src/i18n/en.ts` under a descriptive key and is read with `useLocalizationStore().t.someKey`. Don't hard-code new user-facing text in components.
+- To add a language: copy `en.ts` (e.g. `es.ts`), translate the values, register it in `src/i18n/index.ts`.
+- Internal identifiers (list types, menu modes, card categories, "Any") live in `src/constants.ts` and are never translated. Never compare against translated text in logic.
+
+## Payments (support page)
+- Contributions are only recorded by the `stripe-webhook` Edge Function after Stripe confirms a payment. Never write to `contributions` from the browser, and never trust amounts sent by the client.
+- Money is stored in pence (integers). Format with `formatPence` from `src/utils/money.ts`.
+- Use Stripe test mode (`sk_test_...`) while developing. Setup steps are in `supabase/support.sql` and the two function files.
+
+## Card data
+- Card data (sets, cards, rarities) comes from the flibustier/pokemon-tcg-pocket-database dataset (MIT, up to date); pictures come from TCGdex, which lags behind, so newer cards have no picture until TCGdex adds one. The `sync-cards` Edge Function runs monthly (pg_cron, see `supabase/card-sync.sql`), adds new sets/cards, fills in pictures as TCGdex gets them, never deletes, and skips promo sets. Cards both sources have keep TCGdex's name and picture. Don't hand-edit card data that the sync owns. Self-hosting pictures is in development only: `npm run mirror:card-images` copies the TCGdex WebPs into the local Supabase Storage bucket `card-images` (same path as the TCGdex URL), and `VITE_CARD_IMAGES_FROM_STORAGE=true` in `.env.development.local` makes `cardImageUrl` use them, falling back to TCGdex. Production still loads from TCGdex until the user decides to switch.
+- Never hard-code set or rarity lists in the UI; build them from the `set` / `rarity` tables (`src/utils/searchOptions.ts`).
+- Cards can exist without a picture (new sets before TCGdex has images): render pictures with `CardPicture`, which shows a placeholder.
+
+## Branches
+- Work happens on `dev`; commits are pushed to `origin/dev`.
+- `master` is the release branch (it may auto-deploy to the live site). Only merge `dev` into `master` when the user asks for a release.
+
+## Log every update on the Updates page
+Every change that affects the site or how it is run gets an article on the `/updates` page, in the same commit.
+
+1. Add an entry at the **top** of the `updates` array in `src/updates/updates.ts` (newest first): `id` (kebab-case), `date` (YYYY-MM-DD), `audience`, `title`, one-sentence `summary`, a few short `body` paragraphs, and `tags`.
+   - `audience: 'user'` for anything people using the site will notice. Write it for them: plain language, what changed for them, no file names, code or tooling.
+   - `audience: 'dev'` for tooling, scripts, config and internal changes. These only show while running the dev server. Technical detail is fine here.
+   - A change with both sides (e.g. a user-visible fix with notable internals) gets one `user` entry and one `dev` entry.
+2. If the change is visible in the UI, add a screenshot of the area that changed:
+   - Start the dev server (`npx vite --port 3005 --strictPort` works even when 3000 is taken).
+   - Run `node scripts/screenshot.mjs <route> public/updates/<id>.png [css-selector]` with `BASE_URL=http://localhost:3005`. Pass a selector to crop to just the changed area. In Git Bash, prefix with `MSYS_NO_PATHCONV=1` so the route isn't turned into a file path.
+   - Look at the image before using it, then set `screenshot: '/updates/<id>.png'` on the entry.
+   - Stop the dev server afterwards.
+3. Changes with nothing to show (tooling, scripts, config) still get an article, just without a screenshot.
+
+## Click IDs and the click log
+Most menus are opened through Zustand store flags (e.g. `setShowManageCardsMainMenu`), not URLs, so they can't be linked to directly. Instead, every clickable element has a unique `data-click-id="Component/what-it-is"` (e.g. `ManageCardsMainMenu/add-cards`), and in dev `src/dev/clickRecorder.ts` logs each click by that id (toggle in `src/dev/clickLogConfig.ts`).
+
+- When the user pastes a click journey (from `copy(clickPath())`), grep `src/` for each id to find the exact element and handler.
+- Steps marked `(untagged)` are clicks on elements without an id; give them one if they are interactive.
+- **Every new clickable element (button, link, input, select, clickable div...) must get a unique `data-click-id`.** Use a template string for repeated items, e.g. ``data-click-id={`Comp/item:${id}`}``. Add `data-click-context` on a container to label clicks inside it (e.g. which card).
