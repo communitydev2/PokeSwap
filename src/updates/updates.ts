@@ -17,6 +17,31 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'new-address-and-email',
+    date: '2026-10-17',
+    audience: 'user',
+    title: 'New web address and sign-in emails',
+    summary: 'The site now lives at oaktrade.miguelsalvador.co.uk, and sign-in emails come from login@miguelsalvador.co.uk.',
+    body: [
+      'You can now reach the site at oaktrade.miguelsalvador.co.uk. The old address still works.',
+      'Sign-in codes and username reminders are sent from login@miguelsalvador.co.uk. If you don\'t see one, check your spam folder and mark it as "not spam" so the next ones arrive in your inbox.',
+    ],
+    tags: ['improvement'],
+  },
+  {
+    id: 'email-and-domain-dev',
+    date: '2026-10-17',
+    audience: 'dev',
+    title: 'Resend email on miguelsalvador.co.uk, site on oaktrade.miguelsalvador.co.uk',
+    summary: 'Sending domain verified in Resend (Ireland), DNS records added in Netlify DNS, recover-username deployed, and the Netlify site given a custom domain.',
+    body: [
+      'Netlify DNS zone miguelsalvador.co.uk now has Resend\'s DKIM TXT (resend._domainkey), CNAMEs send -> send.forge.rmta.net and rsend -> rsend-euw1.forge.rmta.net, and _dmarc "v=DMARC1; p=none;". A direct test send from login@miguelsalvador.co.uk reached Gmail\'s inbox.',
+      'recover-username is deployed to the hosted project (--no-verify-jwt) with secrets RESEND_API_KEY, FROM_EMAIL "Poke app <login@miguelsalvador.co.uk>" and SITE_URL https://oaktrade.miguelsalvador.co.uk; a live test delivered the username email (to spam at first - new sending domain).',
+      'The oaktrade Netlify site has custom domain oaktrade.miguelsalvador.co.uk (served by the zone\'s wildcard certificate). Supabase Auth custom SMTP (smtp.resend.com:465, user resend) is set in the dashboard, together with Site URL / Redirect URLs for the new address.',
+    ],
+    tags: ['dev', 'email', 'deploy'],
+  },
+  {
     id: 'live-database-migrated',
     date: '2026-10-17',
     audience: 'dev',
