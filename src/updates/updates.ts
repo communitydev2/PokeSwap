@@ -17,6 +17,17 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'pokeball-icon',
+    date: '2026-10-17',
+    audience: 'user',
+    title: 'A new icon',
+    summary: 'Oaktrade now has a Poké Ball icon for browser tabs and your home screen.',
+    body: [
+      'Look for the red and white Poké Ball when returning to Oaktrade.',
+    ],
+    tags: ['improvement'],
+  },
+  {
     id: 'add-cards-destination',
     date: '2026-10-17',
     audience: 'user',
