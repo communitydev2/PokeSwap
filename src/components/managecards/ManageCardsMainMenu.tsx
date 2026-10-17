@@ -11,7 +11,7 @@ import { ManageTCGAccountsMenu } from './ManageTCGAccountsMenu';
 import { useStateStore } from '../../store/useStateStore';
 import { UseLocalizationStoreType } from '../../types/UseLocalizationStoreType';
 import { useLocalizationStore } from '../../store/useLocalizationStore';
-import { usePokemonCardStore } from '../../store/pokemonCardsStore';
+import { cardLanguageOptions, usePokemonCardStore } from '../../store/pokemonCardsStore';
 import { create } from 'zustand';
 import { useAddedToastStore } from '../../store/addedToastStore';
 import { useDisclosure } from '@mantine/hooks';
@@ -345,8 +345,8 @@ export function ManageCardsMainMenu({callComponent,exclusiveCardSelected}:{callC
   const [showManageCardsMainMenuOptions,setShowManageCardsMainMenuOptions] = useState(true);
   // dropdown card card category
   const cardCategoryOptions = [
-    { value: CARD_CATEGORY.wishlist, label: useLocStore.t.addToWishlist },
-    { value: CARD_CATEGORY.trade, label: useLocStore.t.addToTradeCards },
+    { value: CARD_CATEGORY.wishlist, label: useLocStore.t.addCardsWishlist },
+    { value: CARD_CATEGORY.trade, label: useLocStore.t.addCardsTradeList },
   ]
   const [selectedCardCategory,setSelectedCardCategory] = useState<ComboboxItem | null>(null);
   //  dropdown language selection category
@@ -411,9 +411,9 @@ function cardCategoryOnChange(e) {
   // aren't remounted (and their dropdowns closed) on every render
   const languageSelect = (
       <Select data-click-id="ManageCardsMainMenu/language-select"
-        label={useLocStore.t.pickLanguage}
+        label={useLocStore.t.addCardsLanguage}
         placeholder={useLocStore.t.pickValue}
-        data={usePokeCardStore.languages}
+        data={cardLanguageOptions(usePokeCardStore.languages)}
         value={selectedLanguageDropdownChoice}
         allowDeselect={false}
         onChange={(value)=> {
@@ -447,7 +447,7 @@ function cardCategoryOnChange(e) {
 
   const tcgAccountSelect = (
     <Select data-click-id="ManageCardsMainMenu/tcg-account-select"
-      label={useLocStore.t.selectPocketAccount}
+      label={useLocStore.t.addCardsPocketAccount}
       placeholder={useLocStore.t.qaManageChooseAccount}
       data={comboData_accountUsernames ?? []}
       value={selectedTcgAccount}
@@ -515,7 +515,7 @@ function cardCategoryOnChange(e) {
       )}
       <Paper withBorder radius="md" p="md">
         <Title order={4} mb="sm">{useLocStore.t.manageWhereSection}</Title>
-        <SimpleGrid cols={{ base: 1, sm: useStateStoreWrapper.showLanguageDropdown ? 3 : 2 }} spacing="sm">
+        <SimpleGrid cols={{ base: 1, sm: useStateStoreWrapper.showLanguageDropdown ? 3 : 2 }} spacing="sm" style={{ alignItems: 'end' }}>
           {tcgAccountSelect}
           {cardCategorySelect}
           {useStateStoreWrapper.showLanguageDropdown && languageSelect}

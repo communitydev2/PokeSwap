@@ -3,7 +3,7 @@ import { Badge, Button, Divider, Group, MultiSelect, Paper, Popover, Select, Sim
 import { IconArrowsExchange, IconLock } from '@tabler/icons-react';
 import { supabase } from '../../supabaseClient';
 import { useLocalizationStore } from '../../store/useLocalizationStore';
-import { usePokemonCardStore } from '../../store/pokemonCardsStore';
+import { cardLanguageOptions, usePokemonCardStore } from '../../store/pokemonCardsStore';
 import type { PokemonCard } from '../../types/PokemonCard';
 import type { TradeOffer } from './Trades';
 import { CardPicture } from '../CardPicture';
@@ -215,7 +215,7 @@ function ListingEditor({ draft: initial, cardChoices, saving, disabled, onSave, 
 
         {row && (
           <>
-            <Select data-click-id="ExclusiveTrades/language-select" label={t.exclusiveWantLanguage} data={languages}
+            <Select data-click-id="ExclusiveTrades/language-select" label={t.exclusiveWantLanguage} data={cardLanguageOptions(languages)}
               value={draft.wantLanguage} allowDeselect={false}
               onChange={(value) => value && setDraft({ ...draft, wantLanguage: value, wants: draft.wants.filter((id) => !(id === row.card.card_id && value === row.language)) })} />
             <MultiSelect styles={{ pill: { maxWidth: '100%' }, input: { overflow: 'hidden' } }} data-click-id="ExclusiveTrades/wants-select" label={t.exclusiveWants} description={t.exclusiveWantsHelp}

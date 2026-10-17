@@ -17,6 +17,19 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'add-cards-destination',
+    date: '2026-10-17',
+    audience: 'user',
+    title: 'Clearer choices when adding cards',
+    summary: 'Shorter labels and readable language names make it easier to choose where your cards go.',
+    body: [
+      'Choose your Pocket account, Wishlist or Trade list with shorter labels and neatly aligned controls. On phones, the choices stack so each one has room.',
+      'Language menus now show names such as English, Español and 日本語 when adding cards, choosing a language for an individual card or setting up an exclusive trade.',
+    ],
+    screenshot: '/updates/add-cards-destination.png',
+    tags: ['cards', 'improvement'],
+  },
+  {
     id: 'renamed-to-oaktrade',
     date: '2026-10-17',
     audience: 'user',

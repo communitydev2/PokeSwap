@@ -289,6 +289,12 @@ export const en = {
   pocketAccountsDeleteWarning: (name: string) => `This deletes ${name} and its wishlist, trade list, exclusive trades and every trade offer it's part of - other players lose offers with it. This can't be undone.`,
   pocketAccountsDeleteFailed: 'Could not remove this account. Please try again.',
 
+  // Add cards: where
+  addCardsPocketAccount: 'Pocket account',
+  addCardsLanguage: 'Language',
+  addCardsWishlist: 'Wishlist',
+  addCardsTradeList: 'Trade list',
+
   // Header
   appName: 'Oaktrade',
   homeNav: 'Home',
@@ -314,7 +320,7 @@ export const en = {
   pickValue: 'Pick Value',
   addToWishlist: 'Add to Wishlist',
   addToTradeCards: 'Add to Cards You Have For Trade',
-  whereAddingCards: 'Where are you adding these cards to',
+  whereAddingCards: 'Add to',
   pickLanguage: "Pick the language you're looking for",
   manageCardsMainMenuTitle: 'Manage cards',
   addCardsExclusiveTradeTitle: 'Add Cards Menu Exclusive Trade Version',

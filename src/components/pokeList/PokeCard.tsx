@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { ActionIcon, Badge, Stack, Modal } from '@mantine/core';
 import { IconMinus, IconPlus, IconTrash } from '@tabler/icons-react';
 import { useLocalizationStore } from '../../store/useLocalizationStore'
-import { usePokemonCardStore } from '../../store/pokemonCardsStore'
+import { cardLanguageOptions, usePokemonCardStore } from '../../store/pokemonCardsStore'
 import { useAddedToastStore } from '../../store/addedToastStore'
 import { useAuthStore } from '../../store/userStore'
 import { useStateStore } from '../../store/useStateStore'
@@ -86,7 +86,7 @@ export function PokeCard(
         <Select data-click-id={`PokeCard/language-select:${pokeListType}:${currentCard.card_id}`}
           label={useStateWrapper.addingCardsSector == CARD_CATEGORY.trade ? useLocStore.t.qaManageCardLanguage : useLocStore.t.pickLanguage}
           placeholder={useLocStore.t.pickValue}
-          data={usePokeCard.languages}
+          data={cardLanguageOptions(usePokeCard.languages)}
           value={cardLanguage}
           size="sm"
           allowDeselect={false}

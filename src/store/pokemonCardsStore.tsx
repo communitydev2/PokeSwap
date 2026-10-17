@@ -6,6 +6,14 @@ import type { PokemonDBStoreType } from "../types/pokemonDBStoreType";
 import { SupabaseRarityType } from "../types/SupabaseRarityType";
 import { SupabaseExpansionType } from "../types/SupabaseExpansionType";
 
+// Keep stored codes unchanged; jp/kr/ch are the app's legacy language codes.
+const languageLocales: Record<string, string> = { jp: 'ja', kr: 'ko', ch: 'zh' };
+export const cardLanguageOptions = (languages: string[]) => languages.map((value) => {
+  const locale = languageLocales[value] ?? value;
+  const name = new Intl.DisplayNames([locale], { type: 'language' }).of(locale) ?? value;
+  return { value, label: name.charAt(0).toLocaleUpperCase(locale) + name.slice(1) };
+});
+
 export const usePokemonCardStore = create<PokemonDBStoreType & { searchActive: boolean }>((set) => ({
   pokemonCards: [],
   // Filter options come from the rarity / set tables (src/utils/searchOptions.ts);
