@@ -1,3 +1,4 @@
+import { SUPPORT_PAGE_ENABLED } from '../constants'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { Anchor, Container, Group, Stack, Text, Title } from '@mantine/core'
 import { useLocalizationStore } from '../store/useLocalizationStore'
@@ -16,7 +17,7 @@ function About() {
         </Stack>
         <Group>
           <Anchor component={Link} to="/updates" data-click-id="About/updates">{t.updatesNav}</Anchor>
-          <Anchor component={Link} to="/support" data-click-id="About/support">{t.supportNav}</Anchor>
+          {SUPPORT_PAGE_ENABLED && <Anchor component={Link} to="/support" data-click-id="About/support">{t.supportNav}</Anchor>}
         </Group>
       </Stack>
     </Container>

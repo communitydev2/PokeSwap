@@ -17,6 +17,16 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'support-paused',
+    date: '2026-10-17',
+    audience: 'user',
+    title: 'Support page paused',
+    summary: 'Contributions are paused while we set up payments.',
+    body: ['You will be able to support the site once payments are ready.'],
+    screenshot: '/updates/support-paused.png',
+    tags: ['improvement'],
+  },
+  {
     id: 'pokeball-icon',
     date: '2026-10-17',
     audience: 'user',

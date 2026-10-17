@@ -76,7 +76,7 @@ export const en = {
   marketExclusiveDismiss: 'Dismiss',
 
   // QA fixes: accounts
-  qaAccountSuspended: "This account has been suspended. If you think this is a mistake, contact us through the Support page.",
+  qaAccountSuspended: "This account has been suspended. If you think this is a mistake, contact the site owner.",
   qaEmail: "Email",
   qaSignIn: "Send sign-in email",
   qaAddAccountIntro: "Sign in to another account. Your current account stays saved on this device.",
@@ -294,6 +294,11 @@ export const en = {
   addCardsLanguage: 'Language',
   addCardsWishlist: 'Wishlist',
   addCardsTradeList: 'Trade list',
+
+  // Support disabled
+  supportPausedTitle: 'Support',
+  supportPausedDescription: "Support isn't available right now.",
+  supportPausedHome: 'Go home',
 
   // Header
   appName: 'Oaktrade',

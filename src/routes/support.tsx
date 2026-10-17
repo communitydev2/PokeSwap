@@ -1,5 +1,6 @@
+import { SUPPORT_PAGE_ENABLED } from '../constants'
 import { useCallback, useEffect, useState } from 'react'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { Alert, Anchor, Button, Center, Container, Group, Loader, Stack, Text, Title } from '@mantine/core'
 import { useAuthStore } from '../store/userStore'
 import { fetchAllRows } from '../utils/fetchAllRows'
@@ -29,6 +30,20 @@ type Cost = { id: string; label: string; amount_pence: number }
 const portalUrl = import.meta.env.VITE_STRIPE_PORTAL_URL as string | undefined
 
 function Support() {
+  const t = useLocalizationStore((state) => state.t)
+  if (SUPPORT_PAGE_ENABLED) return <EnabledSupport />
+  return (
+    <Container size={760} px="md">
+      <Stack>
+        <Title order={2}>{t.supportPausedTitle}</Title>
+        <Text c="dimmed">{t.supportPausedDescription}</Text>
+        <Anchor component={Link} to="/" data-click-id="Support/home">{t.supportPausedHome}</Anchor>
+      </Stack>
+    </Container>
+  )
+}
+
+function EnabledSupport() {
   const userId = useAuthStore((state) => state.session?.user.id)
   const t = useLocalizationStore((state) => state.t)
   const [goals, setGoals] = useState<Goal[] | null>(null)

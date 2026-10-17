@@ -1,3 +1,4 @@
+import { SUPPORT_PAGE_ENABLED } from '../constants'
 import { useEffect, useRef, useState } from 'react';
 import { ColorSchemeToggle } from './ColorSchemeToggle/ColorSchemeToggle';
 
@@ -130,9 +131,9 @@ export function Header() {
             <Link data-click-id="Header/updates" to="/updates" className={classes.link}>
               {t.updatesNav}
             </Link>
-            <Link data-click-id="Header/support" to="/support" className={classes.link}>
+            {SUPPORT_PAGE_ENABLED && (<Link data-click-id="Header/support" to="/support" className={classes.link}>
               {t.supportNav}
-            </Link>
+            </Link>)}
           </Group>
 
           <Group gap="xs" wrap="nowrap" align="center" ml="auto">
@@ -217,9 +218,9 @@ export function Header() {
           <Link data-click-id="Header/drawer-updates" to="/updates" className={classes.link} onClick={closeDrawer}>
             {t.updatesNav}
           </Link>
-          <Link data-click-id="Header/drawer-support" to="/support" className={classes.link} onClick={closeDrawer}>
+          {SUPPORT_PAGE_ENABLED && (<Link data-click-id="Header/drawer-support" to="/support" className={classes.link} onClick={closeDrawer}>
             {t.supportNav}
-          </Link>
+          </Link>)}
 
           <Divider my="sm" />
 

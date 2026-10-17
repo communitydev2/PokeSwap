@@ -28,3 +28,6 @@ export const ANY_OPTION = 'Any';
 export const MARKET_TAB = { cards: 'cards', exclusive: 'exclusive' } as const;
 
 export const ADMIN_TAB = { overview: 'overview', signIns: 'sign-ins', users: 'users', trades: 'trades', moderation: 'moderation', cardSync: 'card-sync', activity: 'activity' } as const;
+
+// Enable once payments and the support database are set up.
+export const SUPPORT_PAGE_ENABLED = false;

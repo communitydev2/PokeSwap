@@ -1,3 +1,4 @@
+import { SUPPORT_PAGE_ENABLED } from '../constants'
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
 import { Header } from '../components/Header'
 import { NewSetBanner } from '../components/NewSetBanner'
@@ -76,9 +77,11 @@ function useSupabaseSession() {
     setProfileLoading(true)
     // Supporter badge (false if the support SQL hasn't been run yet)
     setIsSupporter(false)
-    supabase.rpc('my_supporter_status').then(({ data, error }) => {
-      if (!cancelled && useAuthStore.getState().session?.user.id === userId && !error) setIsSupporter(data === true)
-    })
+    if (SUPPORT_PAGE_ENABLED) {
+      supabase.rpc('my_supporter_status').then(({ data, error }) => {
+        if (!cancelled && useAuthStore.getState().session?.user.id === userId && !error) setIsSupporter(data === true)
+      })
+    }
     Promise.resolve(supabase
       .from('user_account')
       .select('*')
