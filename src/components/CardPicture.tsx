@@ -49,7 +49,7 @@ export function CardPicture({ cardImage, alt, width, radius = 8, zoom = true }: 
         }
       } : undefined}
       src={cardImageUrl(cardImage)}
-      onError={fallBackToPng}
+      onError={(event) => fallBackToPng(event, cardImage)}
       loading="lazy"
       decoding="async"
       alt={alt}
@@ -83,7 +83,7 @@ export function CardPicture({ cardImage, alt, width, radius = 8, zoom = true }: 
             <Modal.Body p="sm" pt={0}>
               <img
                 src={cardImageUrl(cardImage, 'webp', 'high')}
-                onError={fallBackToPng}
+                onError={(event) => fallBackToPng(event, cardImage, 'high')}
                 alt={alt}
                 width={245}
                 height={337}

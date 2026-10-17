@@ -1,14 +1,26 @@
 import type { SyntheticEvent } from 'react';
+import { supabaseUrl } from '../supabaseClient';
 
-// Card pictures come from TCGdex (card_image is the base URL, e.g.
-// https://assets.tcgdex.net/en/tcgp/A1/001). "low" WebP is ~15-25 KB versus
-// ~60 KB for the PNG at the same size, which matters on slow phone connections.
+// Card pictures use TCGdex base URLs (e.g. https://assets.tcgdex.net/en/tcgp/A1/001).
+// Development can load mirrored WebPs from Supabase Storage, falling back to
+// TCGdex WebP and then PNG. Low WebP keeps list pictures small on phones.
 export function cardImageUrl(cardImage: string, format: 'webp' | 'png' = 'webp', quality: 'low' | 'high' = 'low') {
+  if (import.meta.env.VITE_CARD_IMAGES_FROM_STORAGE === 'true' && format === 'webp' && cardImage.startsWith('https://assets.tcgdex.net/')) {
+    const path = cardImage.slice('https://assets.tcgdex.net/'.length);
+    return `${supabaseUrl}/storage/v1/object/public/card-images/${path}/${quality}.webp`;
+  }
   return `${cardImage}/${quality}.${format}`;
 }
 
-// If the WebP fails to load, try the PNG once
-export function fallBackToPng(event: SyntheticEvent<HTMLImageElement>) {
+// Each URL has at most one successor; PNG and unknown URLs are terminal.
+export function nextCardImageUrl(currentUrl: string, initialUrl: string, tcgdexWebp: string): string | undefined {
+  if (currentUrl === tcgdexWebp) return tcgdexWebp.replace(/\/(low|high)\.webp$/, '/$1.png');
+  if (currentUrl === initialUrl && initialUrl !== tcgdexWebp) return tcgdexWebp;
+  return undefined;
+}
+
+export function fallBackToPng(event: SyntheticEvent<HTMLImageElement>, cardImage: string, quality: 'low' | 'high' = 'low') {
   const img = event.currentTarget;
-  if (/\/(low|high)\.webp$/.test(img.src)) img.src = img.src.replace(/\/(low|high)\.webp$/, '/$1.png');
+  const next = nextCardImageUrl(img.src, cardImageUrl(cardImage, 'webp', quality), `${cardImage}/${quality}.webp`);
+  if (next && next !== img.src) img.src = next;
 }

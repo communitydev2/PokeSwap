@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "mirror:card-images": "node scripts/mirror-card-images.mjs",
     "build": "vite build",
     "build:check": "tsc && vite build",
     "preview": "vite preview",

@@ -15,7 +15,7 @@ function devSupabaseUrl(url: string): string {
   return `${window.location.origin}/supabase-local`
 }
 
-const supabaseUrl = devSupabaseUrl(import.meta.env.VITE_SUPABASE_URL)
+export const supabaseUrl = devSupabaseUrl(import.meta.env.VITE_SUPABASE_URL)
 const supabasePublishableKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 // Keep users signed in on this device: the session is saved in localStorage

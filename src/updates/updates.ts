@@ -17,6 +17,19 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'self-hosted-card-images-dev',
+    date: '2026-10-17',
+    audience: 'dev',
+    title: 'Card pictures from our own storage (development only)',
+    summary: 'The dev server can now load card pictures from a copy in local Supabase Storage instead of TCGdex.',
+    body: [
+      'npm run mirror:card-images copies every TCGdex low.webp and high.webp into the public local bucket card-images, at the same path as the TCGdex URL (e.g. en/tcgp/A1/001/low.webp). It is resumable (skips what is already stored), refuses non-local Supabase URLs unless --allow-remote is passed, and takes --only low|high, --limit N, --dry-run and --force. The first full run stored 4,493 pictures (about 200 MB) in under a minute; 3 are not on TCGdex. Re-run it after the monthly card sync to pick up new cards.',
+      'With VITE_CARD_IMAGES_FROM_STORAGE=true in .env.development.local, cardImageUrl points at <supabase url>/storage/v1/object/public/card-images/..., through the /supabase-local proxy so it also works over Tailscale. A picture that is not stored yet falls back to TCGdex WebP, then PNG.',
+      'Production is unchanged: the flag is not set there, and the storage branch is removed from the production build. The bucket is also declared in supabase/config.toml for local Supabase.',
+    ],
+    tags: ['dev', 'images'],
+  },
+  {
     id: 'bug-sweep',
     date: '2026-10-17',
     audience: 'user',
