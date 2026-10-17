@@ -59,6 +59,8 @@ export function AdminActivity() {
     const label = t.adminActivityLabels[row.action] ?? row.action;
     const fallback = label + (row.target ? ': ' + row.target : '');
     switch (row.action) {
+      case 'delete_user':
+        return user ? t.adminActivityDelete(user) : fallback;
       case 'run_card_sync':
         return label;
       case 'ban_user':

@@ -30,7 +30,7 @@ type User = {
   open_offers: number;
   total_count: number;
 };
-type Action = "rename" | "ban" | "unban" | "sign-out";
+type Action = "rename" | "ban" | "unban" | "sign-out" | "delete";
 function banned(user: User) {
   return (
     !!user.banned_until && new Date(user.banned_until).getTime() > Date.now()
@@ -58,6 +58,7 @@ export function AdminUsers() {
     } | null>(null),
     [name, setName] = useState(""),
     [duration, setDuration] = useState<string | null>("7");
+  const [confirmEmail, setConfirmEmail] = useState("");
   const [busy, setBusy] = useState(false),
     [actionError, setActionError] = useState<string | null>(null);
   const alive = useRef(true),
@@ -92,21 +93,29 @@ export function AdminUsers() {
     setSelected({ user, action });
     setName(user.username ?? "");
     setDuration("7");
+    setConfirmEmail("");
     setActionError(null);
   }
   async function confirm() {
     if (!selected || pending.current) return;
+    if (
+      selected.action === "delete" &&
+      (!selected.user.email ||
+        confirmEmail.trim().toLowerCase() !== selected.user.email.toLowerCase())
+    ) return;
     pending.current = true;
     setBusy(true);
     setActionError(null);
     const { user, action } = selected;
     const fn = {
+      delete: "admin_delete_user",
       rename: "admin_set_username",
       ban: "admin_ban_user",
       unban: "admin_unban_user",
       "sign-out": "admin_sign_out_user",
     }[action];
     const args: Record<string, unknown> = { p_user: user.user_id };
+    if (action === "delete") args.p_confirm_email = confirmEmail;
     if (action === "rename") args.p_username = name;
     if (action === "ban")
       args.p_days = duration === "permanent" ? null : Number(duration);
@@ -122,6 +131,7 @@ export function AdminUsers() {
     setAttempt((x) => x + 1);
   }
   const labels = {
+    delete: t.adminDeleteAccount,
     rename: t.adminRename,
     ban: t.adminBan,
     unban: t.adminUnban,
@@ -237,6 +247,15 @@ export function AdminUsers() {
                               {t.adminBan}
                             </Menu.Item>
                           )}
+                          {!user.is_admin && (
+                            <Menu.Item
+                              data-click-id={"AdminUsers/delete:" + user.user_id}
+                              color="red"
+                              onClick={() => open(user, "delete")}
+                            >
+                              {t.adminDeleteAccount}
+                            </Menu.Item>
+                          )}
                           {banned(user) && (
                             <Menu.Item
                               data-click-id={"AdminUsers/unban:" + user.user_id}
@@ -337,6 +356,18 @@ export function AdminUsers() {
                   />
                 </>
               )}
+              {selected.action === "delete" && (
+                <>
+                  <Text>{t.adminDeleteWarning(selected.user.email ?? "")}</Text>
+                  <TextInput
+                    data-click-id="AdminUsers/delete-confirm-email"
+                    label={t.adminDeleteConfirmEmail}
+                    value={confirmEmail}
+                    disabled={busy}
+                    onChange={(e) => setConfirmEmail(e.currentTarget.value)}
+                  />
+                </>
+              )}
               {selected.action === "unban" && <Text>{t.adminUnbanHelp}</Text>}
               {selected.action === "sign-out" && (
                 <Text>{t.adminSignOutHelp}</Text>
@@ -355,7 +386,12 @@ export function AdminUsers() {
                   type="submit"
                   color={selected.action === "rename" ? "blue" : "red"}
                   loading={busy}
-                  disabled={selected.action === "rename" && !name.trim()}
+                  disabled={
+                    (selected.action === "rename" && !name.trim()) ||
+                    (selected.action === "delete" &&
+                      (!selected.user.email ||
+                        confirmEmail.trim().toLowerCase() !== selected.user.email.toLowerCase()))
+                  }
                 >
                   {t.adminConfirm}
                 </Button>

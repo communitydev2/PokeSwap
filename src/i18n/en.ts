@@ -188,6 +188,9 @@ export const en = {
   adminBan: "Ban",
   adminUnban: "Unban",
   adminSignOutEverywhere: "Sign out everywhere",
+  adminDeleteAccount: "Delete account",
+  adminDeleteConfirmEmail: "Type their email to confirm",
+  adminDeleteWarning: (email: string) => `This permanently deletes ${email}'s account, username, Pocket accounts, cards, exclusive trades and every trade offer they're part of. Other players lose any offers with them. This cannot be undone.`,
   adminBanDuration: "Ban duration",
   adminBan7: "7 days",
   adminBan30: "30 days",
@@ -212,7 +215,8 @@ export const en = {
 
   // Admin: tools
   adminChartMax: (count: number) => `max ${count}`,
-  adminActivityLabels: { set_username: 'Renamed user', ban_user: 'Banned user', unban_user: 'Unbanned user', sign_out_user: 'Signed out user', add_banned_word: 'Added banned word', remove_banned_word: 'Removed banned word', cancel_trade_offer: 'Cancelled offer', end_exclusive_trade: 'Ended exclusive trade', run_card_sync: 'Started the card sync' } as Record<string, string>,
+  adminActivityLabels: { delete_user: 'Deleted account', set_username: 'Renamed user', ban_user: 'Banned user', unban_user: 'Unbanned user', sign_out_user: 'Signed out user', add_banned_word: 'Added banned word', remove_banned_word: 'Removed banned word', cancel_trade_offer: 'Cancelled offer', end_exclusive_trade: 'Ended exclusive trade', run_card_sync: 'Started the card sync' } as Record<string, string>,
+  adminActivityDelete: (user: string) => `Deleted account ${user}`,
   adminActivityBan: (user: string, days: number | null) => days === null ? `Banned ${user} permanently` : `Banned ${user} for ${days} days`,
   adminActivityRename: (before: string, after: string) => `Renamed ${before} to ${after}`,
   adminActivityOffer: (from: string, to: string, give: string, get: string) => `Cancelled offer: ${from} → ${to}, ${give} for ${get}`,

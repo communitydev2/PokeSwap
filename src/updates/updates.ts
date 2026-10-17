@@ -17,6 +17,18 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'admin-delete-user-dev',
+    date: '2026-10-17',
+    audience: 'dev',
+    title: 'Admin hub: delete a user\'s account',
+    summary: 'Users tab -> Actions -> Delete account, confirmed by typing the user\'s email; backed by admin_delete_user.',
+    body: [
+      'Migration 20261018000200_admin_delete_user.sql adds public.admin_delete_user(p_user, p_confirm_email): is_admin() (listed + aal2) required, refuses admins and yourself, requires the typed email to match, writes the admin_log row (email, username, Pocket accounts, card totals, open offers) first, then deletes friend rows, the user\'s player_tcg_account rows (no FK to auth.users, so explicit; cascades wishlist, trade list, exclusive trades, both sides of trade offers and their notifications), the user_account row (its FK to auth.users is ON DELETE SET NULL on the primary key, so it must go before auth.users) and finally auth.users.',
+      'Tested in the browser on local Supabase: no Delete item on admin rows, Confirm disabled until the email matches (case-insensitive), nothing left for the user in any table afterwards, readable activity entry, and the same email can sign up again as a new account.',
+    ],
+    tags: ['dev', 'admin'],
+  },
+  {
     id: 'longer-sign-in-codes',
     date: '2026-10-17',
     audience: 'user',
