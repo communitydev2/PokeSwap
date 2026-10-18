@@ -309,10 +309,6 @@ export const en = {
   notificationTradeMatch: (partner: string, mine: string, theirs: string) =>
     `${partner} has ${theirs} from your wishlist and wants your ${mine}`,
 
-  // Username lock
-  usernameLocked: "Your username can't be changed",
-  usernameLockedExplanation: "Usernames can't be changed, so trade partners always know who you are.",
-  usernameChooseCarefully: "Choose carefully - you can't change it later.",
   // Friends: page
   friendsTitle: 'Friends',
   friendsSignIn: 'Sign in to see your friends',
@@ -356,6 +352,12 @@ export const en = {
   // Friends: filters
   friendsFilterOnly: 'Friends only',
   friendsFilterBadge: 'Friend',
+
+  // Username monthly
+  usernameMonthlyError: 'You can change your username once every 30 days',
+  usernameMonthlyHint: 'You can change your username once every 30 days.',
+  usernameChangeAgainOn: (date: string) => `You can change your username again on ${date}`,
+  usernameFirstChoiceHint: 'You can change it later, but only once every 30 days.',
 
   // Header
   appName: 'Oaktrade',

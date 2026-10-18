@@ -17,6 +17,16 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'username-monthly',
+    screenshot: '/updates/username-monthly.png',
+    date: '2026-10-18',
+    audience: 'user',
+    title: 'Change your username once a month',
+    summary: 'You can now change your username once every 30 days.',
+    body: ['Choosing your first username does not start the waiting period; after a change, your profile shows when you can change it again.'],
+    tags: ['improvement'],
+  },
+  {
     id: 'untradeable-rarities-removed',
     date: '2026-10-18',
     audience: 'user',

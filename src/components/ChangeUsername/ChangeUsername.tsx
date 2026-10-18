@@ -4,7 +4,7 @@ import { useAuthStore } from '../../store/userStore';
 import { useLocalizationStore } from '../../store/useLocalizationStore';
 import { saveUsername } from '../../utils/saveUsername';
 
-// Choose a first username (set mode), or display the permanent username (change mode).
+// Choose a first username or change it when the monthly cooldown has elapsed.
 export function ChangeUsername({ mode = 'change' }: { mode?: 'set' | 'change' }) {
   const busy = useRef(false);
   const t = useLocalizationStore((state) => state.t);
@@ -24,11 +24,16 @@ export function ChangeUsername({ mode = 'change' }: { mode?: 'set' | 'change' })
 
   useEffect(() => { setMessage(null); }, [userId]);
 
+  const nextChangeAt = user?.username_changed_at
+    ? new Date(new Date(user.username_changed_at).getTime() + 30 * 24 * 60 * 60 * 1000)
+    : null;
+  const canChange = user?.username == null || nextChangeAt == null || nextChangeAt.getTime() <= Date.now();
+
   const trimmed = username.trim();
   const unchanged = trimmed === (user?.username ?? '');
 
   async function handleSave() {
-    if (mode !== 'set' || user?.username != null || !userId || busy.current) return;
+    if (!canChange || (mode === 'set' && user?.username != null) || !userId || busy.current) return;
     if (!trimmed) {
       setMessage({ ok: false, text: t.qaUsernameRequired });
       return;
@@ -70,16 +75,16 @@ export function ChangeUsername({ mode = 'change' }: { mode?: 'set' | 'change' })
           {email ? t.headerSignedInAs(email) + '. ' : ''}{t.qaUsernameIntro}
         </Text>
       )}
-      {mode === 'change' ? (
+      {mode === 'change' && !canChange ? (
         <>
           <Text fw={500}>{user?.username}</Text>
-          <Text size="sm" c="dimmed" mt="xs">{t.usernameLockedExplanation}</Text>
+          <Text size="sm" c="dimmed" mt="xs">{t.usernameChangeAgainOn(nextChangeAt!.toLocaleDateString())}</Text>
         </>
       ) : (
         <>
           <Group align="flex-end" wrap="nowrap">
             <TextInput
-              data-click-id="ChangeUsername/set-username-input"
+              data-click-id={`ChangeUsername/${mode}-username-input`}
               label={t.qaUsername}
               placeholder={t.qaUsernamePlaceholder}
               value={username}
@@ -94,7 +99,7 @@ export function ChangeUsername({ mode = 'change' }: { mode?: 'set' | 'change' })
               style={{ flex: 1, minWidth: 0 }}
             />
             <Button
-              data-click-id="ChangeUsername/set-save"
+              data-click-id={`ChangeUsername/${mode}-save`}
               onClick={handleSave}
               loading={saving}
               disabled={unchanged}
@@ -102,7 +107,7 @@ export function ChangeUsername({ mode = 'change' }: { mode?: 'set' | 'change' })
               {t.qaSave}
             </Button>
           </Group>
-          <Text size="sm" c="dimmed" mt="xs">{t.usernameChooseCarefully}</Text>
+          <Text size="sm" c="dimmed" mt="xs">{mode === 'set' ? t.usernameFirstChoiceHint : t.usernameMonthlyHint}</Text>
         </>
       )}
       {message && (

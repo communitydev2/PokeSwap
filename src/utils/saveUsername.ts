@@ -20,8 +20,8 @@ export async function saveUsername(
 
   if (result.error) {
     console.warn(result.error);
-    if (result.error.message === "Your username can't be changed") {
-      return { error: t.usernameLocked };
+    if (result.error.message === 'You can change your username once every 30 days') {
+      return { error: t.usernameMonthlyError };
     }
     if (result.error.message === 'Username contains a banned word') {
       return { error: t.qaUsernameInappropriate };
