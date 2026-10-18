@@ -1,4 +1,4 @@
-import { ANY_OPTION } from '../constants';
+import { ANY_OPTION, UNTRADEABLE_RARITIES } from '../constants';
 import type { SupabaseRarityType } from '../types/SupabaseRarityType';
 import type { SupabaseExpansionType } from '../types/SupabaseExpansionType';
 
@@ -12,9 +12,9 @@ const RARITY_ORDER = [
 // Filter options built from the database (rarity / set tables), so new sets
 // and rarities appear automatically. Falls back to `fallback` until they load.
 export function rarityOptions(rarities: SupabaseRarityType[], fallback: string[]) {
-  if (!rarities.length) return fallback;
+  if (!rarities.length) return fallback.filter((name) => !UNTRADEABLE_RARITIES.includes(name));
   const rank = (name: string) => (RARITY_ORDER.includes(name) ? RARITY_ORDER.indexOf(name) : RARITY_ORDER.length);
-  const names = rarities.map((r) => r.name).sort((a, b) => rank(a) - rank(b) || a.localeCompare(b));
+  const names = rarities.map((r) => r.name).filter((name) => !UNTRADEABLE_RARITIES.includes(name)).sort((a, b) => rank(a) - rank(b) || a.localeCompare(b));
   return [ANY_OPTION, ...names];
 }
 

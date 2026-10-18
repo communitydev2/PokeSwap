@@ -17,6 +17,19 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'untradeable-rarities-removed',
+    date: '2026-10-18',
+    audience: 'user',
+    title: 'Three-star and Crown cards removed',
+    screenshot: '/updates/untradeable-rarities-removed.png',
+    summary: 'Three-star and Crown cards cannot be traded in the game, so they are no longer listed or available to add.',
+    body: [
+      'Three-star (Immersive Rare) and Crown cards cannot be traded in Pokémon TCG Pocket, so they no longer appear in the card catalogue or rarity filters and cannot be added to your lists.',
+      'Any of these cards that were on wishlists or trade lists have been removed, along with their trade offers and exclusive trades.',
+    ],
+    tags: ['improvement'],
+  },
+  {
     id: 'complete-search-and-market-recovery',
     date: '2026-10-17',
     audience: 'user',

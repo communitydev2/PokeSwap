@@ -34,3 +34,6 @@ export const SUPPORT_PAGE_ENABLED = false;
 
 // Pause new-expansion banners while keeping automatic Updates articles.
 export const NEW_SET_BANNER_ENABLED = false;
+
+// Rarities that cannot be traded in Pokémon TCG Pocket.
+export const UNTRADEABLE_RARITIES: readonly string[] = ['Three Star', 'Crown'];

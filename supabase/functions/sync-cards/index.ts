@@ -20,6 +20,8 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { createDatasetImageSource, datasetReference, ensureDatasetBucket, storeDatasetImage } from '../_shared/dataset-images.mjs';
 
+const UNTRADEABLE_RARITIES: readonly string[] = ['Three Star', 'Crown'];
+
 const DATASET = 'https://raw.githubusercontent.com/flibustier/pokemon-tcg-pocket-database/main/dist';
 const TCGDEX = 'https://api.tcgdex.net/v2/en';
 const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
@@ -74,10 +76,11 @@ async function sync(dryRun: boolean) {
   }
 
   // 1. Sources
-  const [datasetSetsByLetter, datasetCards] = await Promise.all([
+  const [datasetSetsByLetter, allDatasetCards] = await Promise.all([
     getJson<Record<string, DatasetSet[]>>(`${DATASET}/sets.json`),
     getJson<DatasetCard[]>(`${DATASET}/cards.json`),
   ]);
+  const datasetCards = allDatasetCards.filter((card) => !UNTRADEABLE_RARITIES.includes(RARITY_NAMES[card.rarity] ?? card.rarity));
   const datasetSets = Object.values(datasetSetsByLetter).flat().filter((s) => !isPromo(s.code));
 
   // TCGdex: set details and pictures for the sets it has
@@ -129,6 +132,7 @@ async function sync(dryRun: boolean) {
 
   async function rarityIdFor(code: string) {
     const name = RARITY_NAMES[code] ?? code;
+    if (UNTRADEABLE_RARITIES.includes(name)) throw new Error(`Untradeable rarity: ${name}`);
     if (!rarityIds.has(name)) {
       const id = crypto.randomUUID();
       rarityIds.set(name, id);
