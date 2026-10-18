@@ -17,6 +17,33 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'social-flow-recovery',
+    date: '2026-10-18',
+    audience: 'user',
+    title: 'More reliable Friends filters and exclusive-trade picking',
+    summary: 'Friends filters refresh correctly, wishlist errors are retryable, and username editing unlocks when the waiting period ends.',
+    body: [
+      'Friends filters now refresh when you revisit a screen or change a friendship. If your friends cannot load, you see an explanation and can try again.',
+      'A failed wishlist request no longer leaves the exclusive-trade picker stuck with no cards. You can switch off the wishlist filter or retry, and you can type to filter its Set dropdown.',
+      'The username form becomes available when the 30-day waiting period ends, without a page reload. A chosen username must stay nonempty when changed.',
+    ],
+    screenshot: '/updates/social-flow-recovery.png',
+    tags: ['fix'],
+  },
+  {
+    id: 'social-flow-recovery-dev',
+    date: '2026-10-18',
+    audience: 'dev',
+    title: 'Social-flow regression checks and username validation',
+    summary: 'Isolated browser and PostgreSQL suites cover Friends refreshes, the exclusive picker and username cooldown rules.',
+    body: [
+      'Friend account requests share in-flight work rather than caching completed requests forever. Friendship actions invalidate mounted consumers, failures expose retry, and stale account responses are ignored.',
+      'Migration 20261018001100_username_cooldown_validation.sql rejects clearing or blanking a chosen username while preserving nullable unfinished profiles, server-controlled timestamps and admin renames. Apply it through the normal database release process.',
+      'Run node scripts/test-social-flows.mjs and node scripts/test-username-cooldown.mjs. The browser uses intercepted API fixtures; PostgreSQL runs in a disposable container with no live data.',
+    ],
+    tags: ['dev', 'database'],
+  },
+  {
     id: 'exclusive-picker',
     screenshot: '/updates/exclusive-picker.png',
     date: '2026-10-18',

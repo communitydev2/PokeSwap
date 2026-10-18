@@ -20,6 +20,7 @@ export async function saveUsername(
 
   if (result.error) {
     console.warn(result.error);
+    if (result.error.message === 'Username is required') return { error: t.qaUsernameRequired };
     if (result.error.message === 'You can change your username once every 30 days') {
       return { error: t.usernameMonthlyError };
     }

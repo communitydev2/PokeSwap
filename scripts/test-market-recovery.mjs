@@ -42,7 +42,7 @@ async function fixturePage(options = {}) {
       data = state.cards;
     } else if (name === 'rarity') {
       if (state.rarityFail) return fail();
-      data = [{ rarity_id: 'r1', name: 'One Diamond' }, { rarity_id: 'r2', name: 'Crown' }];
+      data = [{ rarity_id: 'r1', name: 'One Diamond' }, { rarity_id: 'r2', name: 'Two Diamond' }];
     } else if (name === 'set') {
       data = [{ set_id: 's1', set_code: 'A1', set_name: 'Genetic Apex' }];
     } else if (name === 'market_card_counts' || name === 'market_card_counts_friends') {
@@ -52,12 +52,12 @@ async function fixturePage(options = {}) {
       if (state.searchFailFrom === offset) return fail();
       if (params.p_search_string === 'slow') { await pause(800); data = cards; }
       else data = cards.filter((card) => !params.p_search_string || card.card_name.toLowerCase().startsWith(params.p_search_string.toLowerCase()));
-      if (params.p_rarity === 'Crown') data = [];
-    } else if (name === 'market_exclusive_trades') {
+      if (params.p_rarity === 'Two Diamond') data = [];
+    } else if (name === 'market_exclusive_trades_filtered') {
       data = Array.from({ length: 25 }, (_, index) => ({
         exclusive_trade_id: index + 1, owner_account: 'a1', owner_name: null,
-        card: cards[0], language: 'en', want_language: 'en', want_cards: cards.slice(0, 6),
-        created_at: '2026-10-17', is_mine: false, total_count: 25,
+        card: cards[0], language: 'en', want_language: 'en', want_cards: cards.slice(0, 9),
+        created_at: '2026-10-17', is_mine: false, total_count: 25, answerable: false, on_my_wishlist: false,
       })).slice(params.p_offset ?? 0, (params.p_offset ?? 0) + (params.p_limit ?? 20));
     }
     await route.fulfill({ json: data.slice(offset, offset + limit) });
@@ -114,7 +114,7 @@ try {
   {
     const { page, state, close } = await fixturePage();
     await text(page, '1257 cards');
-    assert.equal(state.calls.filter((call) => call.name === 'market_exclusive_trades').length, 0);
+    assert.equal(state.calls.filter((call) => call.name === 'market_exclusive_trades_filtered').length, 0);
     pass('Catalogue loads all pages; Exclusive Trades stays lazy until first visit');
     await field(page, 'CardMarket/rarity').fill('Diamond');
     await page.getByRole('option', { name: 'One Diamond', exact: true }).click();

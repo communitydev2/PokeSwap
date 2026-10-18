@@ -16,6 +16,7 @@ export function ChangeUsername({ mode = 'change' }: { mode?: 'set' | 'change' })
   const [username, setUsername] = useState(user?.username ?? '');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  const [now, setNow] = useState(Date.now);
 
   // Fill the field once the profile has loaded
   useEffect(() => {
@@ -27,7 +28,18 @@ export function ChangeUsername({ mode = 'change' }: { mode?: 'set' | 'change' })
   const nextChangeAt = user?.username_changed_at
     ? new Date(new Date(user.username_changed_at).getTime() + 30 * 24 * 60 * 60 * 1000)
     : null;
-  const canChange = user?.username == null || nextChangeAt == null || nextChangeAt.getTime() <= Date.now();
+  const nextChangeTime = nextChangeAt?.getTime() ?? 0;
+  useEffect(() => {
+    const delay = nextChangeTime - Date.now();
+    if (delay <= 0) {
+      if (now < nextChangeTime) setNow(Date.now());
+      return;
+    }
+    // Browser timers overflow after ~24.8 days; reschedule long cooldowns.
+    const timer = window.setTimeout(() => setNow(Date.now()), Math.min(delay, 2_147_483_647));
+    return () => window.clearTimeout(timer);
+  }, [nextChangeTime, now]);
+  const canChange = user?.username == null || nextChangeAt == null || nextChangeTime <= now;
 
   const trimmed = username.trim();
   const unchanged = trimmed === (user?.username ?? '');

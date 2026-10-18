@@ -49,7 +49,7 @@ export function Trades({ tcgAccountId, initialView = VIEW.find, onOffersChanged 
   initialView?: (typeof VIEW)[keyof typeof VIEW];
   onOffersChanged?: () => void;
 }) {
-  const { ids: friendIds, loading: friendsLoading } = useFriendAccounts();
+  const { ids: friendIds, loading: friendsLoading, error: friendsError, retry: retryFriends } = useFriendAccounts();
   const [friendsOnly, setFriendsOnly] = useState(false);
   const t = useLocalizationStore((state) => state.t);
   const [view, setView] = useState<string>(initialView);
@@ -191,7 +191,10 @@ export function Trades({ tcgAccountId, initialView = VIEW.find, onOffersChanged 
             onChange={(event) => setFriendsOnly(event.currentTarget.checked)} />
           <Text size="sm" c="dimmed">{t.tradesIntro}</Text>
           {friendsOnly && friendsLoading && <Loader size="sm" />}
-          {!(friendsOnly && friendsLoading) && byPartner.length === 0 && <Text c="dimmed" ta="center" py="xl">{t.tradesNoneFound}</Text>}
+            {friendsOnly && friendsError && <Alert color="red">{t.friendsFilterFailed}
+              <Button data-click-id="Trades/retry-friends" variant="light" ml="sm" onClick={retryFriends}>{t.qaRetry}</Button>
+            </Alert>}
+            {!(friendsOnly && (friendsLoading || friendsError)) && byPartner.length === 0 && <Text c="dimmed" ta="center" py="xl">{t.tradesNoneFound}</Text>}
           {byPartner.map((rows) => (
             <Paper key={rows[0].partner_account} withBorder radius="md" p="md">
               <Group gap="xs" mb="sm">

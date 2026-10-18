@@ -351,6 +351,7 @@ export const en = {
   notificationFriendCard: (name: string, card: string) => `Your friend ${name} added ${card} from your wishlist`,
   // Friends: filters
   friendsFilterOnly: 'Friends only',
+  friendsFilterFailed: "Couldn't load your friends. Please try again.",
   friendsFilterBadge: 'Friend',
 
   // Username monthly
@@ -369,7 +370,7 @@ export const en = {
   pickerClear: 'Clear all',
   pickerRemove: (name: string) => 'Remove ' + name,
   pickerEmpty: 'No cards match these filters.',
-  pickerWishlistFailed: 'Could not load your wishlist. Reopen the editor to try again.',
+  pickerWishlistFailed: 'Could not load your wishlist. Please try again.',
   // Exclusive market filters
   exclusiveMarketOnlyAnswerable: 'Only trades I can answer',
   exclusiveMarketOnlyWishlist: 'Only cards on my wishlist',

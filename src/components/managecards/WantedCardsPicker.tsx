@@ -25,6 +25,7 @@ export function WantedCardsPicker({ cards, value, onChange, tcgAccountId, langua
   const [page, setPage] = useState(1);
   const [wishlist, setWishlist] = useState<{ key: string; ids: Set<string> } | null>(null);
   const [failed, setFailed] = useState(false);
+  const [retry, setRetry] = useState(0);
   const wishlistKey = tcgAccountId + ':' + language;
   const wishlistIds = wishlist?.key === wishlistKey ? wishlist.ids : new Set<string>();
   const loading = wishlist?.key !== wishlistKey && !failed;
@@ -49,7 +50,7 @@ export function WantedCardsPicker({ cards, value, onChange, tcgAccountId, langua
     }
     void load();
     return () => { cancelled = true; };
-  }, [tcgAccountId, language, wishlistKey]);
+  }, [tcgAccountId, language, wishlistKey, retry]);
   const filtered = useMemo(() => cards.filter((card) =>
     card.card_name.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()) &&
     (!set || set === ANY_OPTION || expansions.find((s) => s.set_id === card.set_id)?.set_name === set) &&
@@ -66,11 +67,13 @@ export function WantedCardsPicker({ cards, value, onChange, tcgAccountId, langua
     <div><Text size="sm" fw={500}>{t.exclusiveWants}</Text><Text size="xs" c="dimmed">{t.exclusiveWantsHelp}</Text></div>
     <SimpleGrid cols={{ base: 1, sm: 2 }}>
       <TextInput data-click-id="WantedCardsPicker/search" label={t.searchByName} value={search} onChange={(e) => setSearch(e.currentTarget.value)} />
-      <Select data-click-id="WantedCardsPicker/set" label={t.pickerSet} data={expansionOptions(expansions, [ANY_OPTION]).map((name) => ({ value: name, label: name === ANY_OPTION ? t.pickerAllSets : name }))} value={set} onChange={setSet} allowDeselect={false} />
+      <Select data-click-id="WantedCardsPicker/set" label={t.pickerSet} data={expansionOptions(expansions, [ANY_OPTION]).map((name) => ({ value: name, label: name === ANY_OPTION ? t.pickerAllSets : name }))} value={set} onChange={setSet} allowDeselect={false} searchable />
     </SimpleGrid>
     <Text size="sm" c="dimmed">{t.rarityLabel}: {rarities.find((r) => r.rarity_id === rarityId)?.name ?? cards[0]?.rarity_name ?? t.pickerSameRarity}</Text>
-    <Switch data-click-id="WantedCardsPicker/wishlist" label={t.pickerOnlyWishlist} checked={onlyWishlist} onChange={(e) => setOnlyWishlist(e.currentTarget.checked)} disabled={loading || failed} />
-    {failed && <Alert color="red">{t.pickerWishlistFailed}</Alert>}
+    <Switch data-click-id="WantedCardsPicker/wishlist" label={t.pickerOnlyWishlist} checked={onlyWishlist} onChange={(e) => setOnlyWishlist(e.currentTarget.checked)} disabled={!onlyWishlist && (loading || failed)} />
+    {failed && <Alert color="red">{t.pickerWishlistFailed}
+      <Button data-click-id="WantedCardsPicker/retry-wishlist" variant="light" ml="sm" onClick={() => setRetry((value) => value + 1)}>{t.qaRetry}</Button>
+    </Alert>}
     <Paper withBorder p="xs" radius="md" style={{ position: 'sticky', top: 'calc(var(--app-shell-header-height, 60px) + 8px)', zIndex: 2, background: 'var(--mantine-color-body)' }}>
       <Group justify="space-between"><Text size="sm" aria-live="polite">{t.pickerSelected(value.length)}</Text><Button data-click-id="WantedCardsPicker/clear" size="xs" variant="subtle" disabled={!value.length} onClick={() => onChange([])}>{t.pickerClear}</Button></Group>
       {selectedCards.length > 0 && <Group gap="xs" wrap="nowrap" mt="xs" style={{ overflowX: 'auto', paddingBottom: 4 }}>

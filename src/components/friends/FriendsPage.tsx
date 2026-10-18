@@ -19,6 +19,7 @@ import { useAuthStore } from '../../store/userStore';
 import { useLocalizationStore } from '../../store/useLocalizationStore';
 import { CardPicture } from '../CardPicture';
 import { TradeOfferModal } from '../market/TradeOfferModal';
+import { refreshFriendAccounts } from '../../hooks/useFriendAccounts';
 import type { PokemonCard } from '../../types/PokemonCard';
 
 type Friend = {
@@ -123,6 +124,7 @@ export function FriendsPage() {
       const result = await run();
       if (useAuthStore.getState().session?.user.id !== actor) return;
       if (result.error) throw result.error;
+      refreshFriendAccounts();
       if (sent) {
         setNotice(result.data === 'accepted' ? t.friendsAccepted : t.friendsSent);
         setUsername('');

@@ -35,7 +35,7 @@ Main features, all live:
 4. Edge Functions: `npx supabase functions deploy <name> --project-ref xxtbgyxfxcisfugzizys` (`recover-username` needs `--no-verify-jwt`).
 
 ## Gotchas learned the hard way
-- **Migration numbers must be unique.** Supabase tracks migrations by number alone, so a duplicate is silently skipped on live. Two sessions once both used `20261018000600`. Check `ls supabase/migrations` and take the next number (the latest is `20261018001000`).
+- **Migration numbers must be unique.** Supabase tracks migrations by number alone, so a duplicate is silently skipped on live. Two sessions once both used `20261018000600`. Check `ls supabase/migrations` and take the next number (the latest is `20261018001100`, pending release).
 - **Never edit applied migrations.** Add a new one. Migrations run on live without a wrapping transaction, so `LOCK TABLE` fails there.
 - **Usernames:** the trigger `trg_block_banned_usernames` fires on every update, and `username_changed_at` is set by the trigger, never by the client.
 - **Notification bell query:** `notification` has several foreign keys to `player_tcg_account`, so the account relation must be written as `player_tcg_account!notification_tcg_account_id_fkey`.
@@ -49,6 +49,13 @@ Main features, all live:
 TestAsh `ash@test.local`, TestMisty `misty@test.local`, QA-One `qa1@test.local` (local admin, authenticator already set up), QA-Two `qa2@test.local`, plus the owner's account `miguelsalvadorstudios@gmail.com`. Sign-in codes arrive in Mailpit. Signing in is on the `/login` page.
 
 ## Open items / ideas
+### Pending on dev after the isolated social-flow review (18 Oct)
+- Friends account lookups now share only in-flight requests, refresh after successful friendship actions, and show retryable errors in Friends-only views.
+- The exclusive picker allows disabling a failed wishlist filter, offers a wishlist retry, and has a searchable Set dropdown.
+- The username editor unlocks at the 30-day boundary without a reload. New migration `20261018001100_username_cooldown_validation.sql` rejects clearing/blanking a chosen username; unfinished profiles can still have a null name.
+- Run `node scripts/test-social-flows.mjs` and `node scripts/test-username-cooldown.mjs`; details are in `docs/social-flow-checks.md`. Tests use intercepted API fixtures or disposable PostgreSQL, never live data. These changes and migration have not been released to live.
+
+### Other open items
 - **Owner admin on live:** run `supabase/admin-setup.sql` in the live SQL Editor with the owner's email, then set up the authenticator at `/admin`.
 - **Admin "Run card sync now":** needs Vault secrets `project_url` and `sync_cards_secret` on live (see `supabase/admin-setup.sql`).
 - **Support/payments:** to turn back on, apply `supabase/support.sql`, deploy `create-checkout` + `stripe-webhook`, set the Stripe keys, and set `SUPPORT_PAGE_ENABLED = true`.

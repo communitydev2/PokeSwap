@@ -27,7 +27,7 @@ export function CardPlayers({
   friendsOnly?: boolean;
   onOpenExclusive: (exclusiveTradeId: number) => void;
 }) {
-  const { ids: friendIds, loading: friendsLoading } = useFriendAccounts();
+  const { ids: friendIds, loading: friendsLoading, error: friendsError, retry: retryFriends } = useFriendAccounts();
   const phone = useMediaQuery('(max-width: 30em)');
   const t = useLocalizationStore((s) => s.t);
   const session = useAuthStore((s) => s.session);
@@ -64,6 +64,11 @@ export function CardPlayers({
     };
   }, [card.card_id, session?.user.id]);
   if (loading || (friendsOnly && friendsLoading)) return <Loader size="sm" mt="sm" />;
+  if (friendsOnly && friendsError) return (
+    <Alert color="red" mt="sm">{t.friendsFilterFailed}
+      <Button data-click-id="CardPlayers/retry-friends" variant="light" ml="sm" onClick={retryFriends}>{t.qaRetry}</Button>
+    </Alert>
+  );
   if (failed)
     return (
       <Alert color="red" mt="sm">
