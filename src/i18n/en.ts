@@ -359,6 +359,22 @@ export const en = {
   usernameChangeAgainOn: (date: string) => `You can change your username again on ${date}`,
   usernameFirstChoiceHint: 'You can change it later, but only once every 30 days.',
 
+  // Exclusive picker
+  pickerSet: 'Set',
+  pickerAllSets: 'All sets',
+  pickerSameRarity: 'Same rarity as your card',
+  pickerOnlyWishlist: 'Only cards on my wishlist',
+  pickerOnWishlist: 'On your wishlist',
+  pickerSelected: (n: number) => n + ' of 50 selected',
+  pickerClear: 'Clear all',
+  pickerRemove: (name: string) => 'Remove ' + name,
+  pickerEmpty: 'No cards match these filters.',
+  pickerWishlistFailed: 'Could not load your wishlist. Reopen the editor to try again.',
+  // Exclusive market filters
+  exclusiveMarketOnlyAnswerable: 'Only trades I can answer',
+  exclusiveMarketOnlyWishlist: 'Only cards on my wishlist',
+  exclusiveMarketOnWishlist: 'On your wishlist',
+
   // Header
   appName: 'Oaktrade',
   homeNav: 'Home',

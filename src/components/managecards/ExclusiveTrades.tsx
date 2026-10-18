@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Badge, Button, Divider, Group, MultiSelect, Paper, Popover, Select, SimpleGrid, Stack, Text, Title } from '@mantine/core';
+import { Badge, Button, Divider, Group, Paper, Popover, Select, SimpleGrid, Stack, Text, Title } from '@mantine/core';
 import { IconArrowsExchange, IconLock } from '@tabler/icons-react';
 import { supabase } from '../../supabaseClient';
 import { useLocalizationStore } from '../../store/useLocalizationStore';
@@ -8,6 +8,7 @@ import type { PokemonCard } from '../../types/PokemonCard';
 import type { TradeOffer } from './Trades';
 import { CardPicture } from '../CardPicture';
 import { CardMeta } from '../CardMeta';
+import { WantedCardsPicker } from './WantedCardsPicker';
 
 // A row of this account's trade list
 export type MyTradeRow = { id: number; language: string; quantity: number; card: PokemonCard };
@@ -83,6 +84,7 @@ export function ExclusiveTrades({ tcgAccountId, myTradeCards, listings, openList
 
       {editing && editing.id === null && (
         <ListingEditor
+          tcgAccountId={tcgAccountId}
           draft={editing.draft}
           cardChoices={myTradeCards.filter((m) => !listedRows.has(m.id) && m.card.rarity_id && tradableRarities.has(m.card.rarity_id))}
           saving={busy === 'exclusive-save:new'}
@@ -97,6 +99,7 @@ export function ExclusiveTrades({ tcgAccountId, myTradeCards, listings, openList
         editing?.id === l.id ? (
           <ListingEditor
             key={l.id}
+            tcgAccountId={tcgAccountId}
             draft={editing.draft}
             cardChoices={[l.trade]}
             saving={busy === `exclusive-save:${l.id}`}
@@ -157,7 +160,8 @@ export function ExclusiveTrades({ tcgAccountId, myTradeCards, listings, openList
 }
 
 // Choosing the card, the language and the cards taken for it
-function ListingEditor({ draft: initial, cardChoices, saving, disabled, onSave, onCancel }: {
+function ListingEditor({ tcgAccountId, draft: initial, cardChoices, saving, disabled, onSave, onCancel }: {
+  tcgAccountId: string;
   draft: Draft;
   cardChoices: MyTradeRow[];
   saving: boolean;
@@ -168,7 +172,6 @@ function ListingEditor({ draft: initial, cardChoices, saving, disabled, onSave, 
   const t = useLocalizationStore((state) => state.t);
   const languages = usePokemonCardStore((state) => state.languages);
   const allCards = usePokemonCardStore((state) => state.pokemonCards);
-  const expansions = usePokemonCardStore((state) => state.supabase_expansion);
   const [draft, setDraft] = useState<Draft>(initial);
   const isNew = cardChoices.length !== 1 || initial.tradeCardId === null;
   const row = cardChoices.find((m) => String(m.id) === draft.tradeCardId);
@@ -177,13 +180,8 @@ function ListingEditor({ draft: initial, cardChoices, saving, disabled, onSave, 
   const wantOptions = useMemo(() => {
     if (!row) return [];
     return allCards
-      .filter((c) => c.rarity_id === row.card.rarity_id && !(c.card_id === row.card.card_id && draft.wantLanguage === row.language))
-      .map((c) => {
-        const set = expansions.find((s) => s.set_id === c.set_id)?.set_name;
-        return { value: c.card_id, label: `${c.card_name} · ${[set, `#${c.card_local_id.split('-').pop()}`].filter(Boolean).join(' ')}` };
-      });
-  }, [row, allCards, expansions, draft.wantLanguage]);
-  const wantedCards = draft.wants.map((id) => allCards.find((c) => c.card_id === id)).filter((c): c is PokemonCard => !!c);
+      .filter((c) => c.rarity_id === row.card.rarity_id && !(c.card_id === row.card.card_id && draft.wantLanguage === row.language));
+  }, [row, allCards, draft.wantLanguage]);
 
   return (
     <Paper withBorder radius="md" p="md">
@@ -218,10 +216,8 @@ function ListingEditor({ draft: initial, cardChoices, saving, disabled, onSave, 
             <Select data-click-id="ExclusiveTrades/language-select" label={t.exclusiveWantLanguage} data={cardLanguageOptions(languages)}
               value={draft.wantLanguage} allowDeselect={false}
               onChange={(value) => value && setDraft({ ...draft, wantLanguage: value, wants: draft.wants.filter((id) => !(id === row.card.card_id && value === row.language)) })} />
-            <MultiSelect styles={{ pill: { maxWidth: '100%' }, input: { overflow: 'hidden' } }} data-click-id="ExclusiveTrades/wants-select" label={t.exclusiveWants} description={t.exclusiveWantsHelp}
-              placeholder={draft.wants.length ? undefined : t.exclusiveSearchCards} searchable hidePickedOptions maxValues={50} limit={100}
-              data={wantOptions} value={draft.wants} onChange={(wants) => setDraft({ ...draft, wants })} />
-            <WantedThumbnails cards={wantedCards} />
+            <WantedCardsPicker cards={wantOptions} value={draft.wants} onChange={(wants) => setDraft({ ...draft, wants })}
+              tcgAccountId={tcgAccountId} language={draft.wantLanguage} rarityId={row.card.rarity_id} />
             <Text size="sm" c="dimmed">{t.exclusiveSaveNote}</Text>
           </>
         )}

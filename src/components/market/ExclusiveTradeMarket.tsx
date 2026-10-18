@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Badge, Button, Group, Paper, Stack, Text, TextInput } from '@mantine/core';
+import { Alert, Badge, Button, Group, Paper, Select, SimpleGrid, Stack, Switch, Text, TextInput } from '@mantine/core';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
+import { ANY_OPTION } from '../../constants';
+import { expansionOptions, rarityOptions } from '../../utils/searchOptions';
+import { usePokemonCardStore } from '../../store/pokemonCardsStore';
 import { supabase } from '../../supabaseClient';
 import { useAuthStore } from '../../store/userStore';
 import { useLocalizationStore } from '../../store/useLocalizationStore';
@@ -21,12 +24,20 @@ export type MarketExclusiveListing = {
   created_at: string;
   is_mine: boolean;
   total_count: number;
+  answerable: boolean;
+  on_my_wishlist: boolean;
 };
 
 export function ExclusiveTradeMarket({ focusId }: { focusId?: number | null }) {
   const t = useLocalizationStore((s) => s.t);
   const session = useAuthStore((s) => s.session);
   const { accounts, loading: accountsLoading, error: accountsError } = useMyTcgAccounts();
+  const expansions = usePokemonCardStore((s) => s.supabase_expansion);
+  const rarities = usePokemonCardStore((s) => s.supabase_rarity);
+  const [set, setSet] = useState(ANY_OPTION);
+  const [rarity, setRarity] = useState(ANY_OPTION);
+  const [onlyAnswerable, setOnlyAnswerable] = useState(false);
+  const [onlyWishlist, setOnlyWishlist] = useState(false);
   const [search, setSearch] = useState('');
   const [query, setQuery] = useState({ search: '', page: 0 });
   const [rows, setRows] = useState<MarketExclusiveListing[]>([]);
@@ -101,7 +112,7 @@ export function ExclusiveTradeMarket({ focusId }: { focusId?: number | null }) {
       try {
         if (focus != null) {
           for (let offset = 0; true; offset += 100) {
-            const result = await supabase.rpc('market_exclusive_trades', {
+            const result = await supabase.rpc('market_exclusive_trades_filtered', {
               p_search: '',
               p_limit: 100,
               p_offset: offset,
@@ -117,8 +128,12 @@ export function ExclusiveTradeMarket({ focusId }: { focusId?: number | null }) {
             if (listings.length < 100 || offset + 100 >= Number(listings[0]?.total_count ?? 0)) break;
           }
         } else {
-          const result = await supabase.rpc('market_exclusive_trades', {
+          const result = await supabase.rpc('market_exclusive_trades_filtered', {
             p_search: query.search,
+            p_set_id: expansions.find((s) => s.set_name === set)?.set_id ?? null,
+            p_rarity_id: rarities.find((r) => r.name === rarity)?.rarity_id ?? null,
+            p_only_answerable: !!viewerId && onlyAnswerable,
+            p_only_wishlist: !!viewerId && onlyWishlist,
             p_limit: 20,
             p_offset: query.page * 20,
           });
@@ -142,7 +157,7 @@ export function ExclusiveTradeMarket({ focusId }: { focusId?: number | null }) {
     return () => {
       cancelled = true;
     };
-  }, [query, focus, session, retry]);
+  }, [query, focus, session, retry, set, rarity, onlyAnswerable, onlyWishlist, expansions, rarities]);
 
   useEffect(() => {
     if (!pinned) return;
@@ -158,18 +173,35 @@ export function ExclusiveTradeMarket({ focusId }: { focusId?: number | null }) {
     setSearch('');
     setQuery({ search: '', page: 0 });
   }
+  function resetPage() { setQuery((q) => ({ ...q, page: 0 })); }
   const pageCount = Math.max(1, Math.ceil(total / 20));
 
   return (
-    <Stack gap="sm" w="100%">
+    <Stack gap="sm" w="100%" data-click-context="exclusive market">
       {focus == null ? (
         <>
+          <SimpleGrid cols={{ base: 1, sm: 3 }}>
           <TextInput
             data-click-id="ExclusiveTradeMarket/search"
             label={t.marketExclusiveSearch}
             value={search}
             onChange={(event) => setSearch(event.currentTarget.value)}
           />
+          <Select data-click-id="ExclusiveTradeMarket/set" label={t.setLabel}
+            data={expansionOptions(expansions, [ANY_OPTION])} value={set} searchable allowDeselect={false}
+            onChange={(v) => { setSet(v ?? ANY_OPTION); resetPage(); }}
+            renderOption={({ option }) => <span data-click-id={`ExclusiveTradeMarket/set-option:${option.value}`}>{option.label}</span>} />
+          <Select data-click-id="ExclusiveTradeMarket/rarity" label={t.rarityLabel}
+            data={rarityOptions(rarities, [ANY_OPTION])} value={rarity} searchable allowDeselect={false}
+            onChange={(v) => { setRarity(v ?? ANY_OPTION); resetPage(); }}
+            renderOption={({ option }) => <span data-click-id={`ExclusiveTradeMarket/rarity-option:${option.value}`}>{option.label}</span>} />
+          </SimpleGrid>
+          {session && <Group gap="md">
+            <Switch data-click-id="ExclusiveTradeMarket/only-answerable" label={t.exclusiveMarketOnlyAnswerable}
+              checked={onlyAnswerable} onChange={(e) => { setOnlyAnswerable(e.currentTarget.checked); resetPage(); }} />
+            <Switch data-click-id="ExclusiveTradeMarket/only-wishlist" label={t.exclusiveMarketOnlyWishlist}
+              checked={onlyWishlist} onChange={(e) => { setOnlyWishlist(e.currentTarget.checked); resetPage(); }} />
+          </Group>}
           {!loading && !error && (
             <Text size="sm" c="dimmed">
               {t.marketExclusiveCount(total)}
@@ -239,10 +271,11 @@ export function ExclusiveTradeMarket({ focusId }: { focusId?: number | null }) {
           </Group>
           <Stack gap="sm">
           <Group wrap="nowrap" align="flex-start" gap="md">
-            <CardPicture cardImage={l.card.card_image} alt={l.card.card_name} width={56} radius={4} />
+            <CardPicture cardImage={l.card.card_image} alt={l.card.card_name} width={110} radius={4} />
             <Stack gap="xs" style={{ flex: 1, minWidth: 0 }}>
               <div>
                 <Text fw={600}>{l.card.card_name}</Text>
+                {session && l.on_my_wishlist && <Badge size="sm" color="grape" variant="light" style={{ whiteSpace: 'normal', height: 'auto' }}>{t.exclusiveMarketOnWishlist}</Badge>}
                 <Group gap={6}>
                   <CardMeta card={l.card} size="xs" />
                   <Badge variant="light" color="gray" radius="sm" size="sm">
@@ -253,29 +286,29 @@ export function ExclusiveTradeMarket({ focusId }: { focusId?: number | null }) {
             </Stack>
           </Group>
               <Text size="sm">{t.exclusiveForOneOf(l.want_cards.length, l.want_language.toUpperCase())}</Text>
-              <Stack gap={6}>
+              <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="sm">
                 {[...l.want_cards]
                   .sort((a, b) => Number(availableCards.has(`${b.card_id}|${l.want_language}`))
                     - Number(availableCards.has(`${a.card_id}|${l.want_language}`)))
-                  .slice(0, expandedListings.has(l.exclusive_trade_id) ? undefined : 5)
+                  .slice(0, expandedListings.has(l.exclusive_trade_id) ? undefined : 8)
                   .map((c) => (
-                    <Group key={c.card_id} wrap="nowrap" gap="xs">
+                    <Stack key={c.card_id} gap={4} align="center" style={{ minWidth: 0 }}>
                       <div style={{ flexShrink: 0 }}>
-                        <CardPicture cardImage={c.card_image} alt={c.card_name} width={44} radius={3} />
+                        <CardPicture cardImage={c.card_image} alt={c.card_name} width={64} radius={3} />
                       </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ width: '100%', minWidth: 0, textAlign: 'center' }}>
                         <Text size="sm" fw={600} style={{ overflowWrap: 'anywhere' }}>{c.card_name}</Text>
                         <CardMeta card={c} size="xs" />
                         {!l.is_mine && availableCards.has(`${c.card_id}|${l.want_language}`) && (
-                          <Badge size="xs" color="green" variant="light">
+                          <Badge size="xs" color="green" variant="light" styles={{ root: { height: 'auto', maxWidth: '100%' }, label: { whiteSpace: 'normal', overflowWrap: 'anywhere' } }}>
                             {t.marketExclusiveOnYourList}
                           </Badge>
                         )}
                       </div>
-                    </Group>
+                    </Stack>
                   ))}
-              </Stack>
-              {l.want_cards.length > 5 && (
+              </SimpleGrid>
+              {l.want_cards.length > 8 && (
                 <Button
                   data-click-id={`ExclusiveTradeMarket/toggle-wanted:${l.exclusive_trade_id}`}
                   variant="subtle"

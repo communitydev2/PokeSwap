@@ -17,6 +17,26 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'exclusive-picker',
+    screenshot: '/updates/exclusive-picker.png',
+    date: '2026-10-18',
+    audience: 'user',
+    title: 'Easier to pick the cards you want',
+    summary: 'Choose cards for your exclusive trades from a picture grid with search and wishlist filters.',
+    body: ['Filter by set or your wishlist, see matching cards at a glance, and review up to 50 selected cards before saving.'],
+    tags: ['improvement'],
+  },
+  {
+    id: 'exclusive-market-filters',
+    screenshot: '/updates/exclusive-market-filters.png',
+    date: '2026-10-18',
+    audience: 'user',
+    title: 'Find exclusive trades you can answer',
+    summary: 'Filter exclusive trades by set, rarity, cards you can give and cards on your wishlist.',
+    body: ['Browse wanted cards as pictures, see which ones you can offer, and show all the choices on larger listings.'],
+    tags: ['improvement'],
+  },
+  {
     id: 'username-monthly',
     screenshot: '/updates/username-monthly.png',
     date: '2026-10-18',
