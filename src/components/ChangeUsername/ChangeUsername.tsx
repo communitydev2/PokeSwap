@@ -84,7 +84,7 @@ export function ChangeUsername({ mode = 'change' }: { mode?: 'set' | 'change' })
         <>
           <Group align="flex-end" wrap="nowrap">
             <TextInput
-              data-click-id={`ChangeUsername/${mode}-username-input`}
+              data-click-id={mode === 'set' ? 'ChangeUsername/set-username-input' : 'ChangeUsername/username-input'}
               label={t.qaUsername}
               placeholder={t.qaUsernamePlaceholder}
               value={username}
@@ -99,7 +99,7 @@ export function ChangeUsername({ mode = 'change' }: { mode?: 'set' | 'change' })
               style={{ flex: 1, minWidth: 0 }}
             />
             <Button
-              data-click-id={`ChangeUsername/${mode}-save`}
+              data-click-id={mode === 'set' ? 'ChangeUsername/set-save' : 'ChangeUsername/save'}
               onClick={handleSave}
               loading={saving}
               disabled={unchanged}
