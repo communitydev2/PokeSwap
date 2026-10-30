@@ -17,6 +17,19 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'bigger-market-filter-buttons',
+    date: '2026-10-30',
+    audience: 'user',
+    title: 'Bigger card market buttons on phones',
+    summary: 'On phones, the card market choices are now big separate buttons that are easy to tap, with the selected one highlighted.',
+    body: [
+      'The card market’s “All cards”, “Someone has it” and “Someone wants it” choices now each have their own big button on phones.',
+      'The selected choice is highlighted so you can see which cards you are browsing.',
+    ],
+    screenshot: '/updates/bigger-market-filter-buttons.png',
+    tags: ['mobile'],
+  },
+  {
     id: 'card-pictures-own-copy',
     date: '2026-10-30',
     audience: 'user',

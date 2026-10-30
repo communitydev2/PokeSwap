@@ -134,6 +134,29 @@ export function CardMarket({ onOpenExclusive }: { onOpenExclusive: (exclusiveTra
       return side === 'all' || (count?.[side === 'has' ? 'has' : 'wants'] ?? 0) > 0;
     },
   );
+  const sideOptions = [
+    { value: 'all', label: t.marketCardsAll },
+    { value: 'has', label: t.marketCardsHas },
+    { value: 'wants', label: t.marketCardsWants },
+  ];
+  function chooseSide(value: string) {
+    setSide(value);
+    setPage(1);
+    setExpanded(null);
+  }
+  const friendsOnlySwitch = (
+    userId && <Switch
+      data-click-id="CardMarket/friends-only"
+      label={t.friendsFilterOnly}
+      checked={friendsOnly}
+      onChange={(event) => {
+        const checked = event.currentTarget.checked;
+        setFriendsOnly(checked);
+        try { localStorage.setItem('market-friends-only', String(checked)); } catch { /* Storage may be disabled. */ }
+      }}
+      style={{ flexGrow: 0, flexShrink: 0 }}
+    />
+  );
   const pages = Math.max(1, Math.ceil(cards.length / 10));
   const currentPage = Math.min(page, pages);
   return (
@@ -171,36 +194,41 @@ export function CardMarket({ onOpenExclusive }: { onOpenExclusive: (exclusiveTra
           )}
         />
       </SimpleGrid>
-      <Group align="center" grow>
-      <SegmentedControl
-        fullWidth
-        size="sm"
-        orientation={phone ? 'vertical' : 'horizontal'}
-        data-click-id="CardMarket/filter"
-        value={side}
-        onChange={(v) => {
-          setSide(v);
-          setPage(1);
-          setExpanded(null);
-        }}
-        data={[
-          { value: 'all', label: <span data-click-id="CardMarket/filter:all">{t.marketCardsAll}</span> },
-          { value: 'has', label: <span data-click-id="CardMarket/filter:has">{t.marketCardsHas}</span> },
-          { value: 'wants', label: <span data-click-id="CardMarket/filter:wants">{t.marketCardsWants}</span> },
-        ]}
-      />
-      {userId && <Switch
-        data-click-id="CardMarket/friends-only"
-        label={t.friendsFilterOnly}
-        checked={friendsOnly}
-        onChange={(event) => {
-          const checked = event.currentTarget.checked;
-          setFriendsOnly(checked);
-          try { localStorage.setItem('market-friends-only', String(checked)); } catch { /* Storage may be disabled. */ }
-        }}
-        style={{ flexGrow: 0, flexShrink: 0 }}
-      />}
-      </Group>
+      {phone ? (
+        <Stack gap="xs" data-click-id="CardMarket/filter">
+          {sideOptions.map(({ value, label }) => (
+            <Button
+              key={value}
+              fullWidth
+              size="md"
+              mih={44}
+              variant={side === value ? 'filled' : 'default'}
+              aria-pressed={side === value}
+              data-click-id={`CardMarket/filter:${value}`}
+              onClick={() => chooseSide(value)}
+            >
+              {label}
+            </Button>
+          ))}
+          {friendsOnlySwitch}
+        </Stack>
+      ) : (
+        <Group align="center" grow>
+          <SegmentedControl
+            fullWidth
+            size="sm"
+            orientation="horizontal"
+            data-click-id="CardMarket/filter"
+            value={side}
+            onChange={chooseSide}
+            data={sideOptions.map(({ value, label }) => ({
+              value,
+              label: <span data-click-id={`CardMarket/filter:${value}`}>{label}</span>,
+            }))}
+          />
+          {friendsOnlySwitch}
+        </Group>
+      )}
       {(countsFailed || failed || catalogueStatus === 'error') && (
         <Alert color="red">
           {catalogueStatus === 'error' ? t.marketCatalogueLoadFailed : t.marketCardsLoadFailed}
