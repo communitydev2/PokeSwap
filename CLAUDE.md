@@ -29,7 +29,7 @@ The app is meant to support several languages.
 
 ## Branches
 - Work happens on `dev`; commits are pushed to `origin/dev`.
-- `master` is the release branch (it may auto-deploy to the live site). Only merge `dev` into `master` when the user asks for a release.
+- `master` is the release branch (Netlify deploys the live site from it). **Always release** (user's rule, 30 Oct 2026): after every request's commit is verified and pushed to `dev`, merge `dev` into `master` and push `master`. Never commit on `master` directly.
 - Netlify (site `oaktrade`, live at https://oaktrade.miguelsalvador.co.uk; oaktrade.netlify.app also works) builds `master` with Yarn 4, which refuses to install when `yarn.lock` is out of date. After adding, removing or upgrading a dependency, run `yarn install` and commit `yarn.lock` too (npm only updates `package-lock.json`).
 - Email: Supabase Auth sends sign-in emails through Resend SMTP (`smtp.resend.com`, sender `login@miguelsalvador.co.uk`), and `recover-username` uses the Resend API (secrets `RESEND_API_KEY`, `FROM_EMAIL`, `SITE_URL`). The domain's DNS (Netlify DNS) has Resend's DKIM (`resend._domainkey`), `send`/`rsend` CNAMEs and a DMARC record - don't remove them.
 - `public/_redirects` sends every path to `index.html` so links like `/updates` work on Netlify; keep it.
