@@ -74,6 +74,12 @@ export function Header() {
     useStateStoreHandle.setShowManageCardsMainMenu(true);
   }
 
+  // Opens Manage Cards straight on the Pocket accounts screen
+  function handlePocketAccounts() {
+    handleManageCardsMenu();
+    useStateStoreHandle.setPocketAccountsRequest(true);
+  }
+
   // Sign-in and username setup have their own page.
   function handleLogIn() {
     closeDrawer();
@@ -187,6 +193,7 @@ export function Header() {
                       )}
                     </Menu.Item>
                   ))}
+                  {isSignedIn && <Menu.Item data-click-id="Header/pocket-accounts" onClick={handlePocketAccounts}>{t.pocketAccounts}</Menu.Item>}
                   <Menu.Item data-click-id="Header/add-account" onClick={handleAddAccount}>
                     {t.headerAddAccount}
                   </Menu.Item>
@@ -240,7 +247,10 @@ export function Header() {
                 {t.headerSignedInAs(session.user.email ?? '')}
               </Text>
               {isSignedIn ? (
-                <Button data-click-id="Header/drawer-manage-cards" variant="default" onClick={handleManageCardsMenu}>{t.headerManageCards}</Button>
+                <>
+                  <Button data-click-id="Header/drawer-manage-cards" variant="default" onClick={handleManageCardsMenu}>{t.headerManageCards}</Button>
+                  <Button data-click-id="Header/drawer-pocket-accounts" variant="default" onClick={handlePocketAccounts}>{t.pocketAccounts}</Button>
+                </>
               ) : (
                 <Button data-click-id="Header/drawer-set-username" onClick={handleLogIn}>{t.headerSetUsername}</Button>
               )}

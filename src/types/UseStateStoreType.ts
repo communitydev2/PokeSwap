@@ -11,6 +11,8 @@ export interface UseStateStoreType {
     stateBooleanArray : boolean[] | null,
     // Set (e.g. by the notification bell) to open Manage Cards on a Pocket account's trade offers
     tradesRequest : { tcgAccountId: string; seq: number } | null,
+    // Set by the header's Pocket accounts item to open Manage Cards on that screen
+    pocketAccountsRequest : boolean,
 
 
 
@@ -24,6 +26,7 @@ export interface UseStateStoreType {
      setColorPalette: (colorpalette : string[]) => void;
      setStateBooleanArray: (stateBooleanArray : boolean[]) => void;
      setTradesRequest: (tradesRequest : { tcgAccountId: string; seq: number } | null) => void;
+     setPocketAccountsRequest: (pocketAccountsRequest : boolean) => void;
 
 
 }

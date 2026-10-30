@@ -644,6 +644,16 @@ function cardCategoryOnChange(e) {
     setShowManageCardsMainMenuOptions(true)
   }, [useAuthStoreWrapper.user?.user_id])
 
+  // The header's Pocket accounts item: open that screen (declared after the reset above so it wins on a fresh mount)
+  const pocketAccountsRequest = useStateStoreWrapper.pocketAccountsRequest
+  useEffect(() => {
+    if (!pocketAccountsRequest || callComponent!=MENU_MODE.mainMenu) return
+    setShowManageCardsMainMenuOptions(true)
+    useStateStoreWrapper.setShowAddCardsMenu(false)
+    setView('pocketAccounts')
+    useStateStoreWrapper.setPocketAccountsRequest(false)
+  }, [pocketAccountsRequest, callComponent])
+
   // Saved cards or trades of the selected account (replace the rest of the menu while open)
   if (view != 'menu' && callComponent==MENU_MODE.mainMenu) {
     return (

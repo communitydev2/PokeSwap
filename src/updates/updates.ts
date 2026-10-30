@@ -17,6 +17,18 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'pocket-accounts-menu-item',
+    date: '2026-10-30',
+    audience: 'user',
+    title: 'Pocket accounts in the account menu',
+    summary: 'Your Pocket accounts now have their own item in the account menu at the top, and in the phone menu.',
+    body: [
+      'Open the menu with your name at the top (or the menu button on a phone) and choose Pocket accounts to go straight to them.',
+      'From there you can add, rename or remove a Pocket account.',
+    ],
+    tags: ['accounts'],
+  },
+  {
     id: 'manage-cards-returns-to-menu',
     date: '2026-10-30',
     audience: 'user',

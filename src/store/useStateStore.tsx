@@ -18,6 +18,7 @@ export const useStateStore =create<UseStateStoreType>((set) => ({
         false, // 0 - isExclusiveTradeModalOn
     ],
     tradesRequest: null,
+    pocketAccountsRequest: false,
 
 
 
@@ -31,6 +32,7 @@ export const useStateStore =create<UseStateStoreType>((set) => ({
     setColorPalette : (colorpalette: string[]) => set(()=> ({colorpalette})),
     setStateBooleanArray : (stateBooleanArray : boolean[]) => set(()=> ({stateBooleanArray})),
     setTradesRequest : (tradesRequest) => set(()=> ({tradesRequest})),
+    setPocketAccountsRequest : (pocketAccountsRequest) => set(()=> ({pocketAccountsRequest})),
 
 
 
