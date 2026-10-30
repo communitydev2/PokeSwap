@@ -17,6 +17,20 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'trade-history',
+    date: '2026-10-30',
+    audience: 'user',
+    title: 'Your trade history',
+    summary: 'Manage Cards > Trades has a new History tab showing your completed trades, newest first.',
+    body: [
+      'See when you completed each trade, who you traded with and which cards changed hands.',
+      'Switch to “All finished” to also see declined and cancelled offers, or search by card or player.',
+      'History replaces the “Past offers” list at the bottom of Offers.',
+    ],
+    tags: ['trades'],
+    screenshot: '/updates/trade-history.png',
+  },
+  {
     id: 'card-rarity-shown-everywhere',
     date: '2026-10-30',
     audience: 'user',
@@ -27,7 +41,6 @@ export const updates: Update[] = [
       'Rarity names appear on your friends’ wishlists and trade lists, trade offers, new-trade popups, the wanted-cards picker, notifications and card drop-downs.',
     ],
     tags: ['cards'],
-
     screenshot: '/updates/card-rarity-shown-everywhere.png',
   },
   {

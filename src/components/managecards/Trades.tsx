@@ -1,3 +1,5 @@
+import { useMediaQuery } from '@mantine/hooks';
+import { TradeHistory } from './TradeHistory';
 import { SimpleGrid } from '@mantine/core';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Badge, Button, CopyButton, Divider, Group, Loader, Paper, SegmentedControl, Select, Stack, Switch, Text, Title } from '@mantine/core';
@@ -23,6 +25,8 @@ type PartnerCard = {
 
 export type TradeOffer = {
   id: number;
+  created_at: string;
+  updated_at: string;
   direction: 'incoming' | 'outgoing';
   status: 'pending' | 'accepted' | 'declined' | 'cancelled' | 'completed';
   partner_account: string;
@@ -40,7 +44,7 @@ export type TradeOffer = {
 
 type MyTradeCard = { card: PokemonCard; language: string };
 
-const VIEW = { find: 'find', exclusive: 'exclusive', offers: 'offers' } as const;
+const VIEW = { find: 'find', exclusive: 'exclusive', offers: 'offers', history: 'history' } as const;
 
 const cardKey = (cardId: string, language: string) => `${cardId}|${language}`;
 
@@ -53,6 +57,7 @@ export function Trades({ tcgAccountId, initialView = VIEW.find, onOffersChanged 
   const { ids: friendIds, loading: friendsLoading, error: friendsError, retry: retryFriends } = useFriendAccounts();
   const [friendsOnly, setFriendsOnly] = useState(false);
   const t = useLocalizationStore((state) => state.t);
+  const isPhone = useMediaQuery('(max-width: 30em)');
   const [view, setView] = useState<string>(initialView);
   const [partners, setPartners] = useState<PartnerCard[]>([]);
   const [offers, setOffers] = useState<TradeOffer[]>([]);
@@ -135,7 +140,8 @@ export function Trades({ tcgAccountId, initialView = VIEW.find, onOffersChanged 
   const incomingPending = offers.filter((o) => o.direction === 'incoming' && o.status === 'pending');
   const accepted = offers.filter((o) => o.status === 'accepted');
   const sentPending = offers.filter((o) => o.direction === 'outgoing' && o.status === 'pending');
-  const past = offers.filter((o) => ['declined', 'cancelled', 'completed'].includes(o.status));
+  const hasFinished = offers.some((o) => ['declined', 'cancelled', 'completed'].includes(o.status));
+  const completedCount = offers.filter((o) => o.status === 'completed').length;
   const openCount = incomingPending.length + accepted.length;
 
   // Offers already open, so their buttons show "Offer sent"
@@ -156,6 +162,13 @@ export function Trades({ tcgAccountId, initialView = VIEW.find, onOffersChanged 
     return [...groups.values()];
   }, [partners, friendsOnly, friendIds]);
 
+  const viewOptions = [
+    { value: VIEW.find, label: t.tradesFind + ' (' + partners.length + ')' },
+    { value: VIEW.exclusive, label: t.tradesExclusive + (openListings.length > 0 ? ' (' + openListings.length + ')' : '') },
+    { value: VIEW.offers, label: t.tradesOffers + (openCount > 0 ? ' (' + openCount + ')' : '') },
+    { value: VIEW.history, label: t.tradesHistory + (completedCount > 0 ? ' (' + completedCount + ')' : '') },
+  ];
+
   if (loading) {
     return (
       <Group justify="center" py="xl">
@@ -167,18 +180,23 @@ export function Trades({ tcgAccountId, initialView = VIEW.find, onOffersChanged 
 
   return (
     <Stack gap="md">
-      <SegmentedControl
-        fullWidth
-        size="sm"
-        styles={{ label: { whiteSpace: 'normal' } }}
-        value={view}
-        onChange={setView}
-        data={[
-          { value: VIEW.find, label: <span data-click-id="Trades/view:find">{t.tradesFind} ({partners.length})</span> },
-          { value: VIEW.exclusive, label: <span data-click-id="Trades/view:exclusive">{t.tradesExclusive}{openListings.length > 0 && ` (${openListings.length})`}</span> },
-          { value: VIEW.offers, label: <span data-click-id="Trades/view:offers">{t.tradesOffers}{openCount > 0 && ` (${openCount})`}</span> },
-        ]}
-      />
+      {isPhone ? (
+        <SimpleGrid cols={2} spacing="xs">
+          {viewOptions.map(({ value, label }) => (
+            <Button key={value} fullWidth mih={44} variant={view === value ? 'filled' : 'default'}
+              aria-pressed={view === value} data-click-id={`Trades/view:${value}`} onClick={() => setView(value)}>
+              {label}
+            </Button>
+          ))}
+        </SimpleGrid>
+      ) : (
+        <SegmentedControl fullWidth size="sm" styles={{ label: { whiteSpace: 'normal' } }}
+          value={view} onChange={setView}
+          data={viewOptions.map(({ value, label }) => ({
+            value, label: <span data-click-id={`Trades/view:${value}`}>{label}</span>,
+          }))}
+        />
+      )}
 
       {actionError && (
         <Alert color="red" withCloseButton closeButtonLabel={t.dismiss} onClose={() => setActionError(null)}>
@@ -302,9 +320,14 @@ export function Trades({ tcgAccountId, initialView = VIEW.find, onOffersChanged 
               </Button>
             </Group>
           )} />
-          <OfferSection title={t.tradesPast} offers={past} />
+          {hasFinished && (
+            <Button variant="subtle" data-click-id="Trades/see-history" onClick={() => setView(VIEW.history)}>
+              {t.tradesSeeHistory}
+            </Button>
+          )}
         </>
       )}
+      {view === VIEW.history && <TradeHistory offers={offers} />}
     </Stack>
   );
 }
@@ -408,7 +431,7 @@ function OfferSection({ title, offers, render }: { title: string; offers: TradeO
   );
 }
 
-function OfferCard({ label, card, language }: { label: string; card: PokemonCard; language: string }) {
+export function OfferCard({ label, card, language }: { label: string; card: PokemonCard; language: string }) {
   return (
     <Group wrap="nowrap" gap="xs" style={{ flex: 1, minWidth: 0 }}>
       <CardPicture cardImage={card.card_image} alt={card.card_name} width={44} radius={3} />
