@@ -50,6 +50,8 @@ export const en = {
   marketCardsPickTheirs: 'Choose one of their cards to get',
   marketCardsNeedSameRarity: 'Add a card of the same rarity to your trade list to send an offer.',
   marketCardsNeedCard: 'You need this card in this language on your trade list, outside an exclusive trade, to offer it.',
+  marketCardsNotOnTradeList: "You don't have this card in this language on your trade list yet.",
+  marketCardsAddToTradeList: 'Add it to my trade list',
   marketCardsPartnerEmpty: 'This player has no available cards of the same rarity for trade.',
   marketOfferSent: 'Offer sent - track it in Manage Cards > Trades',
   // Home market: exclusive trades

@@ -17,6 +17,19 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'offer-card-add-to-trade-list',
+    date: '2026-10-30',
+    audience: 'user',
+    title: 'Add a card to your trade list while making an offer',
+    summary: 'The offer window now lets you add a card to your trade list and carry on with your offer straight away.',
+    body: [
+      'When you offer a card someone wants but it is not on your trade list yet, the offer window now has an “Add it to my trade list” button.',
+      'Once added, you can pick what you want in return and send the offer straight away.',
+    ],
+    tags: ['fix', 'trades'],
+    screenshot: '/updates/offer-card-add-to-trade-list.png',
+  },
+  {
     id: 'pocket-accounts-menu-item',
     date: '2026-10-30',
     audience: 'user',

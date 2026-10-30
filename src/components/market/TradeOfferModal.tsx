@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Alert, Badge, Button, Group, Loader, Modal, Select, Stack, Text, UnstyledButton } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { supabase } from '../../supabaseClient';
+import { CARD_CATEGORY } from '../../constants';
 import { useLocalizationStore } from '../../store/useLocalizationStore';
 import { useAuthStore } from '../../store/userStore';
 import { useMyTcgAccounts } from '../../hooks/useMyTcgAccounts';
@@ -55,6 +56,11 @@ export function TradeOfferModal({ opened, onClose, mode, card, partnerAccount, p
   const [options, setOptions] = useState<TradeRow[]>([]);
   const [selected, setSelected] = useState<number | null>(null);
   const [hasCard, setHasCard] = useState(false);
+  const [heldByExclusive, setHeldByExclusive] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const savingRef = useRef(false);
+  const loadContextRef = useRef<{ cancelled: boolean } | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadedFor, setLoadedFor] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -68,6 +74,11 @@ export function TradeOfferModal({ opened, onClose, mode, card, partnerAccount, p
   }, [opened]);
   useEffect(() => {
     let cancelled = false;
+    const context = { cancelled: false };
+    loadContextRef.current = context;
+    savingRef.current = false;
+    setSaving(false);
+    setHeldByExclusive(false);
     setOptions([]);
     setSelected(null);
     setHasCard(false);
@@ -75,16 +86,31 @@ export function TradeOfferModal({ opened, onClose, mode, card, partnerAccount, p
     setLoadedFor('');
     if (!opened || !account || !session) {
       setLoading(false);
-      return;
+      return () => {
+        context.cancelled = true;
+      };
     }
     setLoading(true);
     async function load() {
       try {
         const mine = await availableCards(account!, card.rarity_id);
         const owns = mode === 'get' || mine.some((r) => r.card.card_id === card.card_id && r.language === language);
+        let held = false;
+        if (mode === 'give' && !owns) {
+          const { data, error: heldError } = await supabase
+            .from('cards_available_for_trade')
+            .select('id')
+            .eq('tcg_account_id', account!)
+            .eq('card_id', card.card_id)
+            .eq('language', language)
+            .maybeSingle();
+          if (heldError) throw heldError;
+          held = !!data;
+        }
         const choices = mode === 'get' ? mine : owns ? await availableCards(partnerAccount, card.rarity_id) : [];
         if (cancelled) return;
         setHasCard(owns);
+        setHeldByExclusive(held);
         setOptions(choices);
         setLoadedFor(requestKey);
       } catch (e) {
@@ -96,13 +122,42 @@ export function TradeOfferModal({ opened, onClose, mode, card, partnerAccount, p
     void load();
     return () => {
       cancelled = true;
+      context.cancelled = true;
     };
-  }, [opened, account, session, requestKey, mode, card.card_id, card.rarity_id, partnerAccount, language, t]);
+  }, [opened, account, session, requestKey, mode, card.card_id, card.rarity_id, partnerAccount, language, t, reloadKey]);
   const picked = options.find((r) => r.id === selected);
   const ready =
     !!session && !!account && !!picked && hasCard && !loading && loadedFor === requestKey && !sending && !sent;
   const give = mode === 'get' ? picked : { card, language };
   const get = mode === 'get' ? { card, language } : picked;
+  async function addToTradeList() {
+    const context = loadContextRef.current;
+    if (!context || context.cancelled || !opened || !account || !session || mode !== 'give' || hasCard ||
+        heldByExclusive || loading || loadedFor !== requestKey || sendingRef.current || savingRef.current) return;
+    savingRef.current = true;
+    setSaving(true);
+    setError(null);
+    try {
+      const { error: saveError } = await supabase.rpc('add_cards_to_tcg_account', {
+        p_tcg_account_id: account,
+        p_category: CARD_CATEGORY.trade,
+        p_cards: [{ card_id: card.card_id, language, quantity: 1 }],
+      });
+      if (context.cancelled) return;
+      if (saveError) {
+        setError(t.cardsSaveFailed);
+        return;
+      }
+      setReloadKey((key) => key + 1);
+    } catch {
+      if (!context.cancelled) setError(t.cardsSaveFailed);
+    } finally {
+      if (!context.cancelled) {
+        savingRef.current = false;
+        setSaving(false);
+      }
+    }
+  }
   async function send() {
     if (!ready || !give || !get || sendingRef.current) return;
     sendingRef.current = true;
@@ -203,7 +258,22 @@ export function TradeOfferModal({ opened, onClose, mode, card, partnerAccount, p
                 ) : (
                   <>
                     {mode === 'give' && !hasCard ? (
-                      <Text c="dimmed">{t.marketCardsNeedCard}</Text>
+                      heldByExclusive ? (
+                        <Text c="dimmed">{t.marketCardsNeedCard}</Text>
+                      ) : (
+                        <Stack gap="xs">
+                          <Text c="dimmed">{t.marketCardsNotOnTradeList}</Text>
+                          <Button
+                            data-click-id="TradeOfferModal/add-to-trade-list"
+                            mih={44}
+                            loading={saving}
+                            disabled={sending || saving || loadedFor !== requestKey}
+                            onClick={() => void addToTradeList()}
+                          >
+                            {t.marketCardsAddToTradeList}
+                          </Button>
+                        </Stack>
+                      )
                     ) : !options.length ? (
                       <Text c="dimmed">{mode === 'get' ? t.marketCardsNeedSameRarity : t.marketCardsPartnerEmpty}</Text>
                     ) : (
