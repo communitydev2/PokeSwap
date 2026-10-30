@@ -17,6 +17,18 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'wishlist-shows-who-has-it',
+    date: '2026-10-30',
+    audience: 'user',
+    title: 'See who has a card as soon as you add it to your wishlist',
+    summary: 'When you add a card to your wishlist, a popup now names everyone who has it on their trade list.',
+    body: [
+      'Before, the popup only appeared when the other player also wanted one of your trade cards.',
+      'Now it lists everyone who has the card. Players who want one of your cards still get a Send offer button; for the others it says they don’t want any of your trade cards yet.',
+    ],
+    tags: ['trades'],
+  },
+  {
     id: 'offer-card-add-to-trade-list',
     date: '2026-10-30',
     audience: 'user',

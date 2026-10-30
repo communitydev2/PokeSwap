@@ -516,10 +516,11 @@ function cardCategoryOnChange(e) {
       const result = await supabase.rpc('find_trade_partners', { p_account: account.tcg_account_id })
       if (result.error) throw result.error
       const added = new Set(cards.map((c) => c.card_id + '|' + c.language))
-      const rows = (result.data as NewTradeMatch[]).filter((row) =>
-        row.wanted_from_me.length > 0 && (category === CARD_CATEGORY.trade
+      // New trade cards: people who want one of them. New wishlist cards: everyone who has one
+      // on their trade list, even if they want nothing of ours yet.
+      const rows = (result.data as NewTradeMatch[]).filter((row) => category === CARD_CATEGORY.trade
           ? row.wanted_from_me.some((w) => added.has(w.card.card_id + '|' + w.language))
-          : added.has(row.get_card.card_id + '|' + row.get_language)))
+          : added.has(row.get_card.card_id + '|' + row.get_language))
       if (rows.length && useAuthStore.getState().user?.user_id === account.user_id) {
         setNewMatches({ accountId: account.tcg_account_id, rows })
       }

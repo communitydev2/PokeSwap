@@ -81,8 +81,9 @@ function MatchRow({ accountId, rows, onOfferSent }: { accountId: string; rows: N
           data={rows.map((r) => ({ value: cardKey(r.get_card.card_id, r.get_language), label: r.get_card.card_name + ' · ' + r.get_card.card_local_id + ' · ' + r.get_language.toUpperCase() }))} />}
         <Group wrap="nowrap" align="flex-start">
           <CardPicture cardImage={row.get_card.card_image} alt={row.get_card.card_name} width={56} radius={4} zoom={false} />
-          <Text size="sm" style={{ minWidth: 0, overflowWrap: 'anywhere' }}>{t.newMatchesTheyHave(row.get_card.card_name + ' · ' + row.get_language.toUpperCase())}</Text>
+          <Text size="sm" style={{ minWidth: 0, overflowWrap: 'anywhere' }}>{t.newMatchesHasCard(row.partner_name, row.get_card.card_name + ' · ' + row.get_language.toUpperCase())}</Text>
         </Group>
+        {row.wanted_from_me.length === 0 ? <Text size="sm" c="dimmed">{t.newMatchesNothingWanted}</Text> : <>
         <Text size="sm">{t.newMatchesTheyWant}</Text>
         <Group gap="xs" align="flex-start">
           {row.wanted_from_me.map((w) => <Group key={cardKey(w.card.card_id, w.language)} gap="xs" wrap="nowrap">
@@ -95,6 +96,7 @@ function MatchRow({ accountId, rows, onOfferSent }: { accountId: string; rows: N
           data={row.wanted_from_me.map((w) => ({ value: cardKey(w.card.card_id, w.language), label: w.card.card_name + ' · ' + w.card.card_local_id + ' · ' + w.language.toUpperCase() }))} />}
         {error && <Alert color="red">{error}</Alert>}
         {sent ? <Badge color="teal">{t.tradesOfferSent}</Badge> : <Button data-click-id={`NewMatchesModal/send:${partner}`} onClick={send} loading={busy} disabled={!chosen}>{t.tradesSendOffer}</Button>}
+        </>}
       </Stack>
     </Paper>
   );

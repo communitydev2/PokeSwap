@@ -306,7 +306,8 @@ export const en = {
   // Trade matches
   newMatchesTitle: 'New possible trades',
   newMatchesSeeAll: 'See all in Find trades',
-  newMatchesTheyHave: (card: string) => `They have ${card} you want`,
+  newMatchesHasCard: (name: string, card: string) => `${name} has ${card} on their trade list`,
+  newMatchesNothingWanted: 'They don’t want any of your trade cards yet. Add cards they want to your trade list to offer them a trade.',
   newMatchesTheyWant: 'They want:',
   notificationTradeMatch: (partner: string, mine: string, theirs: string) =>
     `${partner} has ${theirs} from your wishlist and wants your ${mine}`,
