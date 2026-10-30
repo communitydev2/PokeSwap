@@ -18,6 +18,7 @@ import { supabase } from '../../supabaseClient';
 import { useAuthStore } from '../../store/userStore';
 import { useLocalizationStore } from '../../store/useLocalizationStore';
 import { CardPicture } from '../CardPicture';
+import { CardMeta } from '../CardMeta';
 import { TradeOfferModal } from '../market/TradeOfferModal';
 import { refreshFriendAccounts } from '../../hooks/useFriendAccounts';
 import type { PokemonCard } from '../../types/PokemonCard';
@@ -275,9 +276,7 @@ export function FriendsPage() {
                                 />
                                 <Stack gap={4} style={{ minWidth: 0, flex: 1 }}>
                                   <Text fw={600}>{c.card_name}</Text>
-                                  <Text size="sm">
-                                    {c.set_name} · {c.card_local_id}
-                                  </Text>
+                                  <CardMeta card={{ card_id: c.card_id, card_local_id: c.card_local_id, set_name: c.set_name }} size="sm" />
                                   <Text size="sm">
                                     {c.language.toUpperCase()} · {t.quantity}: {c.quantity}
                                   </Text>

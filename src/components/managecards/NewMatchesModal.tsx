@@ -6,6 +6,8 @@ import { useLocalizationStore } from '../../store/useLocalizationStore';
 import { tradeErrorText } from '../../utils/tradeErrors';
 import type { PokemonCard } from '../../types/PokemonCard';
 import { CardPicture } from '../CardPicture';
+import { CardMeta } from '../CardMeta';
+import { useCardLabel } from '../../utils/cardLabel';
 
 export type NewTradeMatch = {
   partner_account: string;
@@ -45,6 +47,7 @@ export function NewMatchesModal({ accountId, matches, onClose, onSeeAll, onOffer
 
 function MatchRow({ accountId, rows, onOfferSent }: { accountId: string; rows: NewTradeMatch[]; onOfferSent: () => void }) {
   const t = useLocalizationStore((s) => s.t);
+  const cardLabel = useCardLabel();
   const [get, setGet] = useState(cardKey(rows[0].get_card.card_id, rows[0].get_language));
   const row = rows.find((r) => cardKey(r.get_card.card_id, r.get_language) === get) ?? rows[0];
   const [give, setGive] = useState<string | null>(null);
@@ -78,22 +81,28 @@ function MatchRow({ accountId, rows, onOfferSent }: { accountId: string; rows: N
         <Text fw={700}>{row.partner_name}</Text>
         {rows.length > 1 && <Select data-click-id={`NewMatchesModal/get:${partner}`} label={t.tradesYouGet}
           value={get} onChange={(v) => { if (v) { setGet(v); setGive(null); } }} disabled={busy || sent} allowDeselect={false}
-          data={rows.map((r) => ({ value: cardKey(r.get_card.card_id, r.get_language), label: r.get_card.card_name + ' · ' + r.get_card.card_local_id + ' · ' + r.get_language.toUpperCase() }))} />}
+          data={rows.map((r) => ({ value: cardKey(r.get_card.card_id, r.get_language), label: cardLabel(r.get_card, r.get_language) }))} />}
         <Group wrap="nowrap" align="flex-start">
           <CardPicture cardImage={row.get_card.card_image} alt={row.get_card.card_name} width={56} radius={4} zoom={false} />
-          <Text size="sm" style={{ minWidth: 0, overflowWrap: 'anywhere' }}>{t.newMatchesHasCard(row.partner_name, row.get_card.card_name + ' · ' + row.get_language.toUpperCase())}</Text>
+          <div style={{ minWidth: 0, overflowWrap: 'anywhere' }}>
+            <Text size="sm">{t.newMatchesHasCard(row.partner_name, row.get_card.card_name + ' · ' + row.get_language.toUpperCase())}</Text>
+            <CardMeta card={row.get_card} size="xs" />
+          </div>
         </Group>
         {row.wanted_from_me.length === 0 ? <Text size="sm" c="dimmed">{t.newMatchesNothingWanted}</Text> : <>
         <Text size="sm">{t.newMatchesTheyWant}</Text>
         <Group gap="xs" align="flex-start">
           {row.wanted_from_me.map((w) => <Group key={cardKey(w.card.card_id, w.language)} gap="xs" wrap="nowrap">
             <CardPicture cardImage={w.card.card_image} alt={w.card.card_name} width={40} radius={3} zoom={false} />
-            <Text size="xs">{w.card.card_name} · {w.language.toUpperCase()}</Text>
+            <div>
+              <Text size="xs">{w.card.card_name} · {w.language.toUpperCase()}</Text>
+              <CardMeta card={w.card} size="xs" />
+            </div>
           </Group>)}
         </Group>
         {row.wanted_from_me.length > 1 && <Select data-click-id={`NewMatchesModal/give:${partner}`} label={t.tradesYouGive}
           value={chosen ? cardKey(chosen.card.card_id, chosen.language) : null} onChange={setGive} allowDeselect={false} disabled={busy || sent}
-          data={row.wanted_from_me.map((w) => ({ value: cardKey(w.card.card_id, w.language), label: w.card.card_name + ' · ' + w.card.card_local_id + ' · ' + w.language.toUpperCase() }))} />}
+          data={row.wanted_from_me.map((w) => ({ value: cardKey(w.card.card_id, w.language), label: cardLabel(w.card, w.language) }))} />}
         {error && <Alert color="red">{error}</Alert>}
         {sent ? <Badge color="teal">{t.tradesOfferSent}</Badge> : <Button data-click-id={`NewMatchesModal/send:${partner}`} onClick={send} loading={busy} disabled={!chosen}>{t.tradesSendOffer}</Button>}
         </>}

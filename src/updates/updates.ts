@@ -17,6 +17,20 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'card-rarity-shown-everywhere',
+    date: '2026-10-30',
+    audience: 'user',
+    title: 'Card rarities written out everywhere',
+    summary: 'Cards now show their rarity written out, such as “Two Diamond” or “One Star”, next to the rarity symbols.',
+    body: [
+      'You can now read each card’s rarity without having to hover over its symbols, including on phones.',
+      'Rarity names appear on your friends’ wishlists and trade lists, trade offers, new-trade popups, the wanted-cards picker, notifications and card drop-downs.',
+    ],
+    tags: ['cards'],
+
+    screenshot: '/updates/card-rarity-shown-everywhere.png',
+  },
+  {
     id: 'wishlist-shows-who-has-it',
     date: '2026-10-30',
     audience: 'user',

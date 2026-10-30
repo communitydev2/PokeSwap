@@ -9,6 +9,7 @@ import { useLocalizationStore } from '../../store/useLocalizationStore';
 import { expansionOptions } from '../../utils/searchOptions';
 import type { PokemonCard } from '../../types/PokemonCard';
 import { CardPicture } from '../CardPicture';
+import { CardMeta } from '../CardMeta';
 
 const PAGE_SIZE = 24;
 export function WantedCardsPicker({ cards, value, onChange, tcgAccountId, language, rarityId }: {
@@ -62,7 +63,6 @@ export function WantedCardsPicker({ cards, value, onChange, tcgAccountId, langua
   const selected = new Set(value);
   const selectedCards = value.map((id) => cards.find((c) => c.card_id === id)).filter((c): c is PokemonCard => !!c);
   const remove = (id: string) => onChange(value.filter((v) => v !== id));
-  const setName = (card: PokemonCard) => expansions.find((s) => s.set_id === card.set_id)?.set_name ?? card.set_name ?? '';
   return <Stack gap="sm" data-click-id="ExclusiveTrades/wants-select" data-wanted-picker>
     <div><Text size="sm" fw={500}>{t.exclusiveWants}</Text><Text size="xs" c="dimmed">{t.exclusiveWantsHelp}</Text></div>
     <SimpleGrid cols={{ base: 1, sm: 2 }}>
@@ -92,7 +92,7 @@ export function WantedCardsPicker({ cards, value, onChange, tcgAccountId, langua
         <CardPicture cardImage={card.card_image} alt={card.card_name} width="100%" zoom={false} radius={4} />
         {selected.has(card.card_id) && <Badge circle color="blue" style={{ position: 'absolute', top: 10, right: 10 }}><IconCheck size={14} /></Badge>}
         <Text size="sm" fw={500} mt={4} lineClamp={2}>{card.card_name}</Text>
-        <Text size="xs" c="dimmed">{setName(card)} · #{card.card_local_id.split('-').pop()}</Text>
+        <CardMeta card={card} size="xs" />
         {wishlistIds.has(card.card_id) && <Badge size="xs" variant="light" color="blue" mt={4} styles={{ root: { maxWidth: '100%', height: 'auto', whiteSpace: 'normal' }, label: { whiteSpace: 'normal' } }}>{t.pickerOnWishlist}</Badge>}
       </UnstyledButton>)}
     </SimpleGrid>

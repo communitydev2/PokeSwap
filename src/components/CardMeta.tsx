@@ -1,8 +1,9 @@
 import { Badge, Group, Stack, Text, Tooltip, type BadgeProps } from '@mantine/core';
 import { IconCrown } from '@tabler/icons-react';
-import type { ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { usePokemonCardStore } from '../store/pokemonCardsStore';
 import { useLocalizationStore } from '../store/useLocalizationStore';
+import { loadCardCatalogue } from '../utils/loadCardCatalogue';
 
 type RarityStyle = { symbols: ReactNode; badge: Pick<BadgeProps, 'variant' | 'color' | 'gradient'> };
 
@@ -39,7 +40,7 @@ type CardLike = {
   rarity_name?: string;
 };
 
-// "Genetic Apex · #096" plus a coloured rarity badge: tells apart cards that
+// "Two Diamond · Genetic Apex · #096" plus a coloured rarity badge: tells apart cards that
 // share a name (most Pokémon have several versions with different artwork)
 export function CardMeta({ card, size = 'sm' }: { card: CardLike; size?: 'xs' | 'sm' }) {
   const expansions = usePokemonCardStore((state) => state.supabase_expansion);
@@ -47,16 +48,23 @@ export function CardMeta({ card, size = 'sm' }: { card: CardLike; size?: 'xs' | 
   const allCards = usePokemonCardStore((state) => state.pokemonCards);
   const t = useLocalizationStore((state) => state.t);
 
-  const setName = card.set_name ?? expansions.find((s) => s.set_id === card.set_id)?.set_name;
-  const rarityName = card.rarity_name ?? rarities.find((r) => r.rarity_id === card.rarity_id)?.name;
+  useEffect(() => {
+    if (usePokemonCardStore.getState().catalogueStatus === 'idle') void loadCardCatalogue();
+  }, []);
+
+  // Search results can omit metadata, so fall back to the full card list.
+  const full = card.card_id && (
+    card.reprint_of === undefined || card.variant === undefined ||
+    !card.rarity_id || !card.rarity_name || !card.set_id || !card.set_name
+  ) ? allCards.find((c) => c.card_id === card.card_id) : undefined;
+  const setName = card.set_name ?? expansions.find((s) => s.set_id === (card.set_id ?? full?.set_id))?.set_name;
+  const rarityName = card.rarity_name ?? rarities.find((r) => r.rarity_id === (card.rarity_id ?? full?.rarity_id))?.name;
   const number = card.card_local_id?.split('-').pop();
   const rarity = rarityName ? RARITIES[rarityName] : undefined;
 
-  const parts = [setName, number && `#${number}`].filter(Boolean);
+  const parts = [rarityName, setName, number && `#${number}`].filter(Boolean);
   if (!parts.length && !rarityName) return null;
 
-  // Search results don't carry these, so fall back to the full card list
-  const full = card.reprint_of === undefined && card.card_id ? allCards.find((c) => c.card_id === card.card_id) : undefined;
   const reprintOf = card.reprint_of ?? full?.reprint_of;
   const isFoil = (card.variant ?? full?.variant) === 'parallel_foil';
   // "B2-120" -> "Fantastical Parade #120"

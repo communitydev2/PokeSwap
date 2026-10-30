@@ -7,6 +7,8 @@ import { useAuthStore } from '../store/userStore';
 import { useStateStore } from '../store/useStateStore';
 import { useLocalizationStore } from '../store/useLocalizationStore';
 import { CardPicture } from './CardPicture';
+import { usePokemonCardStore } from '../store/pokemonCardsStore';
+import { rarityNameOf, useCardLabel } from '../utils/cardLabel';
 
 // A row of the notification table (supabase/migrations/*_notifications.sql)
 type Notification = {
@@ -18,19 +20,27 @@ type Notification = {
   partner_name: string;
   exclusive: boolean;
   account: { tcg_id_username: string | null; tcg_id: string } | null;
-  my_card: { card_name: string; card_image: string | null } | null;
-  their_card: { card_name: string; card_image: string | null } | null;
+  my_card: { card_id: string; rarity_id: string | null; card_name: string; card_image: string | null } | null;
+  their_card: { card_id: string; rarity_id: string | null; card_name: string; card_image: string | null } | null;
 };
 
 const SELECT =
   'id, kind, read_at, created_at, tcg_account_id, partner_name, exclusive, ' +
   'account:player_tcg_account!notification_tcg_account_id_fkey(tcg_id_username, tcg_id), ' +
-  'my_card:card!notification_my_card_id_fkey(card_name, card_image), ' +
-  'their_card:card!notification_their_card_id_fkey(card_name, card_image)';
+  'my_card:card!notification_my_card_id_fkey(card_id, rarity_id, card_name, card_image), ' +
+  'their_card:card!notification_their_card_id_fkey(card_id, rarity_id, card_name, card_image)';
 
 // Header bell for account trade updates and user-level friend notifications.
 export function NotificationBell() {
   const t = useLocalizationStore((state) => state.t);
+  useCardLabel();
+  const rarities = usePokemonCardStore((state) => state.supabase_rarity);
+  const allCards = usePokemonCardStore((state) => state.pokemonCards);
+  const cardName = (card: Notification['my_card']) => {
+    if (!card) return '';
+    const rarityName = rarityNameOf(card, rarities, allCards);
+    return rarityName ? `${card.card_name} (${rarityName})` : card.card_name;
+  };
   const userId = useAuthStore((state) => state.user?.user_id);
   const setShowManageCardsMainMenu = useStateStore((state) => state.setShowManageCardsMainMenu);
   const setTradesRequest = useStateStore((state) => state.setTradesRequest);
@@ -169,8 +179,8 @@ export function NotificationBell() {
                       {!['friend_request', 'friend_accepted'].includes(n.kind) && <CardPicture cardImage={n.their_card?.card_image} alt={n.their_card?.card_name ?? ''} width={32} radius={3} zoom={false} />}
                       <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
                         <Text size="sm" fw={n.read_at ? 400 : 600}>
-                          {n.kind === 'friend_request' ? t.notificationFriendRequest(n.partner_name) : n.kind === 'friend_accepted' ? t.notificationFriendAccepted(n.partner_name) : n.kind === 'friend_card' ? t.notificationFriendCard(n.partner_name, n.their_card?.card_name ?? '') : (n.kind === 'trade_match' ? t.notificationTradeMatch : t.notificationMessage[n.kind] ?? t.notificationMessage.offer_received)(
-                            n.partner_name, n.my_card?.card_name ?? '', n.their_card?.card_name ?? ''
+                          {n.kind === 'friend_request' ? t.notificationFriendRequest(n.partner_name) : n.kind === 'friend_accepted' ? t.notificationFriendAccepted(n.partner_name) : n.kind === 'friend_card' ? t.notificationFriendCard(n.partner_name, cardName(n.their_card)) : (n.kind === 'trade_match' ? t.notificationTradeMatch : t.notificationMessage[n.kind] ?? t.notificationMessage.offer_received)(
+                            n.partner_name, cardName(n.my_card), cardName(n.their_card)
                           )}
                         </Text>
                         <Group gap={6}>

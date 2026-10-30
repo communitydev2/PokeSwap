@@ -9,6 +9,7 @@ import { tradeErrorText } from '../../utils/tradeErrors';
 import type { PokemonCard } from '../../types/PokemonCard';
 import { CardPicture } from '../CardPicture';
 import { CardMeta } from '../CardMeta';
+import { useCardLabel } from '../../utils/cardLabel';
 import { ExclusiveTrades, type MyListing, type MyTradeRow, type OpenListing } from './ExclusiveTrades';
 
 // Rows returned by the trade functions (supabase/migrations/*_trades.sql)
@@ -322,7 +323,8 @@ function PartnerRow({ row, divider, myTradeCards, openOfferKeys, busy, onOffer }
   const others = myTradeCards.filter(
     (m) => m.card.rarity_id === row.get_card.rarity_id && !wantedKeys.has(cardKey(m.card.card_id, m.language))
   );
-  const label = (m: MyTradeCard) => `${m.card.card_name} · ${m.card.card_local_id} · ${m.language.toUpperCase()}`;
+  const cardLabel = useCardLabel();
+  const label = (m: MyTradeCard) => cardLabel(m.card, m.language);
   const options = [
     ...(row.wanted_from_me.length
       ? [{ group: t.tradesTheyWant, items: row.wanted_from_me.map((m) => ({ value: cardKey(m.card.card_id, m.language), label: label(m) })) }]
@@ -413,7 +415,8 @@ function OfferCard({ label, card, language }: { label: string; card: PokemonCard
       <div style={{ minWidth: 0 }}>
         <Text size="xs" c="dimmed">{label}</Text>
         <Text size="sm" fw={600} lineClamp={2}>{card.card_name}</Text>
-        <Text size="xs" c="dimmed">{card.card_local_id} · {language.toUpperCase()}</Text>
+        <CardMeta card={card} size="xs" />
+        <Text size="xs" c="dimmed">{language.toUpperCase()}</Text>
       </div>
     </Group>
   );
