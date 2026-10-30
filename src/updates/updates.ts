@@ -17,6 +17,32 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'card-pictures-own-copy',
+    date: '2026-10-30',
+    audience: 'user',
+    title: 'Card pictures now come from our own copy',
+    summary: 'Card pictures now come from Oaktrade’s own copy, so they keep showing when the outside picture service is down.',
+    body: [
+      'The outside picture service we used went down, leaving most card pictures missing. Oaktrade now keeps its own copy so you can keep seeing the cards when that service is unavailable.',
+      'If a picture still cannot load, you will see a “Picture unavailable” box instead of a broken image.',
+    ],
+    screenshot: '/updates/card-pictures-own-copy.png',
+    tags: ['fix', 'cards'],
+  },
+  {
+    id: 'card-pictures-own-copy-dev',
+    date: '2026-10-30',
+    audience: 'dev',
+    title: 'Dataset pictures in Supabase Storage',
+    summary: 'Card pictures use the flibustier dataset release mirrored into the card-images bucket, with placeholders after the last image fallback fails.',
+    body: [
+      'Pictures now come from the flibustier dataset release mirrored into the card-images bucket as storage:dataset/<SET>/<NNN>. TCGdex is only a fallback where the dataset has no picture.',
+      'sync-cards no longer switches stored pictures back to TCGdex. When TCGdex is unreachable, it keeps running with dataset names and pictures and leaves existing set details untouched.',
+      'node scripts/mirror-dataset-card-images.mjs --replace-tcgdex --allow-remote moved the existing TCGdex cards. CardPicture shows a placeholder after the last fallback fails, for both list and zoom images.',
+    ],
+    tags: ['dev', 'cards', 'storage'],
+  },
+  {
     id: 'home-shows-market',
     date: '2026-10-30',
     audience: 'user',

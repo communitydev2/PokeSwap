@@ -1,5 +1,6 @@
 // Backfill missing card pictures from the dataset release into Supabase Storage.
 // Usage: node scripts/mirror-dataset-card-images.mjs [--limit N] [--dry-run] [--force] [--allow-remote]
+// --replace-tcgdex: also replace TCGdex pictures with dataset copies.
 // Uses SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY, or npx supabase status -o env.
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
@@ -12,13 +13,14 @@ const bucketName = 'card-images';
 const pageSize = 1000;
 
 async function main() {
-  const options = { force: false, dryRun: false, allowRemote: false, limit: Infinity };
+  const options = { force: false, dryRun: false, allowRemote: false, replaceTcgdex: false, limit: Infinity };
   const args = process.argv.slice(2);
   for (let i = 0; i < args.length; i++) {
     switch (args[i]) {
       case '--force': options.force = true; break;
       case '--dry-run': options.dryRun = true; break;
       case '--allow-remote': options.allowRemote = true; break;
+      case '--replace-tcgdex': options.replaceTcgdex = true; break;
       case '--limit': {
         const value = args[++i];
         if (!value || !/^\d+$/.test(value) || !Number.isSafeInteger(Number(value))) {
@@ -77,16 +79,24 @@ async function main() {
   });
   const dataset = new Map(datasetResponse.filter((card) => card.image && !/^(P-|PROMO)/i.test(card.set)).map((card) => [card.set + '-' + String(card.number).padStart(3, '0'), card]));
   const cards = [];
-  for (let offset = 0; cards.length < options.limit; offset += pageSize) {
-    const { data, error } = await client.from('card').select('card_id,card_local_id,card_image').or('card_image.is.null,card_image.eq.').order('card_id').range(offset, offset + pageSize - 1);
+  const eligibilityFilter = options.replaceTcgdex
+    ? 'card_image.is.null,card_image.eq.,card_image.like.https://assets.tcgdex.net/*'
+    : 'card_image.is.null,card_image.eq.';
+  let stayOnTcgdex = 0;
+  for (let offset = 0; options.replaceTcgdex || cards.length < options.limit; offset += pageSize) {
+    const { data, error } = await client.from('card').select('card_id,card_local_id,card_image').or(eligibilityFilter).order('card_id').range(offset, offset + pageSize - 1);
     if (error) throw error;
+    if (options.replaceTcgdex) {
+      stayOnTcgdex += data.filter((card) => card.card_image?.startsWith('https://assets.tcgdex.net/') && !dataset.has(card.card_local_id)).length;
+    }
     cards.push(...data.filter((card) => dataset.has(card.card_local_id)).slice(0, options.limit - cards.length));
     if (data.length < pageSize) break;
   }
   console.log('Eligible cards: ' + cards.length);
-  if (options.dryRun) { console.log('Dry run: would ensure ' + cards.length * 2 + ' objects; no writes.'); return; }
+  if (options.dryRun) { console.log('Dry run: would ensure ' + cards.length * 2 + ' objects; no writes.' + (options.replaceTcgdex ? ' stayOnTcgdex: ' + stayOnTcgdex : '')); return; }
   const download = createDatasetImageSource();
   const counts = { updated: 0, uploaded: 0, already: 0, failed: 0 };
+  if (options.replaceTcgdex) counts.stayOnTcgdex = stayOnTcgdex;
   let cursor = 0;
   async function worker() {
     while (cursor < cards.length) {
@@ -96,7 +106,7 @@ async function main() {
         counts.uploaded += result.uploaded; counts.already += result.already;
         const reference = result.reference;
         const { data, error } = await retry(async () => {
-          const result = await client.from('card').update({ card_image: reference }).eq('card_id', row.card_id).or('card_image.is.null,card_image.eq.').select('card_id');
+          const result = await client.from('card').update({ card_image: reference }).eq('card_id', row.card_id).or(eligibilityFilter).select('card_id');
           if (result.error) throw result.error;
           return result;
         });

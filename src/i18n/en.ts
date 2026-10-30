@@ -569,6 +569,7 @@ export const en = {
   setUpExclusiveTrade: 'Set up Exclusive Trade',
   quantity: 'Quantity',
   noPictureYet: 'Picture coming soon',
+  pictureUnavailable: 'Picture unavailable',
   zoomCard: (name: string) => `Zoom in on ${name}`,
   parallelFoil: 'Parallel Foil',
   reprintOf: (original: string) => `Reprint of ${original}`,

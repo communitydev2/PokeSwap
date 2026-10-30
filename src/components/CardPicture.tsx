@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Center, Modal, Text } from '@mantine/core';
 import { cardImageUrl, fallBackToPng } from '../utils/cardImage';
 import { useLocalizationStore } from '../store/useLocalizationStore';
@@ -9,6 +9,12 @@ import { useLocalizationStore } from '../store/useLocalizationStore';
 export function CardPicture({ cardImage, alt, width, radius = 8, zoom = true }: { cardImage: string | null | undefined; alt: string; width: number | string; radius?: number; zoom?: boolean }) {
   const t = useLocalizationStore((state) => state.t);
   const [opened, setOpened] = useState(false);
+  const [broken, setBroken] = useState(false);
+  const [zoomBroken, setZoomBroken] = useState(false);
+  useEffect(() => {
+    setBroken(false);
+    setZoomBroken(false);
+  }, [cardImage]);
   const box = {
     display: 'block',
     flexShrink: 0,
@@ -19,11 +25,11 @@ export function CardPicture({ cardImage, alt, width, radius = 8, zoom = true }: 
     borderRadius: radius,
   } as const;
 
-  if (!cardImage) {
+  if (!cardImage || broken) {
     return (
       <Center style={box} p={4}>
         <Text size="xs" c="dimmed" ta="center">
-          {t.noPictureYet}
+          {broken ? t.pictureUnavailable : t.noPictureYet}
         </Text>
       </Center>
     );
@@ -49,7 +55,9 @@ export function CardPicture({ cardImage, alt, width, radius = 8, zoom = true }: 
         }
       } : undefined}
       src={cardImageUrl(cardImage)}
-      onError={(event) => fallBackToPng(event, cardImage)}
+      onError={(event) => {
+        if (!fallBackToPng(event, cardImage)) setBroken(true);
+      }}
       loading="lazy"
       decoding="async"
       alt={alt}
@@ -81,16 +89,24 @@ export function CardPicture({ cardImage, alt, width, radius = 8, zoom = true }: 
               <Modal.CloseButton data-click-id="CardPicture/zoom-close" data-mantine-stop-propagation="true" aria-label={t.close} />
             </Modal.Header>
             <Modal.Body p="sm" pt={0}>
-              {opened && <img
+              {opened && (zoomBroken ? (
+                <Center style={{ ...box, width: 'min(85vw, 420px)', borderRadius: 12 }} p={4}>
+                  <Text size="xs" c="dimmed" ta="center">
+                    {t.pictureUnavailable}
+                  </Text>
+                </Center>
+              ) : <img
                 src={cardImageUrl(cardImage, 'webp', 'high')}
-                onError={(event) => fallBackToPng(event, cardImage, 'high')}
+                onError={(event) => {
+                  if (!fallBackToPng(event, cardImage, 'high')) setZoomBroken(true);
+                }}
                 alt={alt}
                 width={245}
                 height={337}
                 style={{ display: 'block', width: 'min(85vw, 420px)', height: 'auto', aspectRatio: '245 / 337', borderRadius: 12, objectFit: 'contain' }}
                 data-click-id="CardPicture/zoom-image"
                 onClick={() => setOpened(false)}
-              />}
+              />)}
             </Modal.Body>
           </Modal.Content>
         </Modal.Root>

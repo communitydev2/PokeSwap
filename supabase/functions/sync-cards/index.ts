@@ -1,11 +1,11 @@
 // Supabase Edge Function: sync Pokémon TCG Pocket sets and cards.
 //
 // Card data comes from the flibustier/pokemon-tcg-pocket-database dataset
-// (MIT, kept up to date with every release). TCGdex pictures take precedence;
-// missing pictures are copied from the dataset release into Supabase Storage.
+// (MIT, kept up to date with every release). Dataset pictures are copied into
+// Supabase Storage; TCGdex pictures are only used when the dataset has none.
 //
-// For cards TCGdex also has, TCGdex's name and picture are used, so existing
-// cards don't get renamed between the two sources' spellings.
+// TCGdex names are preferred when reachable, so existing cards don't get renamed
+// between the two sources' spellings. The sync carries on without TCGdex.
 // Adds sets / cards, never deletes; running it twice changes nothing.
 // Promo sets are skipped. Every run is logged in public.card_sync_runs.
 //
@@ -83,13 +83,23 @@ async function sync(dryRun: boolean) {
   const datasetCards = allDatasetCards.filter((card) => !UNTRADEABLE_RARITIES.includes(RARITY_NAMES[card.rarity] ?? card.rarity));
   const datasetSets = Object.values(datasetSetsByLetter).flat().filter((s) => !isPromo(s.code));
 
-  // TCGdex: set details and pictures for the sets it has
-  const tcgdexSeries = await getJson<{ sets: { id: string }[] }>(`${TCGDEX}/series/tcgp`);
+  // TCGdex: optional set details, names and fallback pictures
   const tcgdexSets = new Map<string, TcgdexSet>();
-  for (const { id } of tcgdexSeries.sets.filter((s) => !isPromo(s.id))) {
-    tcgdexSets.set(id, await getJson<TcgdexSet>(`${TCGDEX}/sets/${encodeURIComponent(id)}`));
+  const tcgdexCards = new Map<string, TcgdexSet['cards'][number]>();
+  let tcgdexAvailable = true;
+  try {
+    const tcgdexSeries = await getJson<{ sets: { id: string }[] }>(`${TCGDEX}/series/tcgp`);
+    for (const { id } of tcgdexSeries.sets.filter((s) => !isPromo(s.id))) {
+      tcgdexSets.set(id, await getJson<TcgdexSet>(`${TCGDEX}/sets/${encodeURIComponent(id)}`));
+    }
+    for (const set of tcgdexSets.values()) for (const card of set.cards) tcgdexCards.set(card.id, card);
+  } catch (error) {
+    tcgdexSets.clear();
+    tcgdexCards.clear();
+    tcgdexAvailable = false;
+    const message = error instanceof Error ? error.message : JSON.stringify(error);
+    summary.changes.push(`TCGdex unavailable (${message}): dataset names and pictures only`);
   }
-  const tcgdexCards = new Map([...tcgdexSets.values()].flatMap((s) => s.cards.map((c) => [c.id, c] as const)));
 
   // Reprints: the first card (in release order) that used exactly this picture
   const setOrder = new Map(datasetSets.map((s, i) => [s.code, i]));
@@ -165,10 +175,10 @@ async function sync(dryRun: boolean) {
         const { error } = await admin.from('set').insert({ ...local, added_at: new Date().toISOString() });
         if (error) throw error;
       }
-    } else if (
+    } else if (tcgdexAvailable && (
       local.set_name !== setFields.set_name || local.total_card_count !== setFields.total_card_count ||
       local.official_card_count !== setFields.official_card_count || local.release_date !== setFields.release_date
-    ) {
+    )) {
       summary.changes.push(`set ${dataset.code}: details updated`);
       if (!dryRun) {
         const { error } = await admin.from('set').update(setFields).eq('set_id', local.set_id);
@@ -184,17 +194,18 @@ async function sync(dryRun: boolean) {
     const existing = new Map((cardRows as CardRow[]).map((c) => [c.card_local_id, c]));
 
     const setCards = datasetCards.filter((c) => c.set === dataset.code);
-    const missing = setCards.filter((card) => {
-      if (!card.image || existing.get(cardId(card))?.card_image || tcgdexCards.get(cardId(card))?.image) return false;
-      const { original } = originalOf(card);
-      return !original || !tcgdexCards.get(cardId(original))?.image;
-    });
+    const missing = setCards.filter((card) => card.image && existing.get(cardId(card))?.card_image !== datasetReference(card));
     const storedPictures = new Map<string, string>();
     let cursor = 0;
     await Promise.all(Array.from({ length: Math.min(8, missing.length) }, async () => {
       while (cursor < missing.length) {
         const card = missing[cursor++];
-        storedPictures.set(cardId(card), await datasetPicture(card));
+        try {
+          storedPictures.set(cardId(card), await datasetPicture(card));
+        } catch (error) {
+          const message = error instanceof Error ? error.message : JSON.stringify(error);
+          summary.changes.push(`card ${cardId(card)}: dataset picture failed: ${message}`);
+        }
       }
     }));
     const toInsert: CardRow[] = [];
@@ -204,8 +215,8 @@ async function sync(dryRun: boolean) {
       const current = existing.get(id);
       const { original, variant } = originalOf(card);
       const reprintOf = original ? cardId(original) : null;
-      // A reprint shows its original's picture until TCGdex has one of its own
-      const picture = fromTcgdex?.image ?? (reprintOf ? tcgdexCards.get(reprintOf)?.image : undefined) ?? storedPictures.get(id) ?? null;
+      const storedPicture = storedPictures.get(id);
+      const picture = storedPicture ?? fromTcgdex?.image ?? (reprintOf ? tcgdexCards.get(reprintOf)?.image : undefined) ?? null;
 
       if (!current) {
         toInsert.push({
@@ -221,10 +232,10 @@ async function sync(dryRun: boolean) {
         continue;
       }
 
-      // Existing cards: only fill in what's missing (a picture TCGdex now has,
-      // or a rarity that was never set). Never replace something with nothing.
+      // Prefer stored dataset pictures; otherwise only fill missing pictures.
+      // Never replace something with nothing.
       const update: Partial<CardRow> = {};
-      if (fromTcgdex?.image && fromTcgdex.image !== current.card_image) update.card_image = fromTcgdex.image;
+      if (storedPicture && storedPicture !== current.card_image) update.card_image = storedPicture;
       else if (!current.card_image && picture) update.card_image = picture;
       if (reprintOf && reprintOf !== current.reprint_of) update.reprint_of = reprintOf;
       if (variant && variant !== current.variant) update.variant = variant;

@@ -24,8 +24,12 @@ export function nextCardImageUrl(currentUrl: string, initialUrl: string, tcgdexW
 }
 
 export function fallBackToPng(event: SyntheticEvent<HTMLImageElement>, cardImage: string, quality: 'low' | 'high' = 'low') {
-  if (cardImage.startsWith('storage:')) return;
+  if (cardImage.startsWith('storage:')) return false;
   const img = event.currentTarget;
   const next = nextCardImageUrl(img.src, cardImageUrl(cardImage, 'webp', quality), `${cardImage}/${quality}.webp`);
-  if (next && next !== img.src) img.src = next;
+  if (next && next !== img.src) {
+    img.src = next;
+    return true;
+  }
+  return false;
 }
