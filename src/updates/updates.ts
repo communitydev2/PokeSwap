@@ -17,6 +17,17 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'home-shows-market',
+    date: '2026-10-30',
+    audience: 'user',
+    title: 'Home always takes you to the card market',
+    summary: 'Home and the site name at the top now always bring you back to the market of cards other people have up for trade.',
+    body: [
+      'Click Home or the site name at the top to return to the card market, even from inside Manage Cards.',
+    ],
+    tags: ['fix'],
+  },
+  {
     id: 'social-flow-recovery',
     date: '2026-10-18',
     audience: 'user',

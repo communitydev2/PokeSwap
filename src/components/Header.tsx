@@ -59,6 +59,14 @@ export function Header() {
   // Other accounts saved on this device that can be switched to
   const otherAccounts = savedAccounts.accounts.filter((a) => a.userId !== session?.user.id);
 
+  // Returns to the card market and clears pending card actions
+  function goHome() {
+    closeDrawer();
+    useStateStoreHandle.setShowManageCardsMainMenu(false);
+    useStateStoreHandle.setShowAddCardsMenu(false);
+    useStateStoreHandle.setTradesRequest(null);
+  }
+
   // The Manage Cards menu lives on the home page, so go there first
   function handleManageCardsMenu() {
     closeDrawer();
@@ -121,10 +129,10 @@ export function Header() {
     <>
       <header className={classes.header}>
         <Group className={classes.inner} gap="xs" wrap="nowrap" align="center" h="100%">
-          <Link to="/" data-click-id="Header/logo" className={classes.logo}>{t.appName}</Link>
+          <Link to="/" data-click-id="Header/logo" onClick={goHome} className={classes.logo}>{t.appName}</Link>
 
           <Group className={classes.nav} h="100%" gap={0} wrap="nowrap" visibleFrom="sm">
-            <Link data-click-id="Header/home" to="/" className={classes.link}>
+            <Link data-click-id="Header/home" to="/" onClick={goHome} className={classes.link}>
               {t.homeNav}
             </Link>
 
@@ -213,7 +221,7 @@ export function Header() {
         <ScrollArea h="calc(100vh - 80px)" mx="-md">
           <Divider my="sm" />
 
-          <Link data-click-id="Header/drawer-home" to="/" onClick={closeDrawer} className={classes.link}>
+          <Link data-click-id="Header/drawer-home" to="/" onClick={goHome} className={classes.link}>
             {t.homeNav}
           </Link>
           {isSignedIn && <Link data-click-id="Header/drawer-friends" to="/friends" className={classes.link} onClick={closeDrawer}>{t.friendsTitle}</Link>}
