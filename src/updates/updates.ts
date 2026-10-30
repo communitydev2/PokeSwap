@@ -17,6 +17,18 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'manage-cards-returns-to-menu',
+    date: '2026-10-30',
+    audience: 'user',
+    title: 'Manage Cards always takes you back to its menu',
+    summary: 'Pressing Manage Cards while you are in My cards, Trades, Pocket accounts or Add cards now goes back to the Manage Cards menu.',
+    body: [
+      'Before, pressing Manage Cards at the top while already inside one of its screens left you where you were.',
+      'Now it always opens the menu with all the Manage Cards options.',
+    ],
+    tags: ['fix'],
+  },
+  {
     id: 'bigger-market-filter-buttons',
     date: '2026-10-30',
     audience: 'user',

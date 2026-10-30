@@ -363,7 +363,14 @@ const [selectedLanguageDropdownChoice,setSelectedLanguageDropdownChoice] = useSt
     function clearOnHeaderNavigation(event: MouseEvent) {
       if (!(event.target instanceof Element)) return
       const id = event.target.closest('[data-click-id]')?.getAttribute('data-click-id')
-      if (id === 'Header/manage-cards' || id === 'Header/drawer-manage-cards') setSavedMessage(null)
+      // Manage Cards always lands on the menu's options, even when already inside one of its screens
+      if (id === 'Header/manage-cards' || id === 'Header/drawer-manage-cards') {
+        setSavedMessage(null)
+        setNewMatches(null)
+        setView('menu')
+        setShowManageCardsMainMenuOptions(true)
+        useStateStore.getState().setShowAddCardsMenu(false)
+      }
     }
     document.addEventListener('click', clearOnHeaderNavigation, true)
     return () => document.removeEventListener('click', clearOnHeaderNavigation, true)
