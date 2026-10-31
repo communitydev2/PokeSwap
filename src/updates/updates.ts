@@ -17,6 +17,20 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: "rarity-always-shown",
+    date: "2026-10-31",
+    audience: "user",
+    title: "Rarity always shows on friends' lists",
+    summary: "Your friends' wishlists and trade lists now always show each card's rarity, even on a slow connection.",
+    body: [
+      "Cards on a friend's wishlist and trade list show their rarity symbols and the rarity written out, like \"Four Diamond · Genetic Apex · #056\".",
+      "Before, the rarity could be missing on a slow connection, here and on other screens, until the whole card list had loaded. It now shows straight away everywhere.",
+      "When you pick the cards you'd accept for an exclusive trade, the cards you've picked show their rarity too.",
+    ],
+    screenshot: "/updates/rarity-always-shown.png",
+    tags: ["friends", "cards"],
+  },
+  {
     id: "trade-card-pictures",
     date: "2026-10-31",
     audience: "user",

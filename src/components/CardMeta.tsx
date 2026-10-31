@@ -49,7 +49,8 @@ export function CardMeta({ card, size = 'sm' }: { card: CardLike; size?: 'xs' | 
   const t = useLocalizationStore((state) => state.t);
 
   useEffect(() => {
-    if (usePokemonCardStore.getState().catalogueStatus === 'idle') void loadCardCatalogue();
+    const status = usePokemonCardStore.getState().catalogueStatus;
+    if (status === 'idle' || status === 'error') void loadCardCatalogue();
   }, []);
 
   // Search results can omit metadata, so fall back to the full card list.
@@ -123,7 +124,8 @@ export function RaritySymbols({ card, size = 'sm' }: { card: CardLike; size?: 'x
   const allCards = usePokemonCardStore((state) => state.pokemonCards);
 
   useEffect(() => {
-    if (usePokemonCardStore.getState().catalogueStatus === 'idle') void loadCardCatalogue();
+    const status = usePokemonCardStore.getState().catalogueStatus;
+    if (status === 'idle' || status === 'error') void loadCardCatalogue();
   }, []);
 
   const full = card.card_id && !card.rarity_id

@@ -39,6 +39,7 @@ type Card = {
   card_name: string;
   card_local_id: string;
   set_name: string;
+  rarity_name: string | null;
   card_image: string | null;
   language: string;
   quantity: number;
@@ -146,7 +147,7 @@ export function FriendsPage() {
     await action(async () => {
       const result = await supabase.from('card').select('*').eq('card_id', row.card_id).single();
       if (!result.error && result.data && useAuthStore.getState().session?.user.id === userId)
-        setOffer({ row, card: result.data as PokemonCard });
+        setOffer({ row, card: { ...result.data as PokemonCard, rarity_name: row.rarity_name ?? undefined } });
       return result;
     }, 'offer:' + [row.tcg_account_id, row.list, row.card_id, row.language].join(':'));
   }
@@ -276,7 +277,7 @@ export function FriendsPage() {
                                 />
                                 <Stack gap={4} style={{ minWidth: 0, flex: 1 }}>
                                   <Text fw={600}>{c.card_name}</Text>
-                                  <CardMeta card={{ card_id: c.card_id, card_local_id: c.card_local_id, set_name: c.set_name }} size="sm" />
+                                  <CardMeta card={{ card_id: c.card_id, card_local_id: c.card_local_id, set_name: c.set_name, rarity_name: c.rarity_name ?? undefined }} size="sm" />
                                   <Text size="sm">
                                     {c.language.toUpperCase()} · {t.quantity}: {c.quantity}
                                   </Text>

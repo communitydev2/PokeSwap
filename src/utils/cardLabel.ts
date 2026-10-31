@@ -20,7 +20,8 @@ export function useCardLabel(): (card: CardLike, language?: string) => string {
   const rarities = usePokemonCardStore((s) => s.supabase_rarity);
   const allCards = usePokemonCardStore((s) => s.pokemonCards);
   useEffect(() => {
-    if (usePokemonCardStore.getState().catalogueStatus === 'idle') void loadCardCatalogue();
+    const status = usePokemonCardStore.getState().catalogueStatus;
+    if (status === 'idle' || status === 'error') void loadCardCatalogue();
   }, []);
   return (card, language) => [card.card_name, rarityNameOf(card, rarities, allCards), card.card_local_id, language?.toUpperCase()].filter(Boolean).join(' · ');
 }

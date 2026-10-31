@@ -9,7 +9,7 @@ import { useLocalizationStore } from '../../store/useLocalizationStore';
 import { expansionOptions } from '../../utils/searchOptions';
 import type { PokemonCard } from '../../types/PokemonCard';
 import { CardPicture } from '../CardPicture';
-import { CardMeta } from '../CardMeta';
+import { CardMeta, RaritySymbols } from '../CardMeta';
 
 const PAGE_SIZE = 24;
 export function WantedCardsPicker({ cards, value, onChange, tcgAccountId, language, rarityId }: {
@@ -78,7 +78,10 @@ export function WantedCardsPicker({ cards, value, onChange, tcgAccountId, langua
       <Group justify="space-between"><Text size="sm" aria-live="polite">{t.pickerSelected(value.length)}</Text><Button data-click-id="WantedCardsPicker/clear" size="xs" variant="subtle" disabled={!value.length} onClick={() => onChange([])}>{t.pickerClear}</Button></Group>
       {selectedCards.length > 0 && <Group gap="xs" wrap="nowrap" mt="xs" style={{ overflowX: 'auto', paddingBottom: 4 }}>
         {selectedCards.map((card) => <div key={card.card_id} style={{ position: 'relative', flexShrink: 0, padding: '5px 8px 0 0' }}>
-          <CardPicture cardImage={card.card_image} alt={card.card_name} width={40} zoom={false} radius={3} />
+          <Stack gap={2} align="center">
+            <CardPicture cardImage={card.card_image} alt={card.card_name} width={40} zoom={false} radius={3} />
+            <RaritySymbols card={card} size="xs" />
+          </Stack>
           <ActionIcon data-click-id={'WantedCardsPicker/remove:' + card.card_id} aria-label={t.pickerRemove(card.card_name)} size="xs" radius="xl" variant="filled" style={{ position: 'absolute', right: 0, top: 0 }} onClick={() => remove(card.card_id)}><IconX size={12} /></ActionIcon>
         </div>)}
       </Group>}
