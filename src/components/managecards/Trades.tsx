@@ -2,7 +2,7 @@ import { useMediaQuery } from '@mantine/hooks';
 import { TradeHistory } from './TradeHistory';
 import { SimpleGrid } from '@mantine/core';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Badge, Button, CopyButton, Divider, Group, Loader, Paper, SegmentedControl, Select, Stack, Switch, Text, Title } from '@mantine/core';
+import { Alert, Badge, Button, CopyButton, Divider, Group, Loader, Paper, SegmentedControl, Stack, Switch, Text, Title } from '@mantine/core';
 import { IconArrowsExchange, IconLock } from '@tabler/icons-react';
 import { supabase } from '../../supabaseClient';
 import { useLocalizationStore } from '../../store/useLocalizationStore';
@@ -11,7 +11,7 @@ import { tradeErrorText } from '../../utils/tradeErrors';
 import type { PokemonCard } from '../../types/PokemonCard';
 import { CardPicture } from '../CardPicture';
 import { CardMeta } from '../CardMeta';
-import { useCardLabel } from '../../utils/cardLabel';
+import { CardSelect } from '../CardSelect';
 import { ExclusiveTrades, type MyListing, type MyTradeRow, type OpenListing } from './ExclusiveTrades';
 
 // Rows returned by the trade functions (supabase/migrations/*_trades.sql)
@@ -346,14 +346,12 @@ function PartnerRow({ row, divider, myTradeCards, openOfferKeys, busy, onOffer }
   const others = myTradeCards.filter(
     (m) => m.card.rarity_id === row.get_card.rarity_id && !wantedKeys.has(cardKey(m.card.card_id, m.language))
   );
-  const cardLabel = useCardLabel();
-  const label = (m: MyTradeCard) => cardLabel(m.card, m.language);
   const options = [
     ...(row.wanted_from_me.length
-      ? [{ group: t.tradesTheyWant, items: row.wanted_from_me.map((m) => ({ value: cardKey(m.card.card_id, m.language), label: label(m) })) }]
+      ? [{ group: t.tradesTheyWant, items: row.wanted_from_me.map((m) => ({ value: cardKey(m.card.card_id, m.language), card: m.card, language: m.language })) }]
       : []),
     ...(others.length
-      ? [{ group: t.tradesOtherSameRarity, items: others.map((m) => ({ value: cardKey(m.card.card_id, m.language), label: label(m) })) }]
+      ? [{ group: t.tradesOtherSameRarity, items: others.map((m) => ({ value: cardKey(m.card.card_id, m.language), card: m.card, language: m.language })) }]
       : []),
   ];
   const all = [...row.wanted_from_me, ...others];
@@ -380,8 +378,8 @@ function PartnerRow({ row, divider, myTradeCards, openOfferKeys, busy, onOffer }
             <Text size="sm" c="dimmed">{t.tradesNoSameRarity}</Text>
           ) : (
             <Group gap="xs" align="flex-end" wrap="wrap">
-              <Select data-click-id="Trades/give-select" label={t.tradesYouGive} placeholder={t.tradesPickCard}
-                data={options} value={give} onChange={setGive} allowDeselect={false} size="sm" style={{ flex: 1, minWidth: 0, width: '100%', flexBasis: '100%' }} />
+              <CardSelect clickId="Trades/give-select" label={t.tradesYouGive} placeholder={t.tradesPickCard}
+                data={options} value={give} onChange={setGive} size="sm" style={{ flex: 1, minWidth: 0, width: '100%', flexBasis: '100%' }} />
               {sent ? (
                 <Badge color="teal" variant="light" size="lg" radius="sm">{t.tradesOfferSent}</Badge>
               ) : (

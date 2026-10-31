@@ -17,6 +17,20 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: "trade-card-pictures",
+    date: "2026-10-31",
+    audience: "user",
+    title: "See the card you give in Trades",
+    summary: "In Trades, the card you give now shows its picture and rarity, and you can tap it to see it full size.",
+    body: [
+      "When you choose which card to give, the list shows each card's picture and rarity instead of plain text.",
+      "The card you picked is shown underneath with its rarity. Tap the picture to see it full size.",
+      "The same goes for exclusive trades, where the cards you'd accept now show their rarity under each picture.",
+    ],
+    screenshot: "/updates/trade-card-pictures.png",
+    tags: ["trades"],
+  },
+  {
     id: 'nicnick-mass-outbreak-flair',
     date: '2026-10-31',
     audience: 'user',

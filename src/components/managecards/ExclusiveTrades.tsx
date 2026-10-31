@@ -7,7 +7,8 @@ import { cardLanguageOptions, usePokemonCardStore } from '../../store/pokemonCar
 import type { PokemonCard } from '../../types/PokemonCard';
 import type { TradeOffer } from './Trades';
 import { CardPicture } from '../CardPicture';
-import { CardMeta } from '../CardMeta';
+import { CardMeta, RaritySymbols } from '../CardMeta';
+import { CardSelect } from '../CardSelect';
 import { useCardLabel } from '../../utils/cardLabel';
 import { WantedCardsPicker } from './WantedCardsPicker';
 
@@ -171,7 +172,6 @@ function ListingEditor({ tcgAccountId, draft: initial, cardChoices, saving, disa
   onCancel: () => void;
 }) {
   const t = useLocalizationStore((state) => state.t);
-  const cardLabel = useCardLabel();
   const languages = usePokemonCardStore((state) => state.languages);
   const allCards = usePokemonCardStore((state) => state.pokemonCards);
   const [draft, setDraft] = useState<Draft>(initial);
@@ -192,9 +192,9 @@ function ListingEditor({ tcgAccountId, draft: initial, cardChoices, saving, disa
           cardChoices.length === 0 ? (
             <Text size="sm" c="dimmed">{t.exclusiveNoCards}</Text>
           ) : (
-            <Select data-click-id="ExclusiveTrades/card-select" label={t.exclusiveYourCard} placeholder={t.exclusivePickCard} searchable
-              data={cardChoices.map((m) => ({ value: String(m.id), label: cardLabel(m.card, m.language) }))}
-              value={draft.tradeCardId} allowDeselect={false}
+            <CardSelect clickId="ExclusiveTrades/card-select" label={t.exclusiveYourCard} placeholder={t.exclusivePickCard} searchable
+              data={cardChoices.map((m) => ({ value: String(m.id), card: m.card, language: m.language }))}
+              value={draft.tradeCardId}
               // A different card can have a different rarity, so the wanted cards start over
               onChange={(value) => {
                 const picked = cardChoices.find((m) => String(m.id) === value);
@@ -245,6 +245,9 @@ function WantedThumbnails({ cards }: { cards: PokemonCard[] }) {
       {cards.map((c) => (
         <div key={c.card_id} title={cardLabel(c)}>
           <CardPicture cardImage={c.card_image} alt={c.card_name} width="100%" radius={3} />
+          <Group justify="center" mt={2}>
+            <RaritySymbols card={c} size="xs" />
+          </Group>
         </div>
       ))}
     </SimpleGrid>
@@ -284,7 +287,6 @@ function OpenListingRow({ listing: l, sentCardId, busy, onOffer }: {
   onOffer: (card: PokemonCard) => void;
 }) {
   const t = useLocalizationStore((state) => state.t);
-  const cardLabel = useCardLabel();
   const [picked, setGive] = useState<string | null>(l.i_can_give[0]?.card_id ?? null);
   const give = sentCardId ?? picked;
   const giveCard = l.i_can_give.find((c) => c.card_id === give);
@@ -309,8 +311,8 @@ function OpenListingRow({ listing: l, sentCardId, busy, onOffer }: {
             </Group>
           </div>
           <Group gap="xs" align="flex-end" wrap="wrap">
-            <Select data-click-id="ExclusiveTrades/give-select" label={t.exclusiveTheyTake} size="sm" allowDeselect={false}
-              data={l.i_can_give.map((c) => ({ value: c.card_id, label: cardLabel(c, l.want_language) }))}
+            <CardSelect clickId="ExclusiveTrades/give-select" label={t.exclusiveTheyTake} size="sm"
+              data={l.i_can_give.map((c) => ({ value: c.card_id, card: c, language: l.want_language }))}
               value={give} onChange={setGive} disabled={!!sentCardId} style={{ flex: 1, minWidth: 0, width: '100%', flexBasis: '100%' }} />
             {sentCardId ? (
               <Badge color="teal" variant="light" size="lg" radius="sm">{t.tradesOfferSent}</Badge>

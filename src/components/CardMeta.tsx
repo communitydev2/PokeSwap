@@ -116,3 +116,35 @@ export function CardMeta({ card, size = 'sm' }: { card: CardLike; size?: 'xs' | 
     </Stack>
   );
 }
+
+// Compact rarity badge for small card tiles, without the set and card number.
+export function RaritySymbols({ card, size = 'sm' }: { card: CardLike; size?: 'xs' | 'sm' }) {
+  const rarities = usePokemonCardStore((state) => state.supabase_rarity);
+  const allCards = usePokemonCardStore((state) => state.pokemonCards);
+
+  useEffect(() => {
+    if (usePokemonCardStore.getState().catalogueStatus === 'idle') void loadCardCatalogue();
+  }, []);
+
+  const full = card.card_id && !card.rarity_id
+    ? allCards.find((c) => c.card_id === card.card_id)
+    : undefined;
+  const rarityName = card.rarity_name ?? rarities.find((r) => r.rarity_id === (card.rarity_id ?? full?.rarity_id))?.name;
+  const rarity = rarityName ? RARITIES[rarityName] : undefined;
+  if (!rarity || !rarityName) return null;
+
+  return (
+    <Tooltip label={rarityName} withArrow>
+      <Badge
+        size={size === 'xs' ? 'sm' : 'md'}
+        radius="sm"
+        {...rarity.badge}
+        aria-label={rarityName}
+        style={{ flexShrink: 0, letterSpacing: 1, textTransform: 'none' }}
+        styles={{ label: { display: 'inline-flex', alignItems: 'center', lineHeight: 1 } }}
+      >
+        {rarity.symbols}
+      </Badge>
+    </Tooltip>
+  );
+}
