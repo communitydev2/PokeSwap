@@ -647,6 +647,18 @@ export const en = {
   supportNotSetUp: "The support page isn't set up yet.",
   supportStartFailed: "Couldn't start the payment. Please try again.",
   supporterBadge: 'Supporter',
+  flairFilterLabel: "Limited flair",
+  flairCollectionNames: { "nicnick-mass-outbreak": "NicNick's Mass Outbreak Limited Flair" } as Record<string, string>,
+  flairBattle: "Battle",
+  flairCosmetic: "Cosmetic",
+  flairTitle: (name: string, colour: string | null) => (colour ? `${name} flair: ${colour}` : `${name} flair`),
+  flairEventDates: (event: string, dates: string) => `${event} · ${dates}`,
+  flairSectionTitle: "Limited flair for this card",
+  flairOnlyThisCard: "Only this version of the card can have it, not reprints.",
+  flairNoPicture: "No picture yet",
+  flairEventLink: "Event details",
+  flairPreviewAlt: (card: string, flair: string) => `${card} with the ${flair} flair`,
+  flairIconAlt: (flair: string) => `${flair} flair icon`,
 };
 
 export type Translations = typeof en;

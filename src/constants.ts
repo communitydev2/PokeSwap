@@ -37,3 +37,8 @@ export const NEW_SET_BANNER_ENABLED = false;
 
 // Rarities that cannot be traded in Pokémon TCG Pocket.
 export const UNTRADEABLE_RARITIES: readonly string[] = ['Three Star', 'Crown'];
+
+// Groups of limited-time flairs (cards listed in src/data/limitedFlairs.ts).
+// The display name of each is in en.ts under flairCollectionNames.
+export const FLAIR_COLLECTIONS = { nicnickMassOutbreak: 'nicnick-mass-outbreak' } as const;
+export type FlairCollectionId = (typeof FLAIR_COLLECTIONS)[keyof typeof FLAIR_COLLECTIONS];

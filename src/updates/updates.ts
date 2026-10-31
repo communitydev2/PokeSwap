@@ -17,6 +17,20 @@ export type Update = {
 
 export const updates: Update[] = [
   {
+    id: 'nicnick-mass-outbreak-flair',
+    date: '2026-10-31',
+    audience: 'user',
+    title: "NicNick's Mass Outbreak Limited Flair",
+    summary: 'Find the 17 cards that got an exclusive flair in a Mass Outbreak event, with a picture of each flair.',
+    body: [
+      'Pick “NicNick\'s Mass Outbreak Limited Flair” in the new Limited flair filter, in the market or when adding cards in Manage Cards, to see only the cards that got an exclusive flair in one of the 11 Mass Outbreak Wonder Pick events.',
+      'Those cards show their flair under the name. Open a card in the market to see the flair, which event it came from and when it ran.',
+      'A flair belongs to one version of a card: the Four Diamond ex from the event. Reprints, like the Deluxe Pack: ex copies, can’t have it, even with the same picture.',
+    ],
+    screenshot: '/updates/nicnick-mass-outbreak-flair.png',
+    tags: ['cards', 'market'],
+  },
+  {
     id: 'trade-history',
     date: '2026-10-30',
     audience: 'user',

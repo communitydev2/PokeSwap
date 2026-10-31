@@ -17,7 +17,10 @@ import {
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconChevronDown, IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
-import { ANY_OPTION } from '../../constants';
+import { ANY_OPTION, FLAIR_COLLECTIONS, type FlairCollectionId } from '../../constants';
+import { cardLocalIdsInCollection } from '../../data/limitedFlairs';
+import { FlairBadges } from '../flair/FlairBadges';
+import { FlairDetails } from '../flair/FlairDetails';
 import { fetchAllRpcRows } from '../../utils/fetchAllRpcRows';
 import { loadCardCatalogue } from '../../utils/loadCardCatalogue';
 import { usePokemonCardStore } from '../../store/pokemonCardsStore';
@@ -47,6 +50,7 @@ export function CardMarket({ onOpenExclusive }: { onOpenExclusive: (exclusiveTra
   const [name, setName] = useState('');
   const [rarity, setRarity] = useState(ANY_OPTION);
   const [set, setSet] = useState(ANY_OPTION);
+  const [flair, setFlair] = useState<string>(ANY_OPTION);
   const [side, setSide] = useState('all');
   const [results, setResults] = useState<PokemonCard[]>([]);
   const [counts, setCounts] = useState(new Map<string, Count>());
@@ -127,8 +131,14 @@ export function CardMarket({ onOpenExclusive }: { onOpenExclusive: (exclusiveTra
       window.clearTimeout(timer);
     };
   }, [name, rarity, set, filtered, retry]);
+  const flairOptions = [
+    { value: ANY_OPTION, label: ANY_OPTION },
+    ...Object.values(FLAIR_COLLECTIONS).map((id) => ({ value: id, label: t.flairCollectionNames[id] ?? id })),
+  ];
+  const flairCards = flair === ANY_OPTION ? null : cardLocalIdsInCollection(flair as FlairCollectionId);
   const cards = (filtered ? results : catalogue).filter(
     (c) => {
+      if (flairCards && !flairCards.has(c.card_local_id)) return false;
       const count = counts.get(c.card_id);
       if (onlyFriends && (count?.has ?? 0) + (count?.wants ?? 0) <= 0) return false;
       return side === 'all' || (count?.[side === 'has' ? 'has' : 'wants'] ?? 0) > 0;
@@ -168,7 +178,7 @@ export function CardMarket({ onOpenExclusive }: { onOpenExclusive: (exclusiveTra
         value={name}
         onChange={(e) => setName(e.currentTarget.value)}
       />
-      <SimpleGrid cols={{ base: 1, xs: 2 }}>
+      <SimpleGrid cols={{ base: 1, xs: 2, md: 3 }}>
         <Select
           data-click-id="CardMarket/rarity"
           label={t.rarityLabel}
@@ -191,6 +201,21 @@ export function CardMarket({ onOpenExclusive }: { onOpenExclusive: (exclusiveTra
           searchable
           renderOption={({ option }) => (
             <span data-click-id={`CardMarket/set-option:${option.value}`}>{option.label}</span>
+          )}
+        />
+        <Select
+          data-click-id="CardMarket/flair"
+          label={t.flairFilterLabel}
+          data={flairOptions}
+          value={flair}
+          allowDeselect={false}
+          onChange={(value) => {
+            setFlair(value ?? ANY_OPTION);
+            setPage(1);
+            setExpanded(null);
+          }}
+          renderOption={({ option }) => (
+            <span data-click-id={`CardMarket/flair-option:${option.value}`}>{option.label}</span>
           )}
         />
       </SimpleGrid>
@@ -264,6 +289,7 @@ export function CardMarket({ onOpenExclusive }: { onOpenExclusive: (exclusiveTra
                   <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
                     <Text fw={600}>{card.card_name}</Text>
                     <CardMeta card={card} />
+                    <FlairBadges cardLocalId={card.card_local_id} size="xs" />
                     <Group gap="xs">
                       {!!counts.get(card.card_id)?.has && (
                         <Badge size="sm" variant="light" color="teal">{t.marketCardsHaveCount(counts.get(card.card_id)!.has)}</Badge>
@@ -278,7 +304,12 @@ export function CardMarket({ onOpenExclusive }: { onOpenExclusive: (exclusiveTra
                   <IconChevronDown size={16} aria-hidden style={{ flexShrink: 0, color: 'var(--mantine-color-dimmed)', transform: expanded === card.card_id ? 'rotate(180deg)' : undefined, transition: 'transform 150ms ease' }} />
                 </Group>
               </UnstyledButton>
-              {expanded === card.card_id && <CardPlayers friendsOnly={onlyFriends} card={card} onOpenExclusive={onOpenExclusive} />}
+              {expanded === card.card_id && (
+                <Stack gap="sm" mt="sm">
+                  <FlairDetails cardLocalId={card.card_local_id} cardName={card.card_name} />
+                  <CardPlayers friendsOnly={onlyFriends} card={card} onOpenExclusive={onOpenExclusive} />
+                </Stack>
+              )}
             </Paper>
           ))}
           {pages > 1 && (

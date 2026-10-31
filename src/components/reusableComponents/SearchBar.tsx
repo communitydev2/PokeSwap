@@ -1,4 +1,5 @@
-import { ANY_OPTION } from '../../constants'
+import { ANY_OPTION, FLAIR_COLLECTIONS, type FlairCollectionId } from '../../constants'
+import { cardLocalIdsInCollection } from '../../data/limitedFlairs';
 import { Alert, Button, Group, Select, SimpleGrid, Stack, TextInput } from '@mantine/core';
 import { IconSearch } from '@tabler/icons-react';
 import { useForm } from '@mantine/form';
@@ -14,6 +15,7 @@ type SearchFormValues = {
   searchInput: string;
   rarity: string;
   expansion: string;
+  flair: string;
 };
 // select * from "card" where card_name ILIKE 'Bul%' 
 // select a card from table where:
@@ -41,7 +43,7 @@ type SearchFormValues = {
 
 
 export default function SearchBar() {
-  const useLocStore = useLocalizationStore();
+  const t = useLocalizationStore((s) => s.t);
   const usePokeCardStore = usePokemonCardStore();
 
   const request = useRef(0);
@@ -55,6 +57,7 @@ export default function SearchBar() {
       searchInput: '',
       rarity: usePokeCardStore.rarities[0],
       expansion: usePokeCardStore.expansions[0],
+      flair: ANY_OPTION,
     },
   });
 
@@ -83,7 +86,12 @@ export default function SearchBar() {
       // console.log('Search results:', data);
 
 
-      usePokeCardStore.setPokemonCardsSearchQuery(data ?? []);
+      const flairCards = values.flair === ANY_OPTION
+        ? null
+        : cardLocalIdsInCollection(values.flair as FlairCollectionId);
+      usePokeCardStore.setPokemonCardsSearchQuery(
+        flairCards ? (data ?? []).filter((card) => flairCards.has(card.card_local_id)) : (data ?? []),
+      );
     } catch (error) {
       if (seq !== request.current) return;
       setFailed(true);
@@ -100,35 +108,55 @@ export default function SearchBar() {
     usePokemonCardStore.setState({ searchQuery: [], searchActive: false });
   }
 
+  const flairOptions = [
+    { value: ANY_OPTION, label: ANY_OPTION },
+    ...Object.values(FLAIR_COLLECTIONS).map((id) => ({ value: id, label: t.flairCollectionNames[id] ?? id })),
+  ];
+
   return (
     <form onSubmit={form.onSubmit(handleFormSubmit)}>
       <Stack gap="sm">
-        {failed && <Alert color="red">{useLocStore.t.qaManageSearchFailed}</Alert>}
+        {failed && <Alert color="red">{t.qaManageSearchFailed}</Alert>}
         <TextInput data-click-id="SearchBar/search-input"
-          label={useLocStore.t.searchByName}
-          placeholder={useLocStore.t.searchPlaceholder}
+          label={t.searchByName}
+          placeholder={t.searchPlaceholder}
           leftSection={<IconSearch size={16} />}
           {...form.getInputProps('searchInput')}
         />
-        <SimpleGrid cols={{ base: 1, xs: 2 }} spacing="sm">
+        <SimpleGrid cols={{ base: 1, xs: 2, md: 3 }} spacing="sm">
           <Select data-click-id="SearchBar/rarity-select"
-            label={useLocStore.t.rarityLabel}
+            label={t.rarityLabel}
             data={rarityOptions(usePokeCardStore.supabase_rarity, usePokeCardStore.rarities)}
             searchable
             allowDeselect={false}
+            renderOption={({ option }) => (
+              <span data-click-id={`SearchBar/rarity-option:${option.value}`}>{option.label}</span>
+            )}
             {...form.getInputProps('rarity')}
           />
           <Select data-click-id="SearchBar/expansion-select"
-            label={useLocStore.t.setLabel}
+            label={t.setLabel}
             data={expansionOptions(usePokeCardStore.supabase_expansion, usePokeCardStore.expansions)}
             allowDeselect={false}
             searchable
+            renderOption={({ option }) => (
+              <span data-click-id={`SearchBar/expansion-option:${option.value}`}>{option.label}</span>
+            )}
             {...form.getInputProps('expansion')}
+          />
+          <Select data-click-id="SearchBar/flair-select"
+            label={t.flairFilterLabel}
+            data={flairOptions}
+            allowDeselect={false}
+            renderOption={({ option }) => (
+              <span data-click-id={`SearchBar/flair-option:${option.value}`}>{option.label}</span>
+            )}
+            {...form.getInputProps('flair')}
           />
         </SimpleGrid>
         <Group justify="flex-end" gap="sm">
-          <Button flex={{ base: 1, xs: '0 0 auto' }} data-click-id="SearchBar/clear" variant="default" onClick={handleClear}>{useLocStore.t.clearSearch}</Button>
-          <Button flex={{ base: 1, xs: '0 0 auto' }} data-click-id="SearchBar/submit" type="submit" leftSection={<IconSearch size={16} />}>{useLocStore.t.search}</Button>
+          <Button flex={{ base: 1, xs: '0 0 auto' }} data-click-id="SearchBar/clear" variant="default" onClick={handleClear}>{t.clearSearch}</Button>
+          <Button flex={{ base: 1, xs: '0 0 auto' }} data-click-id="SearchBar/submit" type="submit" leftSection={<IconSearch size={16} />}>{t.search}</Button>
         </Group>
       </Stack>
     </form>

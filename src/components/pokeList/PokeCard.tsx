@@ -10,6 +10,7 @@ import { useAuthStore } from '../../store/userStore'
 import { useStateStore } from '../../store/useStateStore'
 import { CardPicture } from '../CardPicture'
 import { CardMeta } from '../CardMeta'
+import { FlairBadges } from '../flair/FlairBadges'
 import { useDisclosure } from '@mantine/hooks';
 import { Popover, Text, Button,List,Select,Group, Space,Title, ComboboxItem,UnstyledButton} from '@mantine/core';
 import { ManageCardsMainMenu } from '../managecards/ManageCardsMainMenu';
@@ -152,6 +153,7 @@ export function PokeCard(
         <div>
           <Text fw={600} size="lg" lineClamp={2}>{currentCard.card_name}</Text>
           <CardMeta card={currentCard} />
+          <FlairBadges cardLocalId={currentCard.card_local_id} size="xs" />
         </div>
 
         {/* Cards already selected: show what was chosen */}
