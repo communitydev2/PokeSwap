@@ -60,3 +60,9 @@ Most menus are opened through Zustand store flags (e.g. `setShowManageCardsMainM
 - New admin features follow the same pattern: a `security definer` function with `set search_path = ''`, revoked from `public, anon`, granted to `authenticated`, checking `is_admin()` first, and writing a readable row to `public.admin_log` for every change.
 - The admin code lives in `src/components/admin/` and is lazy-loaded by `src/routes/admin.tsx`, so regular visitors never download it.
 - A permanent ban is `banned_until = now() + 100 years`, never `'infinity'` (Supabase Auth can't read it and every sign-in for that user fails).
+
+## Handovers
+
+Every piece of work keeps its current state in [`handovers/`](handovers/README.md) (one file per topic,
+ending with "Where we are"). Read `handovers/README.md` first when continuing work from another chat or Claude
+account, and keep your own topic's file updated and pushed after every meaningful step.
